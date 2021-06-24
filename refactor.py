@@ -2,8 +2,11 @@
 
 import csv
 
+rawfile = "case1-input-phi.txt"
+newfile = "../psc/input/bgk-input-1-phi.txt"
+
 # load the data
-with open("case1-input.txt") as input, open("build/case1-input-normal.txt", "w") as output:
+with open(rawfile) as input, open(newfile, "w") as output:
     reader = csv.reader(input, delimiter = "\t")
 
     for line in reader:
