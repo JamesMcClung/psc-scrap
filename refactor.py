@@ -1,9 +1,14 @@
 # removes the carriage returns
 
 import csv
+import sys
 
-rawfile = "case1-medB.txt"
-newfile = "../psc/input/bgk-input-1-medB.txt"
+if len(sys.argv) != 3:
+    print(f"Usage: {sys.argv[0]} bad/file/path cleaned/file/path")
+    exit(1)
+
+rawfile = sys.argv[1]
+newfile = sys.argv[2]
 
 # load the data
 with open(rawfile) as input, open(newfile, "w") as output:
