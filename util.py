@@ -1,5 +1,6 @@
 import xarray as xr
 import numpy as np
+import os
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -93,20 +94,28 @@ class Run:
         self.nframes = nframes
         self.fields_every = 200 # old/default value
         self.moments_every = 200 # old/default value
+        
+        # read fields_every, moments_every from params file
         with open(self.path + "params_record.txt") as records:
             for line in records:
-                if line.startswith("nmax"):
-                    self.nsteps = int(line.split()[1])
-                elif line.startswith("fields_every"):
+                if line.startswith("fields_every"):
                     self.fields_every = int(line.split()[1])
                 elif line.startswith("moments_every"):
                     self.moments_every = int(line.split()[1])
-        self.stepsPerFrame = self.nsteps // nframes
+        assert(self.fields_every == self.moments_every)
+
+        # check what the highest achieved timestep was
+        bpfiles = [fname for fname in os.listdir(self.path) if fname[-2:] == "bp"]
+        self.nsteps = max(int(fname.split(".")[1]) for fname in bpfiles)
+
+        self.stepsPerFrame = self.nsteps // self.nframes
+        self.stepsPerFrame -= self.stepsPerFrame % self.fields_every
     
     def printMetadata(self):
         print(f"nsteps in sim: {self.nsteps}")
         print(f"nframes in animation = {self.nframes}")
         print(f"steps per frame: {self.stepsPerFrame}")
+        print(f"nsteps used: {self.stepsPerFrame * self.nframes}")
         print(f"directory to save in: {self.case}/B{self.B}_n{self.res}{self.mod}_{self.nframes}x{self.stepsPerFrame}")
         
 
