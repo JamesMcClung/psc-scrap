@@ -24,7 +24,8 @@ class Input:
             self.__dict__[k] = v[slice]
 
     def convert_to_cs_units(self) -> None:
-        beta = self.Te[0] ** 0.5
+        cs_Te0 = 1
+        beta = (self.Te[0] / cs_Te0) ** 0.5
         self.rescale(
             {
                 "rho": beta**-1,
