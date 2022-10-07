@@ -15,13 +15,19 @@ class Input:
         for i, label in enumerate(labels):
             self.__dict__[label] = data[:, i]
 
+    def __getitem__(self, key: str) -> np.ndarray:
+        return self.__dict__[key]
+
+    def __setitem__(self, key: str, val: np.ndarray) -> None:
+        self.__dict__[key] = val
+
     def rescale(self, factors: dict[str, float]) -> None:
         for k, v in factors.items():
-            self.__dict__[k] *= v
+            self[k] *= v
 
     def truncate(self, slice: slice) -> None:
         for k, v in self.__dict__.items():
-            self.__dict__[k] = v[slice]
+            self[k] = v[slice]
 
     def convert_to_cs_units(self) -> None:
         cs_Te0 = 1
