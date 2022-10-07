@@ -22,3 +22,16 @@ class Input:
     def truncate(self, slice: slice) -> None:
         for k, v in self.__dict__.items():
             self.__dict__[k] = v[slice]
+
+    def convert_to_cs_units(self) -> None:
+        beta = self.Te[0] ** 0.5
+        self.rescale(
+            {
+                "rho": beta**-1,
+                "ne": beta**3,
+                "v_phi": beta**-1,
+                "Te": beta**-2,
+                "E_rho": beta**-1,
+                "Psi": beta**-2,
+            }
+        )
