@@ -10,7 +10,15 @@ import itertools
 # enables xarray to load bp files
 import psc
 
-__all__ = ["ParamMetadata", "DataSlice", "Loader", "VideoMaker"]
+__all__ = ["readParam", "ParamMetadata", "DataSlice", "Loader", "VideoMaker"]
+
+
+def readParam(path: str, paramName: str, paramType) -> Any:
+    with open(path + "params_record.txt") as records:
+        for line in records:
+            if line.startswith(paramName):
+                return paramType(line.split()[1])
+    raise Exception(f"Cannot find param '{paramName}' in file '{path}'")
 
 
 def _getFactors(n: int) -> list[int]:
