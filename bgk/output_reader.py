@@ -190,6 +190,7 @@ class VideoMaker:
     def loadData(self, param: ParamMetadata):
         self._currentParam = param
         self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, idx) for idx in range(self.nframes)])]
+        self.times = np.array(self.times)
 
     def setSlice(self, slice: DataSlice):
         self._currentSlice = slice
