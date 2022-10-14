@@ -161,6 +161,11 @@ class VideoMaker:
         else:
             dataset = self.loader._get_xr_dataset(param.outputBaseName, frameIdx * self._which_stepsPerFrame(param.outputBaseName))
 
+        if self.rGrid is None:
+            self.xGrid = dataset.y
+            self.yGrid = dataset.z
+            self.rGrid = (self.xGrid**2 + self.yGrid**2) ** 0.5
+
         if isinstance(param.varName, list):
             if param.combine == "magnitude":
                 rawData = _prepData(sum(dataset[var]) ** 2 for var in param.varName) ** 0.5
@@ -171,10 +176,6 @@ class VideoMaker:
             else:
                 rawData_x = _prepData(dataset[param.varName[0]])
                 rawData_y = _prepData(dataset[param.varName[1]])
-                if self.rGrid is None:
-                    self.xGrid = rawData_x.y
-                    self.yGrid = rawData_x.z
-                    self.rGrid = (self.xGrid**2 + self.yGrid**2) ** 0.5
                 if param.combine == "radial":
                     rawData = (rawData_x * self.xGrid + rawData_y * self.yGrid) / self.rGrid
                 elif param.combine == "azimuthal":
