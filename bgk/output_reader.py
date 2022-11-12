@@ -7,6 +7,8 @@ import numpy as np
 import os
 import itertools
 
+from .run_params import ParamMetadata
+
 # enables xarray to load bp files
 import psc
 
@@ -36,19 +38,6 @@ def _getFactors(n: int) -> list[int]:
 
 def _setTitle(ax: Any, viewAdj: str, paramName: str, time: float) -> None:
     ax.set_title(viewAdj + paramName + " (t={:.3f})".format(time))
-
-
-class ParamMetadata:
-    def __init__(self, title, vmin, vmax, colors, outputBaseName, varName, coef=1, skipFirst=False, combine="magnitude"):
-        self.title = title
-        self.vmin = vmin
-        self.vmax = vmax
-        self.colors = colors
-        self.outputBaseName = outputBaseName
-        self.varName = varName
-        self.coef = coef
-        self.skipFirst = skipFirst
-        self.combine = combine
 
 
 class DataSlice:
