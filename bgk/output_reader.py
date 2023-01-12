@@ -239,7 +239,7 @@ class VideoMaker:
 
         plt.xlabel("Time")
         plt.ylabel("2-Norm of Difference")
-        plt.title("Stability of " + self._currentSlice.viewAdjective + self._currentParam.title)
+        plt.title("Deviation from ICs of " + self._currentSlice.viewAdjective + self._currentParam.title)
 
         plt.plot(self.times, normsOfDiffs)
         plt.show()
