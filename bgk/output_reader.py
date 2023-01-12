@@ -231,11 +231,13 @@ class VideoMaker:
 
         return animation.FuncAnimation(fig, updateIm, interval=30, frames=self.nframes, repeat=False, blit=True)
 
-    def viewStability(self) -> None:
+    def viewStability(self) -> tuple[int]:
+        """Generate and show a stability plot. Return indices of local maxima, which may or may not be useful depending on whether the plot is oscillatory or damped."""
+
         def norm(x):
             return xr.apply_ufunc(np.linalg.norm, x, input_core_dims=[["y", "z"]])
 
-        normsOfDiffs = [norm(data - self.slicedDatas[0]) for data in self.slicedDatas]
+        normsOfDiffs = np.array([norm(data - self.slicedDatas[0]) for data in self.slicedDatas])
 
         plt.xlabel("Time")
         plt.ylabel("2-Norm of Difference")
@@ -243,3 +245,5 @@ class VideoMaker:
 
         plt.plot(self.times, normsOfDiffs)
         plt.show()
+
+        return argrelextrema(normsOfDiffs, np.greater, order=5)[0]
