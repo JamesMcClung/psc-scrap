@@ -6,6 +6,7 @@ import matplotlib.animation as animation
 import numpy as np
 import os
 import itertools
+from scipy.signal import argrelextrema
 
 from .run_params import ParamMetadata
 
@@ -231,19 +232,19 @@ class VideoMaker:
 
         return animation.FuncAnimation(fig, updateIm, interval=30, frames=self.nframes, repeat=False, blit=True)
 
-    def viewStability(self) -> tuple[int]:
-        """Generate and show a stability plot. Return indices of local maxima, which may or may not be useful depending on whether the plot is oscillatory or damped."""
-
+    def _getNormsOfDiffs(self) -> np.array:
         def norm(x):
             return xr.apply_ufunc(np.linalg.norm, x, input_core_dims=[["y", "z"]])
 
-        normsOfDiffs = np.array([norm(data - self.slicedDatas[0]) for data in self.slicedDatas])
+        return np.array([norm(data - self.slicedDatas[0]) for data in self.slicedDatas])
 
+    def viewStability(self):
         plt.xlabel("Time")
         plt.ylabel("2-Norm of Difference")
         plt.title("Deviation from ICs of " + self._currentSlice.viewAdjective + self._currentParam.title)
 
-        plt.plot(self.times, normsOfDiffs)
+        plt.plot(self.times, self._getNormsOfDiffs())
         plt.show()
 
-        return argrelextrema(normsOfDiffs, np.greater, order=5)[0]
+    def getLocalExtremaIndices(self, comparator) -> np.array:
+        return argrelextrema(self._getNormsOfDiffs(), comparator, order=5)[0]
