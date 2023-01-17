@@ -199,8 +199,9 @@ class VideoMaker:
 
     # Methods that use the data
 
-    def viewFrame(self, frameIdx: int) -> Any:
-        fig, ax = plt.subplots()
+    def viewFrame(self, frameIdx: int, fig: plt.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> Any:
+        if not (fig or ax):
+            fig, ax = plt.subplots()
 
         im = ax.imshow(
             self.slicedDatas[frameIdx],
@@ -216,11 +217,12 @@ class VideoMaker:
             ),
         )
 
-        ax.set_xlabel("y")
-        ax.set_ylabel("z")
-        _setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
-        plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
-        fig.colorbar(im, ax=ax)
+        if not minimal:
+            ax.set_xlabel("y")
+            ax.set_ylabel("z")
+            _setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
+            plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
+            fig.colorbar(im, ax=ax)
 
         return fig, ax, im
 
