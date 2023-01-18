@@ -28,4 +28,21 @@ outdir = config["output_directory"]
 print(f"Generating figures in {outdir}")
 
 for item in config["instructions"]:
-    print(item)
+    path = item["path"]
+
+    B = bgk.readParam(path, "H_x", float)
+    res = bgk.readParam(path, "n_grid", int)
+    size = bgk.readParam(path, "box_size", float)
+    ve_coef = bgk.readParam(path, "v_e_coef", float)
+    input_path = bgk.readParam(path, "path_to_data", str)
+
+    struct_radius = bgk.Input(input_path).get_radius_of_structure()
+
+    centerSlice = bgk.DataSlice(slice(-struct_radius, struct_radius), "Central ")
+
+    loader = bgk.Loader(path, engine="pscadios2", species_names=["e", "i"])
+
+    ##########################
+
+    nframes = 100
+    videoMaker = bgk.VideoMaker(nframes, loader)
