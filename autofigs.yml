@@ -1,0 +1,7 @@
+output_directory: /mnt/lustre/IAM851/jm1667/psc-scrap/figs/
+instructions:
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/double_prt/B1_n512_v+/
+    videos: [ne, j_rho, j_phi]
+    profiles: [e_rho]
+    sequences: [ne]
+    stabilities: [ne]
