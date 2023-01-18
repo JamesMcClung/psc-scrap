@@ -46,3 +46,8 @@ for item in config["instructions"]:
 
     nframes = 100
     videoMaker = bgk.VideoMaker(nframes, loader)
+
+    ##########################
+
+    for param_str in set(item["sequences"] + item["profiles"] + item["videos"]):
+        print(f"Handling {param_str}")
