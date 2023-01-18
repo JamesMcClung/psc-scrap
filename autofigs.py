@@ -1,6 +1,13 @@
 #!/mnt/lustre/IAM851/jm1667/psc-scrap/env/bin/python3
 import sys
 import yaml
+import dotenv
+
+sys.path.append(dotenv.dotenv_values()["PYTHONPATH"])
+
+import bgk
+
+########################################################
 
 
 def get_autofigs_config() -> str:
