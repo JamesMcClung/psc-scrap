@@ -56,9 +56,10 @@ def _get_out_max(bpfiles: list[str], outType: str) -> int:
 
 
 class Loader:
-    def __init__(self, path: str, length: tuple[float, float, float], engine: str, species_names: list[str]) -> None:
+    def __init__(self, path: str, engine: str, species_names: list[str]) -> None:
         self.path = path
-        self.length = length
+        size = readParam(path, "box_size", float)
+        self.length = (1.0, size, size)
         self.engine = engine
         self.species_names = species_names
 
