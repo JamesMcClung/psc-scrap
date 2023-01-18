@@ -13,4 +13,12 @@ def get_autofigs_config() -> str:
 
 
 config = get_autofigs_config()
-print(config)
+
+########################################################
+
+outdir = config["output_directory"]
+
+print(f"Generating figures in {outdir}")
+
+for item in config["instructions"]:
+    print(item)
