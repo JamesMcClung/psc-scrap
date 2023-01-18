@@ -55,3 +55,6 @@ class Input:
         w1 = rho - self.rho[idx]
 
         return (self[val][idx] * w0 + self[val][idx + 1] * w1) / (self.rho[idx + 1] - self.rho[idx])
+
+    def get_radius_of_structure(self) -> float:
+        return self.rho[np.argmax(self.ne)] * 1.5
