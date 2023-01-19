@@ -62,7 +62,7 @@ for item in config["instructions"]:
     ##########################
 
     for param_str in set(item["sequences"] + item["profiles"] + item["videos"] + item["stabilities"]):
-        param = bgk.run_params.__dict__[param_str]
+        param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
         videoMaker.loadData(param)
         videoMaker.setSlice(centerSlice)
 
