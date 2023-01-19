@@ -72,20 +72,10 @@ class Loader:
 
         self.B = readParam(path, "H_x", float)
 
-        # init out_every for each type of output
-        with open(self.path + "params_record.txt") as records:
-            self.fields_every = 200  # default value
-            self.moments_every = 200  # default value
-            self.gauss_every = 200  # default value
-            for line in records:
-                if line.startswith("fields_every"):
-                    self.fields_every = int(line.split()[1])
-                elif line.startswith("moments_every"):
-                    self.moments_every = int(line.split()[1])
-                elif line.startswith("gauss_every"):
-                    self.gauss_every = int(line.split()[1])
-                elif line.startswith("nmax"):
-                    self.nmax = int(line.split()[1])
+        self.fields_every = readParam(path, "fields_every", int, 200)
+        self.moments_every = readParam(path, "moments_every", int, 200)
+        self.gauss_every = readParam(path, "gauss_every", int)
+        self.nmax = readParam(path, "nmax", int)
 
         # init max written step for each type of output
         bpfiles = [fname for fname in os.listdir(self.path) if fname[-2:] == "bp"]
