@@ -53,19 +53,21 @@ for item in config["instructions"]:
     ##########################
 
     for param_str in set(item["sequences"] + item["profiles"] + item["videos"] + item["stabilities"]):
+        param = bgk.run_params.__dict__[param_str]
+        videoMaker.loadData(param)
+        videoMaker.setSlice(centerSlice)
+
         if param_str in item["profiles"]:
             pass
         if param_str in item["videos"]:
             pass
+        if param_str in item["stabilities"]:
+            fig, _ = videoMaker.viewStability()
+
+            fig_name = f"stability_{param_str}_B{B}_n{res}_v{'-' if ve_coef<0 else '+'}.png"
+            fig.savefig(os.path.join(outdir, fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
+
         if param_str in item["sequences"]:
-
-            # Move this section out once profiles/videos are implemented:
-            param = bgk.run_params.__dict__[param_str]
-            videoMaker.loadData(param)
-            videoMaker.setSlice(centerSlice)
-
-            ##########################
-
             minima = videoMaker.getLocalExtremaIndices(np.less)
 
             startFrame = 0
