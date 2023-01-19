@@ -51,7 +51,8 @@ for item in config["instructions"]:
     ##########################
 
     def get_fig_name(fig_type: str, param_str: str) -> str:
-        return f"{fig_type}_{param_str}_B{B}_n{res}_v{'-' if ve_coef<0 else '+'}.png"
+        ext = "mp4" if fig_type == "movie" else "png"
+        return f"{fig_type}_{param_str}_B{B}_n{res}_v{'-' if ve_coef<0 else '+'}.{ext}"
 
     def save_fig(fig: mplf.Figure, fig_name: str) -> None:
         fig.savefig(os.path.join(outdir, fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
@@ -118,7 +119,12 @@ for item in config["instructions"]:
             save_fig(fig, get_fig_name("profile", param_str))
 
         if param_str in item["videos"]:
-            pass
+            fig, ax, im = videoMaker.viewFrame(0)
+            fig.tight_layout(pad=0)
+            anim = videoMaker.viewMovie(fig, ax, im)
+
+            anim.save(os.path.join(outdir, get_fig_name("movie", param_str)), dpi=450)
+
         if param_str in item["stabilities"]:
             fig, _ = videoMaker.viewStability()
 
