@@ -9,7 +9,9 @@ sys.path.append(dotenv.dotenv_values()["PYTHONPATH"])
 import bgk
 import matplotlib.pyplot as plt
 import matplotlib.figure as mplf
+import matplotlib.cm as mplcm
 import numpy as np
+import xarray as xr
 
 ########################################################
 
@@ -68,7 +70,53 @@ for item in config["instructions"]:
         videoMaker.setSlice(centerSlice)
 
         if param_str in item["profiles"]:
-            pass
+            maxR = videoMaker._currentSlice.slice.stop
+            rStep = size / 100
+
+            def getMeanAndStd(data: xr.DataArray, r: float) -> tuple[float, float]:
+                rslice = data.where((r <= videoMaker.rGrid) & (videoMaker.rGrid < r + rStep))
+                return rslice.mean().item(), rslice.std().item()
+
+            rs = np.arange(0, maxR, rStep)
+
+            def getMeansAndStds(data):
+                return tuple(zip(*[getMeanAndStd(data, r) for r in rs]))
+
+            ##########################
+
+            allMeans = np.array([getMeansAndStds(videoMaker.slicedDatas[idx])[0] for idx in range(nframes)])
+
+            ##########################
+
+            time_cutoff_idx = videoMaker.getLocalExtremaIndices(np.less)[0]
+            titleText = "over First Oscillation"
+
+            ##########################
+
+            nsamples = 13
+
+            indices = sorted(list({round(i) for i in np.linspace(0, time_cutoff_idx, nsamples)}))
+
+            cmap = mplcm.get_cmap("rainbow")
+            n_label_indices = 5
+            label_indices = [indices[round(i * (len(indices) - 1) / (n_label_indices - 1))] for i in range(n_label_indices)]
+
+            fig, ax = plt.subplots()
+
+            for i in indices:
+                label = f"$t={videoMaker.times[i]:.2f}$" if i in label_indices else "_nolegend_"
+                ax.plot(rs, allMeans[i], color=cmap(i / max(indices)), label=label)
+
+            ax.set_xlabel("$\\rho$")
+            ax.set_ylabel(param.title)
+            ax.set_title(f"Changing Radial Profile of {param.title} for $B={B}$ {titleText}")
+            ax.legend()
+            fig.tight_layout()
+
+            ##########################
+
+            save_fig(fig, get_fig_name("profile", param_str))
+
         if param_str in item["videos"]:
             pass
         if param_str in item["stabilities"]:
