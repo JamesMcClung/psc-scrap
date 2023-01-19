@@ -50,9 +50,11 @@ for item in config["instructions"]:
 
     ##########################
 
-    def get_fig_name(fig_type: str, param_str: str) -> str:
+    def get_fig_name(fig_type: str, param_str: str, case: str) -> str:
         ext = "mp4" if fig_type == "movie" else "png"
-        return f"{fig_type}_{param_str}_B{B}_n{res}_v{'-' if ve_coef<0 else '+'}.{ext}"
+        param_str = param_str.replace("_", "")
+        v_sign = "-" if ve_coef < 0 else "+"
+        return f"{fig_type}_{param_str}_{case}_B{B}_n{res}_v{v_sign}.{ext}"
 
     def save_fig(fig: mplf.Figure, fig_name: str) -> None:
         fig.savefig(os.path.join(outdir, fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
@@ -116,19 +118,19 @@ for item in config["instructions"]:
 
             ##########################
 
-            save_fig(fig, get_fig_name("profile", param_str))
+            save_fig(fig, get_fig_name("profile", param_str, item["case"]))
 
         if param_str in item["videos"]:
             fig, ax, im = videoMaker.viewFrame(0)
             fig.tight_layout(pad=0)
             anim = videoMaker.viewMovie(fig, ax, im)
 
-            anim.save(os.path.join(outdir, get_fig_name("movie", param_str)), dpi=450)
+            anim.save(os.path.join(outdir, get_fig_name("movie", param_str, item["case"])), dpi=450)
 
         if param_str in item["stabilities"]:
             fig, _ = videoMaker.viewStability()
 
-            save_fig(fig, get_fig_name("stability", param_str))
+            save_fig(fig, get_fig_name("stability", param_str, item["case"]))
 
         if param_str in item["sequences"]:
             minima = videoMaker.getLocalExtremaIndices(np.less)
@@ -158,4 +160,4 @@ for item in config["instructions"]:
 
             ##########################
 
-            save_fig(fig, get_fig_name("sequence", param_str))
+            save_fig(fig, get_fig_name("sequence", param_str, item["case"]))
