@@ -8,6 +8,7 @@ sys.path.append(dotenv.dotenv_values()["PYTHONPATH"])
 
 import bgk
 import matplotlib.pyplot as plt
+import matplotlib.figure as mplf
 import numpy as np
 
 ########################################################
@@ -47,6 +48,14 @@ for item in config["instructions"]:
 
     ##########################
 
+    def get_fig_name(fig_type: str, param_str: str) -> str:
+        return f"{fig_type}_{param_str}_B{B}_n{res}_v{'-' if ve_coef<0 else '+'}.png"
+
+    def save_fig(fig: mplf.Figure, fig_name: str) -> None:
+        fig.savefig(os.path.join(outdir, fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
+
+    ##########################
+
     nframes = 100
     videoMaker = bgk.VideoMaker(nframes, loader)
 
@@ -64,8 +73,7 @@ for item in config["instructions"]:
         if param_str in item["stabilities"]:
             fig, _ = videoMaker.viewStability()
 
-            fig_name = f"stability_{param_str}_B{B}_n{res}_v{'-' if ve_coef<0 else '+'}.png"
-            fig.savefig(os.path.join(outdir, fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
+            save_fig(fig, get_fig_name("stability", param_str))
 
         if param_str in item["sequences"]:
             minima = videoMaker.getLocalExtremaIndices(np.less)
@@ -96,5 +104,4 @@ for item in config["instructions"]:
 
             ##########################
 
-            fig_name = f"sequence_{param_str}_B{B}_n{res}_v{'-' if ve_coef<0 else '+'}.png"
-            fig.savefig(os.path.join(outdir, fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
+            save_fig(fig, get_fig_name("sequence", param_str))
