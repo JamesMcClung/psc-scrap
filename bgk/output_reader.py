@@ -21,12 +21,14 @@ __all__ = ["readParam", "ParamMetadata", "DataSlice", "Loader", "VideoMaker"]
 T = typing.TypeVar("T")
 
 
-def readParam(path: str, paramName: str, paramType: typing.Callable[[str], T]) -> T:
+def readParam(path: str, paramName: str, paramType: typing.Callable[[str], T], default: T = None) -> T:
     with open(path + "params_record.txt") as records:
         for line in records:
             if line.startswith(paramName):
                 return paramType(line.split()[1])
-    raise Exception(f"Cannot find param '{paramName}' in file '{path}'")
+    if default is None:
+        raise Exception(f"Cannot find param '{paramName}' in file '{path}'")
+    return default
 
 
 def _getFactors(n: int) -> list[int]:
