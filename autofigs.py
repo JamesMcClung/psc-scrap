@@ -53,6 +53,7 @@ for item in config["instructions"]:
 
     def save_fig(fig: mplf.Figure, fig_name: str) -> None:
         fig.savefig(os.path.join(outdir, fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
+        plt.close("all")
 
     ##########################
 
@@ -84,7 +85,6 @@ for item in config["instructions"]:
 
             ##########################
 
-            plt.close("all")
             nStillFrames = 5
 
             fig, axs = plt.subplots(1, nStillFrames)
