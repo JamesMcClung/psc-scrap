@@ -68,11 +68,14 @@ for item in config["instructions"]:
     ##########################
 
     for param_str in set(item["sequences"] + item["profiles"] + item["videos"] + item["stabilities"]):
+        print(f"Loading {param_str}...")
+
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
         videoMaker.loadData(param)
         videoMaker.setSlice(centerSlice)
 
         if param_str in item["profiles"]:
+            print(f"  Generating profile...")
             maxR = videoMaker._currentSlice.slice.stop
             rStep = size / 100
 
@@ -121,6 +124,8 @@ for item in config["instructions"]:
             save_fig(fig, get_fig_name("profile", param_str, item["case"]))
 
         if param_str in item["videos"]:
+            print(f"  Generating movie...")
+
             fig, ax, im = videoMaker.viewFrame(0)
             fig.tight_layout(pad=0)
             anim = videoMaker.viewMovie(fig, ax, im)
@@ -128,11 +133,15 @@ for item in config["instructions"]:
             anim.save(os.path.join(outdir, get_fig_name("movie", param_str, item["case"])), dpi=450)
 
         if param_str in item["stabilities"]:
+            print(f"  Generating stability plot...")
+
             fig, _ = videoMaker.viewStability()
 
             save_fig(fig, get_fig_name("stability", param_str, item["case"]))
 
         if param_str in item["sequences"]:
+            print(f"  Generating sequences...")
+
             minima = videoMaker.getLocalExtremaIndices(np.less)
 
             startFrame = 0
