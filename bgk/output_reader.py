@@ -1,9 +1,12 @@
 from math import prod
-from typing import Any
+import typing
 import matplotlib.pyplot as plt
 import xarray as xr
 import matplotlib.animation as animation
+import matplotlib.image as mpli
+import matplotlib.figure as mplf
 import numpy as np
+import numpy.typing as npt
 import os
 import itertools
 from scipy.signal import argrelextrema
@@ -15,8 +18,10 @@ import psc
 
 __all__ = ["readParam", "ParamMetadata", "DataSlice", "Loader", "VideoMaker"]
 
+T = typing.TypeVar("T")
 
-def readParam(path: str, paramName: str, paramType) -> Any:
+
+def readParam(path: str, paramName: str, paramType: typing.Callable[[str], T]) -> T:
     with open(path + "params_record.txt") as records:
         for line in records:
             if line.startswith(paramName):
@@ -37,7 +42,7 @@ def _getFactors(n: int) -> list[int]:
     return factors
 
 
-def _setTitle(ax: Any, viewAdj: str, paramName: str, time: float) -> None:
+def _setTitle(ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
     ax.set_title(viewAdj + paramName + " (t={:.3f})".format(time))
 
 
@@ -178,29 +183,25 @@ class VideoMaker:
             rawData = _prepData(dataset[param.varName])
         return param.coef * rawData, dataset.time
 
-    def loadData(self, param: ParamMetadata):
+    def loadData(self, param: ParamMetadata) -> None:
         self._currentParam = param
         self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, idx) for idx in range(self.nframes)])]
         self.times = np.array(self.times)
 
-    def setSlice(self, slice: DataSlice):
+    def setSlice(self, slice: DataSlice) -> None:
         self._currentSlice = slice
         self.slicedDatas = [data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for data in self.datas]
 
         # update min and max values to show on color scale
-        self._vmax = (
-            self._currentParam.vmax if not self._currentParam.vmax is None else max(np.nanquantile(data.values, 1) for data in self.slicedDatas)
-        )
-        self._vmin = (
-            self._currentParam.vmin if not self._currentParam.vmin is None else min(np.nanquantile(data.values, 0) for data in self.slicedDatas)
-        )
+        self._vmax = self._currentParam.vmax if not self._currentParam.vmax is None else max(np.nanquantile(data.values, 1) for data in self.slicedDatas)
+        self._vmin = self._currentParam.vmin if not self._currentParam.vmin is None else min(np.nanquantile(data.values, 0) for data in self.slicedDatas)
         if self._currentParam.vmax is self._currentParam.vmin is None:
             self._vmax = max(self._vmax, -self._vmin)
             self._vmin = -self._vmax
 
     # Methods that use the data
 
-    def viewFrame(self, frameIdx: int, fig: plt.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> Any:
+    def viewFrame(self, frameIdx: int, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> tuple[mplf.Figure, plt.Axes, mpli.AxesImage]:
         if not (fig or ax):
             fig, ax = plt.subplots()
 
@@ -227,27 +228,24 @@ class VideoMaker:
 
         return fig, ax, im
 
-    def viewMovie(self, fig, ax, im) -> Any:
-        def updateIm(frameIdx):
+    def viewMovie(self, fig: mplf.Figure, ax: plt.Axes, im: mpli.AxesImage) -> animation.FuncAnimation:
+        def updateIm(frameIdx: int):
             im.set_array(self.slicedDatas[frameIdx])
             _setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
             return [im]
 
         return animation.FuncAnimation(fig, updateIm, interval=30, frames=self.nframes, repeat=False, blit=True)
 
-    def _getNormsOfDiffs(self) -> np.array:
-        def norm(x):
+    def _getNormsOfDiffs(self) -> npt.NDArray[np.float64]:
+        def norm(x: xr.DataArray) -> float:
             return xr.apply_ufunc(np.linalg.norm, x, input_core_dims=[["y", "z"]])
 
         return np.array([norm(data - self.slicedDatas[0]) for data in self.slicedDatas])
 
-    def viewStability(self):
-        plt.xlabel("Time")
-        plt.ylabel("2-Norm of Difference")
-        plt.title("Deviation from ICs of " + self._currentSlice.viewAdjective + self._currentParam.title)
+    def viewStability(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
 
         plt.plot(self.times, self._getNormsOfDiffs())
         plt.show()
 
-    def getLocalExtremaIndices(self, comparator) -> np.array:
+    def getLocalExtremaIndices(self, comparator) -> npt.NDArray[np.int32]:
         return argrelextrema(self._getNormsOfDiffs(), comparator, order=5)[0]
