@@ -68,6 +68,8 @@ class Loader:
         self.engine = engine
         self.species_names = species_names
 
+        self.B = readParam(path, "H_x", float)
+
         # init out_every for each type of output
         with open(self.path + "params_record.txt") as records:
             self.fields_every = 200  # default value
@@ -243,9 +245,15 @@ class VideoMaker:
         return np.array([norm(data - self.slicedDatas[0]) for data in self.slicedDatas])
 
     def viewStability(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
+        if not (fig or ax):
+            fig, ax = plt.subplots()
 
-        plt.plot(self.times, self._getNormsOfDiffs())
-        plt.show()
+        ax.set_xlabel("Time")
+        ax.set_ylabel("2-Norm of Difference")
+        ax.set_title(f"Deviation from ICs of {self._currentSlice.viewAdjective}{self._currentParam.title} for $B_0={self.loader.B:.1f}$")
+
+        ax.plot(self.times, self._getNormsOfDiffs())
+        return fig, ax
 
     def getLocalExtremaIndices(self, comparator) -> npt.NDArray[np.int32]:
         return argrelextrema(self._getNormsOfDiffs(), comparator, order=5)[0]
