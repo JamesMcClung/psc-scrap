@@ -2,10 +2,6 @@
 import sys
 import os
 import yaml
-import dotenv
-
-sys.path.append(dotenv.dotenv_values()["PYTHONPATH"])
-
 import bgk
 import matplotlib.pyplot as plt
 import matplotlib.figure as mplf
