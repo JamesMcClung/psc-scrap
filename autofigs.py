@@ -136,7 +136,8 @@ for item in config["instructions"]:
             save_fig(fig, get_fig_name("stability", param_str, item["case"]))
 
         if param_str in item["sequences"]:
-            print(f"  Generating sequences...")
+            include_distr = param_str in item["distr_in_sequence"]
+            print(f"  Generating sequence{' with distribution' * include_distr}...")
 
             minima = videoMaker.getLocalExtremaIndices(np.less)
 
@@ -146,22 +147,44 @@ for item in config["instructions"]:
 
             ##########################
 
+            if include_distr:
+                particles = bgk.ParticleReader(path)
+
+            ##########################
+
             nStillFrames = 5
 
-            fig, axs = plt.subplots(1, nStillFrames)
+            fig, axs = plt.subplots(1 + include_distr, nStillFrames)
             stillFrames = [startFrame + round(i * (endFrame - startFrame) / (nStillFrames - 1)) for i in range(nStillFrames)]
 
-            for frame, ax in zip(stillFrames, axs):
-                videoMaker.viewFrame(frame, fig, ax, minimal=True)
-                ax.set_title(f"$t={videoMaker.times[frame]:.2f}$")
-                ax.tick_params("both", which="both", labelbottom=False, labelleft=frame == stillFrames[0])
+            for col_idx, frame in enumerate(stillFrames):
+                img_ax = axs[0][col_idx] if include_distr else axs[col_idx]
+                _, _, im = videoMaker.viewFrame(frame, fig, img_ax, minimal=True)
+                img_ax.set_title(f"$t={videoMaker.times[frame]:.2f}$")
+                img_ax.tick_params("both", which="both", labelbottom=False, labelleft=frame == stillFrames[0])
+                img_ax.set_aspect(1)
+
+                if include_distr:
+                    distr_ax = axs[1][col_idx]
+                    particles.read_step(frame * videoMaker._which_stepsPerFrame(param.outputBaseName))
+                    _, _, mesh = particles.plot_distribution(fig, distr_ax, minimal=True, means=False)
+                    distr_ax.set_title("")
+                    distr_ax.tick_params("both", which="both", labelbottom=True, labelleft=frame == stillFrames[0])
+                    distr_ax.set_aspect(1)
+
+            fig.set_size_inches(9, 2.5)
             fig.suptitle(f"Snapshots of {param.title} for $B_0={B}$ {titleText}")
             fig.tight_layout(pad=0)
-            fig.set_size_inches(9, 2.5)
 
             fig.subplots_adjust(right=0.9)
-            cbar_ax = fig.add_axes([0.91, 0.2, 0.01, 0.56])
-            fig.colorbar(axs[0].images[0], cax=cbar_ax)
+            if include_distr:
+                img_cax = fig.add_axes([0.91, 0.5, 0.01, 0.3])
+                distr_cax = fig.add_axes([0.91, 0.1, 0.01, 0.3])
+                fig.colorbar(im, cax=img_cax)
+                fig.colorbar(mesh, cax=distr_cax)
+            else:
+                img_cax = fig.add_axes([0.91, 0.2, 0.01, 0.56])
+                fig.colorbar(im, cax=img_cax)
 
             ##########################
 
