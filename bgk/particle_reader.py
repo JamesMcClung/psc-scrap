@@ -7,6 +7,8 @@ import pandas as pd
 from .output_reader import readParam, Loader
 from .input_reader import Input
 
+__all__ = ["ParticleReader"]
+
 ##########################
 
 
