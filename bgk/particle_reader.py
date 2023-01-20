@@ -1,5 +1,3 @@
-# import h5py
-# import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -10,7 +8,7 @@ from .input_reader import Input
 ##########################
 
 
-def read_step(step: int, electronsOnly: bool = True):
+def read_step(step: int, electronsOnly: bool = True) -> pd.DataFrame:
     rank = 0
     df = pd.read_hdf(path + f"prt.{step:06d}_p{rank:06d}.h5", "particles/p0/1d")
     df.drop(columns=["x", "px", "m", "w", "tag"], inplace=True)
@@ -19,14 +17,6 @@ def read_step(step: int, electronsOnly: bool = True):
         df.drop(columns=["q"], inplace=True)
     df["step"] = step
     return df
-
-
-def plot_distribution(df, x: str, y: str):
-    fig, ax = plt.subplots(1, 1)
-    df.plot.hexbin(x, y, gridsize=50, ax=ax)
-    ax.set_title(f"f({x}, {y}) at t={t} for B={B}")
-    if x.endswith(tuple("y, z")) and y.endswith(tuple("y, z")):
-        ax.set_aspect(1.0)
 
 
 ##########################
@@ -38,17 +28,10 @@ B = readParam(path, "H_x", float)
 maxStep = readParam(path, "nmax", int)
 ve_coef = readParam(path, "v_e_coef", float)
 
-print(f"path={path}")
-print(f"input={inputFile}")
-print(f"max step={maxStep}")
-print(f"B={B}")
-print(f"ve_coef={ve_coef}")
-
 ##########################
 
 step = 0
 t: float = Loader(path, engine="pscadios2", species_names=["e", "i"])._get_xr_dataset("pfd", step).time
-print(f"t={t}")
 
 df = read_step(step)
 input = Input(inputFile)
