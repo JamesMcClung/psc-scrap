@@ -34,6 +34,7 @@ class ParticleReader:
         self.B = readParam(path, "H_x", float)
         self.maxStep = readParam(path, "nmax", int)
         self.ve_coef = readParam(path, "v_e_coef", float)
+        self.size = readParam(path, "box_size", float)
 
     def read_step(self, step: int) -> None:
         self.t: float = Loader(self.path, engine="pscadios2", species_names=["e", "i"])._get_xr_dataset("pfd", step).time
@@ -47,6 +48,7 @@ class ParticleReader:
         df["v_rho"] = (df.py * df.y + df.pz * df.z) / df.r
         df.v_rho.fillna(0, inplace=True)
         df.v_phi.fillna(0, inplace=True)
+        self.df = df[df.r < self.size / 2]
 
     def plot_distribution(
         self, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False, means: bool = True
