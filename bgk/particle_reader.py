@@ -48,19 +48,16 @@ class ParticleReader:
         df.v_rho.fillna(0, inplace=True)
         df.v_phi.fillna(0, inplace=True)
 
-    def plot_distribution(self, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> tuple[mplf.Figure, plt.Axes, mplc.QuadMesh]:
+    def plot_distribution(
+        self, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False, means: bool = True
+    ) -> tuple[mplf.Figure, plt.Axes, mplc.QuadMesh]:
 
         if not (fig or ax):
             fig, ax = plt.subplots()
 
         hist, rhos, v_phis = np.histogram2d(self.df.r, self.df.v_phi, bins=[60, 80])
-
-        v_phis_cc = (v_phis[1:] + v_phis[:-1]) / 2
         rhos_cc = (rhos[1:] + rhos[:-1]) / 2
         fs2d = hist.T / rhos_cc
-
-        mean_v_phis = fs2d.T.dot(v_phis_cc) / fs2d.sum(axis=0)
-        mean_v_phis_input = np.array([self.input.interpolate_value(rho, "v_phi") for rho in rhos_cc])
 
         mesh = ax.pcolormesh(rhos, v_phis, fs2d, cmap="Reds")
 
@@ -71,8 +68,14 @@ class ParticleReader:
             fig.colorbar(mesh)
 
         ax.set_ylim(-0.003, 0.003)
-        ax.plot(rhos_cc, mean_v_phis, "k", label="actual mean")
-        ax.plot(rhos_cc, mean_v_phis_input, "b", label="target mean")
-        ax.legend()
+        if means:
+            v_phis_cc = (v_phis[1:] + v_phis[:-1]) / 2
+
+            mean_v_phis = fs2d.T.dot(v_phis_cc) / fs2d.sum(axis=0)
+            mean_v_phis_input = np.array([self.input.interpolate_value(rho, "v_phi") for rho in rhos_cc])
+
+            ax.plot(rhos_cc, mean_v_phis, "k", label="actual mean")
+            ax.plot(rhos_cc, mean_v_phis_input, "b", label="target mean")
+            ax.legend()
 
         return fig, ax, mesh
