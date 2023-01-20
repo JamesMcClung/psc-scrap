@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import matplotlib.figure as mplf
+import matplotlib.collections as mplc
 import numpy as np
 import pandas as pd
 
@@ -45,7 +46,8 @@ class ParticleReader:
         df.v_rho.fillna(0, inplace=True)
         df.v_phi.fillna(0, inplace=True)
 
-    def plot_distribution(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
+    def plot_distribution(self, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> tuple[mplf.Figure, plt.Axes, mplc.QuadMesh]:
+
         if not (fig or ax):
             fig, ax = plt.subplots()
 
@@ -59,13 +61,16 @@ class ParticleReader:
         mean_v_phis_input = np.array([self.input.interpolate_value(rho, "v_phi") for rho in rhos_cc])
 
         mesh = ax.pcolormesh(rhos, v_phis, fs2d, cmap="Reds")
-        ax.set_xlabel("$\\rho$")
-        ax.set_ylabel("$v_\\phi$")
+
+        if not minimal:
+            ax.set_xlabel("$\\rho$")
+            ax.set_ylabel("$v_\\phi$")
+            ax.set_title(f"f($\\rho$, $v_\\phi$) at t={self.t:.3f} for $B={self.B}$")
+            fig.colorbar(mesh)
+
         ax.set_ylim(-0.003, 0.003)
         ax.plot(rhos_cc, mean_v_phis, "k", label="actual mean")
         ax.plot(rhos_cc, mean_v_phis_input, "b", label="target mean")
-        ax.set_title(f"f($\\rho$, $v_\\phi$) at t={self.t:.3f} for $B={self.B}$")
         ax.legend()
-        fig.colorbar(mesh)
 
-        return fig, ax
+        return fig, ax, mesh
