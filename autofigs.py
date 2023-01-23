@@ -154,37 +154,34 @@ for item in config["instructions"]:
 
             nStillFrames = 5
 
-            fig, axs = plt.subplots(1 + include_distr, nStillFrames)
+            fig, axs = plt.subplots(1 + include_distr, nStillFrames + 1)
             stillFrames = [startFrame + round(i * (endFrame - startFrame) / (nStillFrames - 1)) for i in range(nStillFrames)]
 
-            for col_idx, frame in enumerate(stillFrames):
-                img_ax = axs[0][col_idx] if include_distr else axs[col_idx]
+            img_ax_row = axs[0] if include_distr else axs
+            img_cax = img_ax_row[-1]
+            for frame, img_ax in zip(stillFrames, img_ax_row):
                 _, _, im = videoMaker.viewFrame(frame, fig, img_ax, minimal=True)
                 img_ax.set_title(f"$t={videoMaker.times[frame]:.2f}$")
                 img_ax.tick_params("both", which="both", labelbottom=False, labelleft=frame == stillFrames[0])
                 img_ax.set_aspect(1)
+            img_cax.set_aspect(20)
+            fig.colorbar(im, cax=img_cax)
 
-                if include_distr:
-                    distr_ax = axs[1][col_idx]
+            if include_distr:
+                distr_ax_row = axs[1]
+                distr_cax = distr_ax_row[-1]
+                for frame, distr_ax in zip(stillFrames, distr_ax_row):
                     particles.read_step(frame * videoMaker._which_stepsPerFrame(param.outputBaseName))
                     _, _, mesh = particles.plot_distribution(fig, distr_ax, minimal=True, means=False)
                     distr_ax.set_title("")
                     distr_ax.tick_params("both", which="both", labelbottom=True, labelleft=frame == stillFrames[0])
-                    distr_ax.set_aspect(1)
+                    distr_ax.set_aspect("auto")
+                distr_cax.set_aspect(20)
+                fig.colorbar(mesh, cax=distr_cax)
 
-            fig.set_size_inches(9, 2.5)
+            fig.set_size_inches(9, 2.5 * (1 + include_distr))
             fig.suptitle(f"Snapshots of {param.title} for $B_0={B}$ {titleText}")
             fig.tight_layout(pad=0)
-
-            fig.subplots_adjust(right=0.9)
-            if include_distr:
-                img_cax = fig.add_axes([0.91, 0.5, 0.01, 0.3])
-                distr_cax = fig.add_axes([0.91, 0.1, 0.01, 0.3])
-                fig.colorbar(im, cax=img_cax)
-                fig.colorbar(mesh, cax=distr_cax)
-            else:
-                img_cax = fig.add_axes([0.91, 0.2, 0.01, 0.56])
-                fig.colorbar(im, cax=img_cax)
 
             ##########################
 
