@@ -50,8 +50,8 @@ for item in config["instructions"]:
     def get_fig_name(fig_type: str, param_str: str, case: str) -> str:
         ext = "mp4" if fig_type == "movie" else "png"
         param_str = param_str.replace("_", "")
-        v_sign = "-" if ve_coef < 0 else "+"
-        return f"{fig_type}_{param_str}_{case}_B{B}_n{res}_v{v_sign}.{ext}"
+        maybe_rev = "-rev" if ve_coef < 0 else ""
+        return f"{fig_type}-{param_str}-{case}{maybe_rev}-B{B}-n{res}.{ext}"
 
     def save_fig(fig: mplf.Figure, fig_name: str) -> None:
         fig.savefig(os.path.join(outdir, fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
