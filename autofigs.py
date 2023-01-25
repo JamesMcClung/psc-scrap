@@ -105,7 +105,7 @@ for item in config["instructions"]:
             indices = sorted(list({round(i) for i in np.linspace(0, time_cutoff_idx, nsamples)}))
 
             cmap = mplcm.get_cmap("rainbow")
-            n_label_indices = 5
+            n_label_indices = min(5, time_cutoff_idx + 1)
             label_indices = [indices[round(i * (len(indices) - 1) / (n_label_indices - 1))] for i in range(n_label_indices)]
 
             fig, ax = plt.subplots()
@@ -172,7 +172,7 @@ for item in config["instructions"]:
 
             ##########################
 
-            nStillFrames = 5
+            nStillFrames = min(5, time_cutoff_idx + 1)
 
             fig, axs = plt.subplots(1 + include_distr, nStillFrames + 1)
             stillFrames = [round(i * time_cutoff_idx / (nStillFrames - 1)) for i in range(nStillFrames)]
