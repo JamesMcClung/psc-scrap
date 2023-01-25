@@ -2,7 +2,11 @@ output_directory: /mnt/lustre/IAM851/jm1667/psc-scrap/figs/
 instructions:
   - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/double_prt/B1_n512_v+/
     case: maxwellian
+    periodic: true
     videos: [ne, j_rho, j_phi]
     profiles: [e_rho]
     sequences: [ne]
+    distr_in_sequence: [ne]
     stabilities: [ne]
+    origin_means: [ne]
+    periodograms: [ne]
