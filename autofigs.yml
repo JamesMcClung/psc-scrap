@@ -14,3 +14,23 @@ instructions:
     case: maxwellian
     periodic: true
     suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/single_truedist/B1/
+    # B=1, exact
+    case: exact
+    periodic: false
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/single_truedist/B1-/
+    # B=1, exact, reversed
+    case: exact
+    periodic: true
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/single_truedist/B10/
+    # B=10, exact
+    case: exact
+    periodic: false
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/single_truedist/B.1_smallbox/
+    # B=0.1, exact
+    case: exact
+    periodic: false
+    suite: standard
