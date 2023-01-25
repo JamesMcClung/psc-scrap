@@ -268,13 +268,19 @@ class VideoMaker:
         idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
         return round(1 / idx_freq[power.argmax()])
 
-    def viewPeriodogram(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
+    def viewPeriodogram(self, fig: mplf.Figure = None, ax: plt.Axes = None, annotate: bool = True) -> tuple[mplf.Figure, plt.Axes]:
         if not (fig or ax):
             fig, ax = plt.subplots()
 
         data = self._getMeansAtOrigin()
         idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
         freq = idx_freq * len(self.times) / self.times[-1]
+
+        if annotate:
+            for peak_idx in sig.find_peaks(power, prominence=power.max() / 10)[0]:
+                peak_freq = freq[peak_idx]
+                peak_power = power[peak_idx]
+                ax.annotate(f"{peak_freq:.3f}", xy=(peak_freq, peak_power))
 
         ax.set_xlabel("Frequency")
         ax.set_ylabel("Amplitude")
