@@ -9,7 +9,7 @@ import numpy as np
 import numpy.typing as npt
 import os
 import itertools
-from scipy.signal import argrelextrema
+import scipy.signal as sig
 
 from .run_params import ParamMetadata
 
@@ -248,7 +248,7 @@ class VideoMaker:
         return fig, ax
 
     def getLocalExtremaIndices(self, comparator) -> npt.NDArray[np.int32]:
-        return argrelextrema(self._getNormsOfDiffs(), comparator, order=5)[0]
+        return sig.argrelextrema(self._getNormsOfDiffs(), comparator, order=5)[0]
 
     def _getMeansAtOrigin(self) -> npt.NDArray[np.float64]:
         orig_idx = len(self.datas[0]) // 2
