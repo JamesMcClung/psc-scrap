@@ -91,8 +91,12 @@ for item in config["instructions"]:
 
             ##########################
 
-            time_cutoff_idx = videoMaker.getLocalExtremaIndices(np.less)[0]
-            titleText = "over First Oscillation"
+            if item["periodic"]:
+                time_cutoff_idx = videoMaker.getIdxPeriod()
+                titleText = "Over First Oscillation"
+            else:
+                time_cutoff_idx = len(videoMaker.times) - 1
+                titleText = "Over Run"
 
             ##########################
 
@@ -154,11 +158,12 @@ for item in config["instructions"]:
             include_distr = param_str in item["distr_in_sequence"]
             print(f"    Generating sequence{' with distribution' * include_distr}...")
 
-            minima = videoMaker.getLocalExtremaIndices(np.less)
-
-            startFrame = 0
-            endFrame = minima[0]
-            titleText = "over First Oscillation"
+            if item["periodic"]:
+                time_cutoff_idx = videoMaker.getIdxPeriod()
+                titleText = "Over First Oscillation"
+            else:
+                time_cutoff_idx = len(videoMaker.times) - 1
+                titleText = "Over Run"
 
             ##########################
 
@@ -170,7 +175,7 @@ for item in config["instructions"]:
             nStillFrames = 5
 
             fig, axs = plt.subplots(1 + include_distr, nStillFrames + 1)
-            stillFrames = [startFrame + round(i * (endFrame - startFrame) / (nStillFrames - 1)) for i in range(nStillFrames)]
+            stillFrames = [round(i * time_cutoff_idx / (nStillFrames - 1)) for i in range(nStillFrames)]
 
             img_ax_row = axs[0] if include_distr else axs
             img_cax = img_ax_row[-1]
