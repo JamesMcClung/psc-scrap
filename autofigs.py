@@ -63,8 +63,8 @@ for item in config["instructions"]:
     videoMaker = bgk.VideoMaker(nframes, loader)
 
     ##########################
-
-    for param_str in set(item["sequences"] + item["profiles"] + item["videos"] + item["stabilities"]):
+    FIGURE_OPTIONS = ["sequences", "profiles", "videos", "stabilities", "origin_means", "periodograms"]
+    for param_str in set(FIGURE_OPTIONS):
         print(f"  Loading {param_str}...")
 
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
@@ -135,6 +135,20 @@ for item in config["instructions"]:
             fig, _ = videoMaker.viewStability()
 
             save_fig(fig, get_fig_name("stability", param_str, item["case"]))
+
+        if param_str in item["origin_means"]:
+            print(f"    Generating origin mean plot...")
+
+            fig, _ = videoMaker.viewMeansAtOrigin()
+
+            save_fig(fig, get_fig_name("originmean", param_str, item["case"]))
+
+        if param_str in item["periodograms"]:
+            print(f"    Generating periodogram...")
+
+            fig, _ = videoMaker.viewPeriodogram()
+
+            save_fig(fig, get_fig_name("periodogram", param_str, item["case"]))
 
         if param_str in item["sequences"]:
             include_distr = param_str in item["distr_in_sequence"]
