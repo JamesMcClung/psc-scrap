@@ -64,14 +64,14 @@ for item in config["instructions"]:
 
     ##########################
     FIGURE_OPTIONS = ["sequences", "profiles", "videos", "stabilities", "origin_means", "periodograms"]
-    for param_str in set(sum((item[option] for option in FIGURE_OPTIONS), start=[])):
+    for param_str in set(sum((item.get(option, []) for option in FIGURE_OPTIONS), start=[])):
         print(f"  Loading {param_str}...")
 
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
         videoMaker.loadData(param)
         videoMaker.setSlice(centerSlice)
 
-        if param_str in item["profiles"]:
+        if param_str in item.get("profiles", []):
             print(f"    Generating profile...")
             maxR = videoMaker._currentSlice.slice.stop
             rStep = size / 100
@@ -124,7 +124,7 @@ for item in config["instructions"]:
 
             save_fig(fig, get_fig_name("profile", param_str, item["case"]))
 
-        if param_str in item["videos"]:
+        if param_str in item.get("videos", []):
             print(f"    Generating movie...")
 
             fig, ax, im = videoMaker.viewFrame(0)
@@ -133,28 +133,28 @@ for item in config["instructions"]:
 
             anim.save(os.path.join(outdir, get_fig_name("movie", param_str, item["case"])), dpi=450)
 
-        if param_str in item["stabilities"]:
+        if param_str in item.get("stabilities", []):
             print(f"    Generating stability plot...")
 
             fig, _ = videoMaker.viewStability()
 
             save_fig(fig, get_fig_name("stability", param_str, item["case"]))
 
-        if param_str in item["origin_means"]:
+        if param_str in item.get("origin_means", []):
             print(f"    Generating origin mean plot...")
 
             fig, _ = videoMaker.viewMeansAtOrigin()
 
             save_fig(fig, get_fig_name("originmean", param_str, item["case"]))
 
-        if param_str in item["periodograms"]:
+        if param_str in item.get("periodograms", []):
             print(f"    Generating periodogram...")
 
             fig, _ = videoMaker.viewPeriodogram()
 
             save_fig(fig, get_fig_name("periodogram", param_str, item["case"]))
 
-        if param_str in item["sequences"]:
+        if param_str in item.get("sequences", []):
             include_distr = param_str in item["distr_in_sequence"]
             print(f"    Generating sequence{' with distribution' * include_distr}...")
 
