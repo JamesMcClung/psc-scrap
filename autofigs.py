@@ -64,7 +64,7 @@ for item in config["instructions"]:
 
     ##########################
     FIGURE_OPTIONS = ["sequences", "profiles", "videos", "stabilities", "origin_means", "periodograms"]
-    for param_str in set(FIGURE_OPTIONS):
+    for param_str in set(sum((item[option] for option in FIGURE_OPTIONS), start=[])):
         print(f"  Loading {param_str}...")
 
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
