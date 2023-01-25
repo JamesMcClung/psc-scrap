@@ -247,9 +247,6 @@ class VideoMaker:
         ax.plot(self.times, self._getNormsOfDiffs())
         return fig, ax
 
-    def getLocalExtremaIndices(self, comparator) -> npt.NDArray[np.int32]:
-        return sig.argrelextrema(self._getNormsOfDiffs(), comparator, order=5)[0]
-
     def _getMeansAtOrigin(self) -> npt.NDArray[np.float64]:
         orig_idx = len(self.datas[0]) // 2
         orig_slice = slice(orig_idx - 1, orig_idx + 2)
@@ -264,4 +261,24 @@ class VideoMaker:
         ax.set_title(f"Mean {self._currentParam.title} Near Origin for $B_0={self.loader.B:.1f}$")
 
         ax.plot(self.times, self._getMeansAtOrigin())
+        return fig, ax
+
+    def getIdxPeriod(self) -> float:
+        data = self._getMeansAtOrigin()
+        idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
+        return round(1 / idx_freq[power.argmax()])
+
+    def viewPeriodogram(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
+        if not (fig or ax):
+            fig, ax = plt.subplots()
+
+        data = self._getMeansAtOrigin()
+        idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
+        freq = idx_freq * len(self.times) / self.times[-1]
+
+        ax.set_xlabel("Frequency")
+        ax.set_ylabel("Amplitude")
+        ax.set_title(f"Periodogram of Means at Origin for $B_0={self.loader.B:.1f}$")
+
+        ax.plot(freq, power)
         return fig, ax
