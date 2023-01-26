@@ -26,6 +26,14 @@ config = get_autofigs_config()
 ########################################################
 
 FIGURE_OPTIONS = ["sequences", "profiles", "videos", "stabilities", "origin_means", "periodograms"]
+empty_suite = {figure_option: [] for figure_option in FIGURE_OPTIONS}
+
+
+def apply_suite(instruction_item: dict) -> dict:
+    filled_instruction_item = empty_suite.copy()
+    filled_instruction_item.update(instruction_item)
+    return filled_instruction_item
+
 
 ########################################################
 
@@ -34,6 +42,7 @@ outdir = config["output_directory"]
 print(f"Generating figures in {outdir}")
 
 for item in config["instructions"]:
+    item = apply_suite(item)
     path = item["path"]
     print(f"Entering {path}")
 
