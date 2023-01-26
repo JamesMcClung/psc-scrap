@@ -31,6 +31,8 @@ empty_suite = {figure_option: [] for figure_option in FIGURE_OPTIONS}
 
 def apply_suite(instruction_item: dict) -> dict:
     filled_instruction_item = empty_suite.copy()
+    if "suite" in instruction_item:
+        filled_instruction_item.update(config["suites"][instruction_item["suite"]])
     filled_instruction_item.update(instruction_item)
     return filled_instruction_item
 
