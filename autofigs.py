@@ -74,6 +74,8 @@ for item in config["instructions"]:
         videoMaker.loadData(param)
         videoMaker.setSlice(centerSlice)
 
+        ##########################
+
         if param_str in item.get("profiles", []):
             print(f"    Generating profile...")
             maxR = videoMaker._currentSlice.slice.stop
@@ -88,11 +90,11 @@ for item in config["instructions"]:
             def getMeansAndStds(data):
                 return tuple(zip(*[getMeanAndStd(data, r) for r in rs]))
 
-            ##########################
+            # ————————————————————————#
 
             allMeans = np.array([getMeansAndStds(videoMaker.slicedDatas[idx])[0] for idx in range(nframes)])
 
-            ##########################
+            # ————————————————————————#
 
             if item["periodic"]:
                 time_cutoff_idx = videoMaker.getIdxPeriod()
@@ -101,7 +103,7 @@ for item in config["instructions"]:
                 time_cutoff_idx = len(videoMaker.times) - 1
                 titleText = "Over Run"
 
-            ##########################
+            # ————————————————————————#
 
             nsamples = 13
 
@@ -123,9 +125,11 @@ for item in config["instructions"]:
             ax.legend()
             fig.tight_layout()
 
-            ##########################
+            # ————————————————————————#
 
             save_fig(fig, get_fig_name("profile", param_str, item["case"]))
+
+        ##########################
 
         if param_str in item.get("videos", []):
             print(f"    Generating movie...")
@@ -136,12 +140,16 @@ for item in config["instructions"]:
 
             anim.save(os.path.join(outdir, get_fig_name("movie", param_str, item["case"])), dpi=450)
 
+        ##########################
+
         if param_str in item.get("stabilities", []):
             print(f"    Generating stability plot...")
 
             fig, _ = videoMaker.viewStability()
 
             save_fig(fig, get_fig_name("stability", param_str, item["case"]))
+
+        ##########################
 
         if param_str in item.get("origin_means", []):
             print(f"    Generating origin mean plot...")
@@ -150,12 +158,16 @@ for item in config["instructions"]:
 
             save_fig(fig, get_fig_name("originmean", param_str, item["case"]))
 
+        ##########################
+
         if param_str in item.get("periodograms", []):
             print(f"    Generating periodogram...")
 
             fig, _ = videoMaker.viewPeriodogram()
 
             save_fig(fig, get_fig_name("periodogram", param_str, item["case"]))
+
+        ##########################
 
         if param_str in item.get("sequences", []):
             include_distr = param_str in item["distr_in_sequence"]
@@ -168,12 +180,12 @@ for item in config["instructions"]:
                 time_cutoff_idx = len(videoMaker.times) - 1
                 titleText = "Over Run"
 
-            ##########################
+            # ————————————————————————#
 
             if include_distr:
                 particles = bgk.ParticleReader(path)
 
-            ##########################
+            # ————————————————————————#
 
             nStillFrames = min(5, time_cutoff_idx + 1)
 
@@ -206,6 +218,6 @@ for item in config["instructions"]:
             fig.suptitle(f"Snapshots of {param.title} for $B_0={B}$ {titleText}")
             fig.tight_layout(pad=0)
 
-            ##########################
+            # ————————————————————————#
 
             save_fig(fig, get_fig_name("sequence", param_str, item["case"]))
