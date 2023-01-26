@@ -76,7 +76,7 @@ for item in config["instructions"]:
     videoMaker = bgk.VideoMaker(nframes, loader)
 
     ##########################
-    for param_str in set(sum((item.get(option, []) for option in FIGURE_OPTIONS), start=[])):
+    for param_str in set(sum((item[option] for option in FIGURE_OPTIONS), start=[])):
         print(f"  Loading {param_str}...")
 
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
@@ -85,7 +85,7 @@ for item in config["instructions"]:
 
         ##########################
 
-        if param_str in item.get("profiles", []):
+        if param_str in item["profiles"]:
             print(f"    Generating profile...")
             maxR = videoMaker._currentSlice.slice.stop
             rStep = size / 100
@@ -140,7 +140,7 @@ for item in config["instructions"]:
 
         ##########################
 
-        if param_str in item.get("videos", []):
+        if param_str in item["videos"]:
             print(f"    Generating movie...")
 
             fig, ax, im = videoMaker.viewFrame(0)
@@ -151,7 +151,7 @@ for item in config["instructions"]:
 
         ##########################
 
-        if param_str in item.get("stabilities", []):
+        if param_str in item["stabilities"]:
             print(f"    Generating stability plot...")
 
             fig, _ = videoMaker.viewStability()
@@ -160,7 +160,7 @@ for item in config["instructions"]:
 
         ##########################
 
-        if param_str in item.get("origin_means", []):
+        if param_str in item["origin_means"]:
             print(f"    Generating origin mean plot...")
 
             fig, _ = videoMaker.viewMeansAtOrigin()
@@ -169,7 +169,7 @@ for item in config["instructions"]:
 
         ##########################
 
-        if param_str in item.get("periodograms", []):
+        if param_str in item["periodograms"]:
             print(f"    Generating periodogram...")
 
             fig, _ = videoMaker.viewPeriodogram()
@@ -178,7 +178,7 @@ for item in config["instructions"]:
 
         ##########################
 
-        if param_str in item.get("sequences", []):
+        if param_str in item["sequences"]:
             include_distr = param_str in item["distr_in_sequence"]
             print(f"    Generating sequence{' with distribution' * include_distr}...")
 
