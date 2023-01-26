@@ -25,6 +25,10 @@ config = get_autofigs_config()
 
 ########################################################
 
+FIGURE_OPTIONS = ["sequences", "profiles", "videos", "stabilities", "origin_means", "periodograms"]
+
+########################################################
+
 outdir = config["output_directory"]
 
 print(f"Generating figures in {outdir}")
@@ -63,7 +67,6 @@ for item in config["instructions"]:
     videoMaker = bgk.VideoMaker(nframes, loader)
 
     ##########################
-    FIGURE_OPTIONS = ["sequences", "profiles", "videos", "stabilities", "origin_means", "periodograms"]
     for param_str in set(sum((item.get(option, []) for option in FIGURE_OPTIONS), start=[])):
         print(f"  Loading {param_str}...")
 
