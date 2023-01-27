@@ -93,18 +93,15 @@ for item in config["instructions"]:
             maxR = videoMaker._currentSlice.slice.stop
             rStep = size / 100
 
-            def getMeanAndStd(data: xr.DataArray, r: float) -> tuple[float, float]:
+            def getMean(data: xr.DataArray, r: float) -> float:
                 rslice = data.where((r <= videoMaker.rGrid) & (videoMaker.rGrid < r + rStep))
-                return rslice.mean().item(), rslice.std().item()
+                return rslice.mean().item()
 
             rs = np.arange(0, maxR, rStep)
 
-            def getMeansAndStds(data):
-                return tuple(zip(*[getMeanAndStd(data, r) for r in rs]))
-
             # ————————————————————————#
 
-            allMeans = np.array([getMeansAndStds(videoMaker.slicedDatas[idx])[0] for idx in range(nframes)])
+            allMeans = np.array([[getMean(videoMaker.slicedDatas[idx], r) for r in rs] for idx in range(nframes)])
 
             # ————————————————————————#
 
