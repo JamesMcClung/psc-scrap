@@ -40,6 +40,7 @@ def apply_suite(instruction_item: dict) -> dict:
 ########################################################
 
 outdir = config["output_directory"]
+os.makedirs(outdir, exist_ok=True)
 
 print(f"Generating figures in {outdir}")
 
