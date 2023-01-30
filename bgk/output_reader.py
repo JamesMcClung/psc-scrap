@@ -65,8 +65,6 @@ def _get_out_max(bpfiles: list[str], outType: str) -> int:
 class Loader:
     def __init__(self, path: str, engine: str, species_names: list[str]) -> None:
         self.path = path
-        size = readParam(path, "box_size", float)
-        self.length = (1.0, size, size)
         self.engine = engine
         self.species_names = species_names
 
@@ -87,7 +85,6 @@ class Loader:
     def _get_xr_dataset(self, outputBaseName: str, step: int) -> xr.Dataset:
         return xr.open_dataset(
             self.path + f"{outputBaseName}.{str(step).rjust(9,'0')}.bp",
-            length=self.length,
             engine=self.engine,
             species_names=self.species_names,
         )
