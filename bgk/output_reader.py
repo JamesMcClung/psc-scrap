@@ -172,6 +172,7 @@ class VideoMaker:
                 rawData = rawData.fillna(0)
         else:
             rawData = _prepData(dataset[param.varName])
+        self.length: npt.NDArray = dataset.length
         return param.coef * rawData, dataset.time
 
     def loadData(self, param: ParamMetadata) -> None:
@@ -179,8 +180,12 @@ class VideoMaker:
         self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, idx) for idx in range(self.nframes)])]
         self.times = np.array(self.times)
 
-    def setSlice(self, slice: DataSlice) -> None:
-        self._currentSlice = slice
+    def setSlice(self, _slice: DataSlice) -> None:
+        if _slice.slice.start is None:
+            _slice.slice = slice(-self.length[1] / 2, _slice.slice.stop)
+        if _slice.slice.stop is None:
+            _slice.slice = slice(_slice.slice.start, self.length[1] / 2)
+        self._currentSlice = _slice
         self.slicedDatas = [data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for data in self.datas]
 
         # update min and max values to show on color scale
