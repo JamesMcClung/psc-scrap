@@ -55,9 +55,12 @@ for item in config["instructions"]:
     ve_coef = bgk.readParam(path, "v_e_coef", float)
     input_path = bgk.readParam(path, "path_to_data", str)
 
-    struct_radius = bgk.Input(input_path).get_radius_of_structure()
-
-    centerSlice = bgk.DataSlice(slice(-struct_radius, struct_radius), "Central ")
+    print(f"  (slice={item['slice']})")
+    if item["slice"] == "whole":
+        which_slice = bgk.DataSlice(slice(None, None), "")
+    elif item["slice"] == "center":
+        struct_radius = bgk.Input(input_path).get_radius_of_structure()
+        which_slice = bgk.DataSlice(slice(-struct_radius, struct_radius), "Central ")
 
     loader = bgk.Loader(path, engine="pscadios2", species_names=["e", "i"])
 
@@ -84,7 +87,7 @@ for item in config["instructions"]:
 
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
         videoMaker.loadData(param)
-        videoMaker.setSlice(centerSlice)
+        videoMaker.setSlice(which_slice)
 
         ##########################
 
