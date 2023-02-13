@@ -51,7 +51,6 @@ for item in config["instructions"]:
 
     B = bgk.readParam(path, "H_x", float)
     res = bgk.readParam(path, "n_grid", int)
-    size = bgk.readParam(path, "box_size", float)
     ve_coef = bgk.readParam(path, "v_e_coef", float)
     input_path = bgk.readParam(path, "path_to_data", str)
 
@@ -63,6 +62,10 @@ for item in config["instructions"]:
         which_slice = bgk.DataSlice(slice(-struct_radius, struct_radius), "Central ")
 
     loader = bgk.Loader(path, engine="pscadios2", species_names=["e", "i"])
+
+    size = bgk.readParam(path, "box_size", float)
+    if size < 0:
+        size = loader._get_xr_dataset("pfd", 0).length[1]  # get the y-length (= z-length)
 
     ##########################
 
