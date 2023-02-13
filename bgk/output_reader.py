@@ -82,7 +82,7 @@ class Loader:
         self.moments_max = _get_out_max(bpfiles, "pfd_moments")
         self.gauss_max = _get_out_max(bpfiles, "gauss")
 
-    def _get_xr_dataset(self, outputBaseName: str, step: int) -> xr.Dataset:
+    def _get_xr_dataset(self, outputBaseName: typing.Literal["pfd", "pfd_moments", "gauss"], step: int) -> xr.Dataset:
         return xr.open_dataset(
             self.path + f"{outputBaseName}.{str(step).rjust(9,'0')}.bp",
             engine=self.engine,
