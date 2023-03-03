@@ -140,7 +140,7 @@ for item in config["instructions"]:
 
             ax.set_xlabel("$\\rho$")
             ax.set_ylabel(param.title)
-            ax.set_title(f"Changing Radial Profile of {param.title} for $B={B}$ {titleText}")
+            ax.set_title(f"Changing Radial Profile of {param.title} for $B_0={B}$ {titleText}")
             ax.legend()
             fig.tight_layout()
 
