@@ -49,6 +49,10 @@ for item in config["instructions"]:
     path = item["path"]
     print(f"Entering {path}")
 
+    case = item["case"]
+    if case == "auto":
+        case = "max" if "max" in path else "exact"
+
     B = bgk.readParam(path, "H_x", float)
     res = bgk.readParam(path, "n_grid", int)
     ve_coef = bgk.readParam(path, "v_e_coef", float)
@@ -142,7 +146,7 @@ for item in config["instructions"]:
 
             # ————————————————————————#
 
-            save_fig(fig, get_fig_name("profile", param_str, item["case"]))
+            save_fig(fig, get_fig_name("profile", param_str, case))
 
         ##########################
 
@@ -153,7 +157,7 @@ for item in config["instructions"]:
             fig.tight_layout(pad=0)
             anim = videoMaker.viewMovie(fig, ax, im)
 
-            anim.save(os.path.join(outdir, get_fig_name("movie", param_str, item["case"])), dpi=450)
+            anim.save(os.path.join(outdir, get_fig_name("movie", param_str, case)), dpi=450)
 
         ##########################
 
@@ -162,7 +166,7 @@ for item in config["instructions"]:
 
             fig, _ = videoMaker.viewStability()
 
-            save_fig(fig, get_fig_name("stability", param_str, item["case"]))
+            save_fig(fig, get_fig_name("stability", param_str, case))
 
         ##########################
 
@@ -171,7 +175,7 @@ for item in config["instructions"]:
 
             fig, _ = videoMaker.viewMeansAtOrigin()
 
-            save_fig(fig, get_fig_name("originmean", param_str, item["case"]))
+            save_fig(fig, get_fig_name("originmean", param_str, case))
 
         ##########################
 
@@ -180,7 +184,7 @@ for item in config["instructions"]:
 
             fig, _ = videoMaker.viewPeriodogram()
 
-            save_fig(fig, get_fig_name("periodogram", param_str, item["case"]))
+            save_fig(fig, get_fig_name("periodogram", param_str, case))
 
         ##########################
 
@@ -235,4 +239,4 @@ for item in config["instructions"]:
 
             # ————————————————————————#
 
-            save_fig(fig, get_fig_name("sequence", param_str, item["case"]))
+            save_fig(fig, get_fig_name("sequence", param_str, case))
