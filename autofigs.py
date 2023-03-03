@@ -25,7 +25,7 @@ config = get_autofigs_config()
 
 ########################################################
 
-FIGURE_OPTIONS = ["sequences", "profiles", "videos", "stabilities", "origin_means", "periodograms"]
+FIGURE_OPTIONS = ["sequences", "profiles", "videos", "stabilities", "origin_means", "periodograms", "distr_in_sequence"]
 empty_suite = {figure_option: [] for figure_option in FIGURE_OPTIONS}
 
 
