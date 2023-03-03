@@ -244,7 +244,7 @@ class VideoMaker:
 
         ax.set_xlabel("Time")
         ax.set_ylabel("2-Norm of Difference")
-        ax.set_title(f"Deviation from ICs of {self._currentSlice.viewAdjective}{self._currentParam.title} for $B_0={self.loader.B:.1f}$")
+        ax.set_title(f"Deviation from ICs of {self._currentSlice.viewAdjective}{self._currentParam.title} for $B_0={self.loader.B}$")
 
         ax.plot(self.times, self._getNormsOfDiffs())
         return fig, ax
@@ -260,7 +260,7 @@ class VideoMaker:
 
         ax.set_xlabel("Time")
         ax.set_ylabel(f"Mean {self._currentParam.title}")
-        ax.set_title(f"Mean {self._currentParam.title} Near Origin for $B_0={self.loader.B:.1f}$")
+        ax.set_title(f"Mean {self._currentParam.title} Near Origin for $B_0={self.loader.B}$")
 
         ax.plot(self.times, self._getMeansAtOrigin())
         return fig, ax
@@ -286,7 +286,7 @@ class VideoMaker:
 
         ax.set_xlabel("Frequency")
         ax.set_ylabel("Amplitude")
-        ax.set_title(f"Periodogram of Means at Origin for $B_0={self.loader.B:.1f}$")
+        ax.set_title(f"Periodogram of Means at Origin for $B_0={self.loader.B}$")
 
         ax.plot(freq, power)
         return fig, ax
