@@ -2,6 +2,7 @@ output_directory: /mnt/lustre/IAM851/jm1667/psc-scrap/figs/
 suites:
   standard:
     slice: center
+    case: auto
     videos: [ne, j_rho, j_phi]
     profiles: [e_rho]
     sequences: [ne]
