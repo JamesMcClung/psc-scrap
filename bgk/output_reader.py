@@ -268,7 +268,7 @@ class VideoMaker:
     def getIdxPeriod(self) -> float:
         data = self._getMeansAtOrigin()
         idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
-        return round(1 / idx_freq[power.argmax()])
+        return round(1 / idx_freq[sig.find_peaks(power, prominence=power.max() / 10)[0][0]])
 
     def viewPeriodogram(self, fig: mplf.Figure = None, ax: plt.Axes = None, annotate: bool = True) -> tuple[mplf.Figure, plt.Axes]:
         if not (fig or ax):
