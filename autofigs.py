@@ -8,6 +8,7 @@ import matplotlib.figure as mplf
 import matplotlib.cm as mplcm
 import numpy as np
 import xarray as xr
+from sequence import Sequence
 
 ########################################################
 
@@ -25,7 +26,7 @@ config = get_autofigs_config()
 
 ########################################################
 
-FIGURE_OPTIONS = ["sequences", "profiles", "videos", "stabilities", "origin_means", "periodograms", "distr_in_sequence"]
+FIGURE_OPTIONS = ["profiles", "videos", "stabilities", "origin_means", "periodograms"]
 empty_suite = {figure_option: [] for figure_option in FIGURE_OPTIONS}
 
 
@@ -186,57 +187,39 @@ for item in config["instructions"]:
 
             save_fig(fig, get_fig_name("periodogram", param_str, case))
 
-        ##########################
+    ##########################
 
-        if param_str in item["sequences"]:
-            include_distr = param_str in item["distr_in_sequence"]
-            print(f"    Generating sequence{' with distribution' * include_distr}...")
+    if item.get("sequences", []):
+        # get times and step indices
+        print(f"  Loading ne for sequences...")
+        videoMaker.loadData(bgk.run_params.ne)
+        videoMaker.setSlice(which_slice)
 
-            if item["periodic"]:
-                time_cutoff_idx = videoMaker.getIdxPeriod()
-                titleText = "Over First Oscillation"
-            else:
-                time_cutoff_idx = len(videoMaker.times) - 1
-                titleText = "Over Run"
+        if item["periodic"]:
+            time_cutoff_frame_idx = videoMaker.getIdxPeriod()
+            titleText = "Over First Oscillation"
+        else:
+            time_cutoff_frame_idx = len(videoMaker.times) - 1
+            titleText = "Over Run"
 
-            # ————————————————————————#
+        n_frames = min(5, time_cutoff_frame_idx + 1)
+        frame_idxs = [round(i * time_cutoff_frame_idx / (n_frames - 1)) for i in range(n_frames)]
 
-            if include_distr:
-                particles = bgk.ParticleReader(path)
+        times = [videoMaker.times[frame_idx] for frame_idx in frame_idxs]
+        step_idxs = [frame_idx * videoMaker._which_stepsPerFrame(videoMaker._currentParam.outputBaseName) for frame_idx in frame_idxs]
+        particles = bgk.ParticleReader(path)
 
-            # ————————————————————————#
+        for seq_params in item["sequences"]:
+            print(f"    Generating sequence [{', '.join(seq_params)}]...")
+            seq = Sequence(len(seq_params), step_idxs, times)
+            for i, seq_param in enumerate(seq_params):
+                seq_param = str(seq_param)  # just for the linter; doesn't do anything
+                print(f"      Loading {seq_param}...")
+                if seq_param.startswith("prt:"):
+                    seq.plot_row_prt(i, particles, seq_param.removeprefix("prt:"))
+                else:
+                    videoMaker.loadData(bgk.run_params.__dict__[seq_param])
+                    videoMaker.setSlice(which_slice)
+                    seq.plot_row_pfd(i, videoMaker)
 
-            nStillFrames = min(5, time_cutoff_idx + 1)
-
-            fig, axs = plt.subplots(1 + include_distr, nStillFrames + 1)
-            stillFrames = [round(i * time_cutoff_idx / (nStillFrames - 1)) for i in range(nStillFrames)]
-
-            img_ax_row = axs[0] if include_distr else axs
-            img_cax = img_ax_row[-1]
-            for frame, img_ax in zip(stillFrames, img_ax_row):
-                _, _, im = videoMaker.viewFrame(frame, fig, img_ax, minimal=True)
-                img_ax.set_title(f"$t={videoMaker.times[frame]:.2f}$")
-                img_ax.tick_params("both", which="both", labelbottom=False, labelleft=frame == stillFrames[0])
-                img_ax.set_aspect(1)
-            img_cax.set_aspect(20)
-            fig.colorbar(im, cax=img_cax)
-
-            if include_distr:
-                distr_ax_row = axs[1]
-                distr_cax = distr_ax_row[-1]
-                for frame, distr_ax in zip(stillFrames, distr_ax_row):
-                    particles.read_step(frame * videoMaker._which_stepsPerFrame(param.outputBaseName))
-                    _, _, mesh = particles.plot_distribution(fig, distr_ax, minimal=True, means=False)
-                    distr_ax.set_title("")
-                    distr_ax.tick_params("both", which="both", labelbottom=True, labelleft=frame == stillFrames[0])
-                    distr_ax.set_aspect("auto")
-                distr_cax.set_aspect(20)
-                fig.colorbar(mesh, cax=distr_cax)
-
-            fig.set_size_inches(9, 2.5 * (1 + include_distr))
-            fig.suptitle(f"Snapshots of {param.title} for $B_0={B}$ {titleText}")
-            fig.tight_layout(pad=0)
-
-            # ————————————————————————#
-
-            save_fig(fig, get_fig_name("sequence", param_str, case))
+            save_fig(seq.get_fig(f"Snapshots of {', '.join(seq_params)} for $B_0={B}$ {titleText}"), get_fig_name("sequence", ",".join(seq_params), case))
