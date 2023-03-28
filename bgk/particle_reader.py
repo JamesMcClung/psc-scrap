@@ -53,17 +53,18 @@ class ParticleReader:
         # self.df = df[df.r < size / 2**0.5]
 
     def plot_distribution(
-        self, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False, means: bool = True
+        self, param: str, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False, show_mean: bool = True
     ) -> tuple[mplf.Figure, plt.Axes, mplc.QuadMesh]:
+        """param: "v_phi", "v_rho", "py", "pz" """
 
         if not (fig or ax):
             fig, ax = plt.subplots()
 
-        hist, rhos, v_phis = np.histogram2d(self.df.r, self.df.v_phi, bins=[60, 80])
+        hist, rhos, vals = np.histogram2d(self.df.r, self.df[param], bins=[60, 80])
         rhos_cc = (rhos[1:] + rhos[:-1]) / 2
         fs2d = hist.T / rhos_cc
 
-        mesh = ax.pcolormesh(rhos, v_phis, fs2d, cmap="Reds")
+        mesh = ax.pcolormesh(rhos, vals, fs2d, cmap="Reds")
 
         if not minimal:
             ax.set_xlabel("$\\rho$")
@@ -71,15 +72,17 @@ class ParticleReader:
             ax.set_title(f"f($\\rho$, $v_\\phi$) at t={self.t:.3f} for $B={self.B}$")
             fig.colorbar(mesh)
 
-        ax.set_ylim(-0.003, 0.003)
-        if means:
-            v_phis_cc = (v_phis[1:] + v_phis[:-1]) / 2
+        if param in ["v_phi", "v_rho", "py", "pz"]:
+            ax.set_ylim(-0.003, 0.003)
 
-            mean_v_phis = fs2d.T.dot(v_phis_cc) / fs2d.sum(axis=0)
-            mean_v_phis_input = np.array([self.input.interpolate_value(rho, "v_phi") for rho in rhos_cc])
+        if show_mean:
+            vals_cc = (vals[1:] + vals[:-1]) / 2
 
-            ax.plot(rhos_cc, mean_v_phis, "k", label="actual mean")
-            ax.plot(rhos_cc, mean_v_phis_input, "b", label="target mean")
+            mean_vals = fs2d.T.dot(vals_cc) / fs2d.sum(axis=0)
+            # mean_vals_input = np.array([self.input.interpolate_value(rho, "v_phi") for rho in rhos_cc])
+
+            ax.plot(rhos_cc, mean_vals, "k", label="mean")
+            # ax.plot(rhos_cc, mean_vals_input, "b", label="target mean")
             ax.legend()
 
         return fig, ax, mesh
