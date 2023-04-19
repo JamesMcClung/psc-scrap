@@ -222,4 +222,15 @@ for item in config["instructions"]:
                     videoMaker.setSlice(which_slice)
                     seq.plot_row_pfd(i, videoMaker)
 
-            save_fig(seq.get_fig(f"Snapshots of {', '.join(seq_params)} for $B_0={B}$ {titleText}"), get_fig_name("sequence", ",".join(seq_params), case))
+            def name_to_latex(name: str) -> str:
+                name = name.replace("rho", "\\rho").replace("phi", "\\phi")
+                if "_" not in name:
+                    name = name[0] + "_" + name[1:]
+                if name.startswith("prt:"):
+                    name = f"f(\\rho, {name.removeprefix('prt:')})"
+                else:
+                    name += "(y, z)"
+                return name
+
+            params_latex = ", ".join([name_to_latex(seq_param) for seq_param in seq_params])
+            save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {titleText}"), get_fig_name("sequence", ",".join(seq_params), case))
