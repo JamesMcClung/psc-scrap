@@ -22,7 +22,7 @@ T = typing.TypeVar("T")
 
 
 def readParam(path: str, paramName: str, paramType: typing.Callable[[str], T], default: T = None) -> T:
-    with open(path + "params_record.txt") as records:
+    with open(os.path.join(path, "params_record.txt")) as records:
         for line in records:
             if line.startswith(paramName):
                 return paramType(line.split()[1])
@@ -84,7 +84,7 @@ class Loader:
 
     def _get_xr_dataset(self, outputBaseName: typing.Literal["pfd", "pfd_moments", "gauss"], step: int) -> xr.Dataset:
         return xr.open_dataset(
-            self.path + f"{outputBaseName}.{str(step).rjust(9,'0')}.bp",
+            os.path.join(self.path, f"{outputBaseName}.{str(step).rjust(9,'0')}.bp"),
             engine=self.engine,
             species_names=self.species_names,
         )
