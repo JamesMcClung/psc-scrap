@@ -5,8 +5,7 @@ suites:
     case: auto
     videos: [ne, j_rho, j_phi]
     profiles: [e_rho]
-    sequences: [ne]
-    distr_in_sequence: [ne]
+    sequences: [[ne, prt:v_phi]]
     stabilities: [ne]
     origin_means: [ne]
     periodograms: [ne]
