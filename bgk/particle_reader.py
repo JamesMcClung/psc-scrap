@@ -3,6 +3,7 @@ import matplotlib.figure as mplf
 import matplotlib.collections as mplc
 import numpy as np
 import pandas as pd
+import os
 
 from .output_reader import readParam, Loader
 from .input_reader import Input
@@ -14,7 +15,7 @@ __all__ = ["ParticleReader"]
 
 def _read_step(path: str, step: int, electronsOnly: bool = True) -> pd.DataFrame:
     rank = 0
-    df = pd.read_hdf(path + f"prt.{step:06d}_p{rank:06d}.h5", "particles/p0/1d")
+    df = pd.read_hdf(os.path.join(path, f"prt.{step:06d}_p{rank:06d}.h5"), "particles/p0/1d")
     df.drop(columns=["x", "px", "m", "w", "tag"], inplace=True)
     if electronsOnly:
         df = df[df.q == -1]
