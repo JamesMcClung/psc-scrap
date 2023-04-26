@@ -155,9 +155,9 @@ class VideoMaker:
 
         if isinstance(param.varName, list):
             if param.combine == "magnitude":
-                rawData = _prepData(sum(dataset[var]) ** 2 for var in param.varName) ** 0.5
+                rawData = _prepData(sum(dataset[var] ** 2 for var in param.varName)) ** 0.5
             elif param.combine == "sum":
-                rawData = _prepData(sum(dataset[var]) for var in param.varName)
+                rawData = _prepData(sum(dataset[var] for var in param.varName))
             elif param.combine == "difference":
                 rawData = _prepData(dataset[param.varName[0]] - dataset[param.varName[1]])
             else:
