@@ -48,6 +48,9 @@ print(f"Generating figures in {outdir}")
 for item in config["instructions"]:
     item = apply_suite(item)
     path = item["path"]
+    prefix = item.get("prefix", "")
+    if prefix.endswith("/"):
+        os.makedirs(os.path.join(outdir, item["prefix"]), exist_ok=True)
     print(f"Entering {path}")
 
     case = item["case"]
@@ -80,8 +83,13 @@ for item in config["instructions"]:
         maybe_rev = "-rev" if ve_coef < 0 else ""
         return f"{fig_type}-{param_str}-{case}{maybe_rev}-B{B:05.2f}-n{res}.{ext}"
 
+    def get_fig_path(fig_name: str) -> str:
+        if prefix.endswith("/"):
+            return os.path.join(outdir, prefix, fig_name)
+        return os.path.join(outdir, prefix + fig_name)
+
     def save_fig(fig: mplf.Figure, fig_name: str) -> None:
-        fig.savefig(os.path.join(outdir, fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
+        fig.savefig(get_fig_path(fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
         plt.close("all")
 
     ##########################
@@ -158,7 +166,7 @@ for item in config["instructions"]:
             fig.tight_layout(pad=0)
             anim = videoMaker.viewMovie(fig, ax, im)
 
-            anim.save(os.path.join(outdir, get_fig_name("movie", param_str, case)), dpi=450)
+            anim.save(get_fig_path(get_fig_name("movie", param_str, case)), dpi=450)
 
         ##########################
 
