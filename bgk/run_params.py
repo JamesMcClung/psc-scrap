@@ -24,9 +24,13 @@ j_phi = ParamMetadata("$J_\\phi$", None, None, "RdBu", "pfd", ["jy_ec", "jz_ec"]
 ne = ParamMetadata("$n_e$", 0, None, "inferno", "pfd_moments", "rho_e", coef=-1)
 ni = ParamMetadata("$n_i$", 0, None, "inferno", "pfd_moments", "rho_i")
 te = ParamMetadata("$T_e$", 0, None, "inferno", "pfd_moments", ["tyy_e", "tzz_e"], combine="sum")
+te_x = ParamMetadata("$T_e$", 0, None, "inferno", "pfd_moments", "txx_e")
 ti = ParamMetadata("$T_i$", 0, None, "inferno", "pfd_moments", ["tyy_i", "tzz_i"], combine="sum")
 ve_rho = ParamMetadata("$v_{e,\\rho}$", -0.0005, 0.0005, "RdBu", "pfd_moments", ["jy_e", "jz_e"], combine="radial", coef=-1)
 ve_phi = ParamMetadata("$v_{e,\\phi}$", -0.0005, 0.0005, "RdBu", "pfd_moments", ["jy_e", "jz_e"], combine="azimuthal", coef=-1)
+ve_x = ParamMetadata("$v_{e,x}$", -0.0005, 0.0005, "RdBu", "pfd_moments", "jx_e", coef=-1)
+ve_y = ParamMetadata("$v_{e,y}$", -0.0005, 0.0005, "RdBu", "pfd_moments", "jy_e", coef=-1)
+ve_z = ParamMetadata("$v_{e,z}$", -0.0005, 0.0005, "RdBu", "pfd_moments", "jz_e", coef=-1)
 vi_phi = ParamMetadata("$v_{i,\\phi}$", None, None, "RdBu", "pfd_moments", ["jy_i", "jz_i"], combine="azimuthal")
 
 # gauss
