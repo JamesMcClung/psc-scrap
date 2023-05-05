@@ -55,7 +55,7 @@ for item in config["instructions"]:
 
     case = item["case"]
     if case == "auto":
-        case = "max" if "max" in path else "exact"
+        case = "max" if bgk.readParam(path, "maxwellian", str).lower() == "true" else "exact"
 
     B = bgk.readParam(path, "H_x", float)
     res = bgk.readParam(path, "n_grid", int)
