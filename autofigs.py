@@ -241,4 +241,4 @@ for item in config["instructions"]:
                 return name
 
             params_latex = ", ".join([name_to_latex(seq_param) for seq_param in seq_params])
-            save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {titleText}"), get_fig_name("sequence", ",".join(seq_params), case))
+            save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ $B_0={B}$ {titleText}"), get_fig_name("sequence", ",".join(seq_params).replace(":", ""), case))
