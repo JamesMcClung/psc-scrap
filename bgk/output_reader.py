@@ -44,10 +44,6 @@ def _getFactors(n: int) -> list[int]:
     return factors
 
 
-def _setTitle(ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
-    ax.set_title(viewAdj + paramName + " (t={:.3f})".format(time))
-
-
 class DataSlice:
     def __init__(self, slice: slice, viewAdjective: str) -> None:
         self.slice = slice
@@ -74,6 +70,10 @@ class Loader:
         self.moments_every = readParam(path, "moments_every", int, 200)
         self.gauss_every = readParam(path, "gauss_every", int)
         self.nmax = readParam(path, "nmax", int)
+
+        self.maxwellian = readParam(path, "maxwellian", lambda s: s.lower() == "true")
+        self.ve_coef = readParam(path, "v_e_coef", int)
+        self.case_name = ("Maxwellian" if self.maxwellian else "Exact") + (", Reversed" if self.ve_coef < 0 else "")
 
         # init max written step for each type of output
         bpfiles = [fname for fname in os.listdir(self.path) if fname[-2:] == "bp"]
@@ -127,6 +127,9 @@ class VideoMaker:
 
         self.moments_stepsPerFrame = self.loader.moments_max // self.nframes
         self.moments_stepsPerFrame -= self.moments_stepsPerFrame % self.loader.moments_every
+
+    def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
+        ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.loader.B}$, {self.loader.case_name})")
 
     def _which_every(self, outputBaseName: str) -> int:
         return {
@@ -218,7 +221,7 @@ class VideoMaker:
         if not minimal:
             ax.set_xlabel("y")
             ax.set_ylabel("z")
-            _setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
+            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
             plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
             fig.colorbar(im, ax=ax)
 
@@ -227,7 +230,7 @@ class VideoMaker:
     def viewMovie(self, fig: mplf.Figure, ax: plt.Axes, im: mpli.AxesImage) -> animation.FuncAnimation:
         def updateIm(frameIdx: int):
             im.set_array(self.slicedDatas[frameIdx])
-            _setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
+            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
             return [im]
 
         return animation.FuncAnimation(fig, updateIm, interval=30, frames=self.nframes, repeat=False, blit=True)
@@ -244,7 +247,7 @@ class VideoMaker:
 
         ax.set_xlabel("Time")
         ax.set_ylabel("2-Norm of Difference")
-        ax.set_title(f"Deviation from ICs of {self._currentSlice.viewAdjective}{self._currentParam.title} for $B_0={self.loader.B}$")
+        ax.set_title(f"Deviation from ICs of {self._currentSlice.viewAdjective}{self._currentParam.title} ($B_0={self.loader.B}$, {self.loader.case_name})")
 
         ax.plot(self.times, self._getNormsOfDiffs())
         return fig, ax
@@ -286,7 +289,7 @@ class VideoMaker:
 
         ax.set_xlabel("Frequency")
         ax.set_ylabel("Amplitude")
-        ax.set_title(f"Periodogram of Means at Origin for $B_0={self.loader.B}$")
+        ax.set_title(f"Periodogram of $n_e(0,0)$ ($B_0={self.loader.B}$, {self.loader.case_name})")
 
         ax.plot(freq, power)
         return fig, ax
