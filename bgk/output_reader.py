@@ -252,9 +252,9 @@ class VideoMaker:
         ax.plot(self.times, self._getNormsOfDiffs())
         return fig, ax
 
-    def _getMeansAtOrigin(self) -> npt.NDArray[np.float64]:
+    def _getMeansAtOrigin(self, sample_size: int = 2) -> npt.NDArray[np.float64]:
         orig_idx = len(self.datas[0]) // 2
-        orig_slice = slice(orig_idx - 1, orig_idx + 2)
+        orig_slice = slice(orig_idx - sample_size // 2, orig_idx + sample_size // 2)
         return np.array([data.isel(y=orig_slice, z=orig_slice).values.mean() for data in self.datas])
 
     def viewMeansAtOrigin(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
