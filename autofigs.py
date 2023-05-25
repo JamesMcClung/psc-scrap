@@ -94,7 +94,7 @@ for item in config["instructions"]:
 
     ##########################
 
-    nframes = 100
+    nframes = item.get("nframes", 100)
     videoMaker = bgk.VideoMaker(nframes, loader)
 
     ##########################
