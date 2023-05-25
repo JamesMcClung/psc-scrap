@@ -1,8 +1,9 @@
-output_directory: /mnt/lustre/IAM851/jm1667/psc-scrap/figs/
+output_directory: /mnt/lustre/IAM851/jm1667/psc-scrap/figs-exact/
 suites:
   standard:
-    slice: center
+    slice: center # Either "whole" or "center". The former works better for small B, but it's best to put those in a separate output directory.
     case: auto
+    periodic: false # Not all runs are aperiodic! Manually set periodic: true when applicable
     videos: [ne, j_rho, j_phi]
     profiles: [e_rho]
     sequences: [[ne, prt:v_phi]]
@@ -10,28 +11,31 @@ suites:
     origin_means: [ne]
     periodograms: [ne]
 instructions:
-  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/double_prt/B1_n512_v+/
-    # B=1, maxwellian
-    case: maxwellian
-    periodic: true
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B00.10-n256
     suite: standard
-  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/single_truedist/B1/
-    # B=1, exact
-    case: exact
-    periodic: false
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B00.10-n512
     suite: standard
-  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/single_truedist/B1-/
-    # B=1, exact, reversed
-    case: exact
-    periodic: true
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B00.25-n256
     suite: standard
-  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/single_truedist/B10/
-    # B=10, exact
-    case: exact
-    periodic: false
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B00.25-n512
     suite: standard
-  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/single_truedist/B.1_smallbox/
-    # B=0.1, exact
-    case: exact
-    periodic: false
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B00.50-n256
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B00.50-n512
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B01.00-n256
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B01.00-n512
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B02.00-n256
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B02.00-n512
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B04.00-n256
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B04.00-n512
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B10.00-n256
+    suite: standard
+  - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B10.00-n512
     suite: standard
