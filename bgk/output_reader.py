@@ -117,6 +117,7 @@ class VideoMaker:
         self.loader = loader
         self.nframes = nframes
         self.rGrid = None
+        self._currentParam = None
 
         # init stepsPerFrame for each type of output
         self.gauss_stepsPerFrame = self.loader.gauss_max // self.nframes
@@ -179,6 +180,8 @@ class VideoMaker:
         return param.coef * rawData, dataset.time
 
     def loadData(self, param: ParamMetadata) -> None:
+        if param == self._currentParam:
+            return
         self._currentParam = param
         self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, idx) for idx in range(self.nframes)])]
         self.times = np.array(self.times)
