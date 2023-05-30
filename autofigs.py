@@ -37,6 +37,14 @@ def apply_suite(instruction_item: dict) -> dict:
     filled_instruction_item.update(instruction_item)
     return filled_instruction_item
 
+########################################################
+
+def get_params_in_order(item: dict[str, list[str]]) -> list[str]:
+    params = set(sum((item[option] for option in FIGURE_OPTIONS), start=[]))
+    if "ne" in params:
+        params.remove("ne")
+        return ["ne"] + list(params)
+    return list(params)
 
 ########################################################
 
@@ -97,8 +105,18 @@ for item in config["instructions"]:
     nframes = item.get("nframes", 100)
     videoMaker = bgk.VideoMaker(nframes, loader)
 
+    if item["periodic"]:
+        print(f"  Loading ne for determining period...")
+        videoMaker.loadData(bgk.run_params.ne)
+        videoMaker.setSlice(which_slice)
+        time_cutoff_idx = videoMaker.getIdxPeriod()
+        duration_in_title = "Over First Oscillation"
+    else:
+        # time_cutoff_idx is determined cheaply later
+        duration_in_title = "Over Run"
+
     ##########################
-    for param_str in set(sum((item[option] for option in FIGURE_OPTIONS), start=[])):
+    for param_str in get_params_in_order(item):
         print(f"  Loading {param_str}...")
 
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
@@ -124,12 +142,8 @@ for item in config["instructions"]:
 
             # ————————————————————————#
 
-            if item["periodic"]:
-                time_cutoff_idx = videoMaker.getIdxPeriod()
-                titleText = "Over First Oscillation"
-            else:
+            if not item["periodic"]:
                 time_cutoff_idx = len(videoMaker.times) - 1
-                titleText = "Over Run"
 
             # ————————————————————————#
 
@@ -149,7 +163,7 @@ for item in config["instructions"]:
 
             ax.set_xlabel("$\\rho$")
             ax.set_ylabel(param.title)
-            ax.set_title(f"Changing Radial Profile of {param.title} for $B_0={B}$ {titleText}")
+            ax.set_title(f"Changing Radial Profile of {param.title} for $B_0={B}$ {duration_in_title}")
             ax.legend()
             fig.tight_layout()
 
@@ -203,15 +217,11 @@ for item in config["instructions"]:
         videoMaker.loadData(bgk.run_params.ne)
         videoMaker.setSlice(which_slice)
 
-        if item["periodic"]:
-            time_cutoff_frame_idx = videoMaker.getIdxPeriod()
-            titleText = "Over First Oscillation"
-        else:
-            time_cutoff_frame_idx = len(videoMaker.times) - 1
-            titleText = "Over Run"
+        if not item["periodic"]:
+            time_cutoff_idx = len(videoMaker.times) - 1
 
-        n_frames = min(5, time_cutoff_frame_idx + 1)
-        frame_idxs = [round(i * time_cutoff_frame_idx / (n_frames - 1)) for i in range(n_frames)]
+        n_frames = min(5, time_cutoff_idx + 1)
+        frame_idxs = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
 
         times = [videoMaker.times[frame_idx] for frame_idx in frame_idxs]
         step_idxs = [frame_idx * videoMaker._which_stepsPerFrame(videoMaker._currentParam.outputBaseName) for frame_idx in frame_idxs]
@@ -241,4 +251,4 @@ for item in config["instructions"]:
                 return name
 
             params_latex = ", ".join([name_to_latex(seq_param) for seq_param in seq_params])
-            save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ $B_0={B}$ {titleText}"), get_fig_name("sequence", ",".join(seq_params).replace(":", ""), case))
+            save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ $B_0={B}$ {duration_in_title}"), get_fig_name("sequence", ",".join(seq_params).replace(":", ""), case))
