@@ -34,19 +34,17 @@ T_i 1e-12
 path_to_data /mnt/lustre/IAM851/jm1667/psc/inputs/bgk/case1-B={B}-input.txt
 
 H_x {B}
-box_size -1
+rel_box_size 1
 
 n_grid {res}
-n_patches -1
 n_cells_per_patch 16
 
 nicell 100
 cfl .75
 maxwellian {str(maxwellian).lower()}
 
-box_size_3 1
+rel_box_size_3 1
 n_grid_3 1
-n_patches_3 -1
 
 reverse_v_half false
 v_e_coef {v_coef}
