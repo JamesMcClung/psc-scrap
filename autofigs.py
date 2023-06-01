@@ -79,9 +79,7 @@ for item in config["instructions"]:
 
     loader = bgk.Loader(path, engine="pscadios2", species_names=["e", "i"])
 
-    size = bgk.readParam(path, "box_size", float)
-    if size < 0:
-        size = loader._get_xr_dataset("pfd", 0).length[1]  # get the y-length (= z-length)
+    size = loader._get_xr_dataset("pfd", 0).length[1]  # get the y-length (= z-length)
 
     ##########################
 
