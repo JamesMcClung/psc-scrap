@@ -13,10 +13,16 @@ class ParamMetadata:
 
 # pfd
 e_y = ParamMetadata("$E_y$", None, None, "RdBu", "pfd", "ey_ec")
+e_z = ParamMetadata("$E_z$", None, None, "RdBu", "pfd", "ez_ec")
 e_rho = ParamMetadata("$E_\\rho$", None, None, "RdBu", "pfd", ["ey_ec", "ez_ec"], combine="radial")
+e_phi = ParamMetadata("$E_\\phi$", None, None, "RdBu", "pfd", ["ey_ec", "ez_ec"], combine="azimuthal")
 b_x = ParamMetadata("$B_x$", None, None, "RdBu", "pfd", "hx_fc")
 b_y = ParamMetadata("$B_y$", None, None, "RdBu", "pfd", "hy_fc", skipFirst=True)
+b_z = ParamMetadata("$B_z$", None, None, "RdBu", "pfd", "hz_fc", skipFirst=True)
+b_rho = ParamMetadata("$B_\\rho$", None, None, "RdBu", "pfd", ["hy_fc", "hz_fc"], combine="radial")
+b_phi = ParamMetadata("$B_\\phi$", None, None, "RdBu", "pfd", ["hy_fc", "hz_fc"], combine="azimuthal")
 j_y = ParamMetadata("$J_y$", None, None, "RdBu", "pfd", "jy_ec", skipFirst=True)
+j_z = ParamMetadata("$J_z$", None, None, "RdBu", "pfd", "jz_ec", skipFirst=True)
 j_rho = ParamMetadata("$J_\\rho$", None, None, "RdBu", "pfd", ["jy_ec", "jz_ec"], skipFirst=True, combine="radial")
 j_phi = ParamMetadata("$J_\\phi$", None, None, "RdBu", "pfd", ["jy_ec", "jz_ec"], skipFirst=True, combine="azimuthal")
 
