@@ -67,4 +67,5 @@ read_checkpoint false
 
     os.makedirs(os.path.dirname(dest_file), exist_ok=True)
     with open(dest_file, "w") as file:
+        print(f"Writing to {dest_file}")
         file.write(text)
