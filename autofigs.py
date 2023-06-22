@@ -61,7 +61,7 @@ for item in config["instructions"]:
         os.makedirs(os.path.join(outdir, item["prefix"]), exist_ok=True)
     print(f"Entering {path}")
 
-    case = item["case"]
+    case = item.get("case", "auto")
     if case == "auto":
         case = "max" if bgk.readParam(path, "maxwellian", str).lower() == "true" else "exact"
 
