@@ -63,7 +63,7 @@ def _prepData(data: xr.DataArray, recenter_x=False, recenter_y=False, recenter_z
         rolled = data.rolling(z=2).mean()
         rolled[:,:,0] = (data[:,:,0] + data[:,:,-1]) / 2
         data = rolled
-    return data[0, :, :].transpose() # FIXME why do i do this? Swaps y and z, which negates phi. Are figures unflipped later?
+    return data[0, :, :].transpose() # This is correct - y and z may be initially mislabeled
 
 def _recenter(name: str, dim: str) -> bool:
     # ec => recenter same dim; fc => recenter other dims
