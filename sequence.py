@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import matplotlib.figure as mplf
+import matplotlib.ticker as ticker
 import bgk
 
 
@@ -37,8 +38,11 @@ class Sequence:
             ax.set_title(f"$t={time}$" if row_idx == 0 else "")
             ax.tick_params("both", which="both", labelbottom=row_idx == len(self.axs) - 1, labelleft=step_idx == self.step_idxs[0])
             ax.set_aspect("auto")
+
         cmap_ax.set_aspect("auto")
-        self.fig.colorbar(mesh, cax=cmap_ax)
+        cbar_formatter = ticker.ScalarFormatter()
+        cbar_formatter.set_powerlimits((-1,3))
+        self.fig.colorbar(mesh, cax=cmap_ax, format=cbar_formatter)
 
     def get_fig(self, title: str) -> mplf.Figure:
         self.fig.suptitle(title)
