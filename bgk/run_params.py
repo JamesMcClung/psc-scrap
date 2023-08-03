@@ -40,6 +40,6 @@ ve_z = ParamMetadata("$v_{e,z}$", -0.0005, 0.0005, "RdBu", "pfd_moments", "jz_e"
 vi_phi = ParamMetadata("$v_{i,\\phi}$", None, None, "RdBu", "pfd_moments", ["jy_i", "jz_i"], combine="azimuthal")
 
 # gauss
-# dive = ParamMetadata("Div E", -1.5, 1.5, "RdBu", "gauss", "dive")
-# rho = ParamMetadata("Charge Density", -1.5, 1.5, "RdBu", "gauss", "rho")
-# gaussError = ParamMetadata("Gauss Error", -0.005, 0.005, "RdBu", "gauss", ["dive", "rho"], combine="difference")
+gauss_dive = ParamMetadata("Div E", -1.5, 1.5, "RdBu", "gauss", "dive")
+gauss_rho = ParamMetadata("Charge Density", -1.5, 1.5, "RdBu", "gauss", "rho")
+gauss_error = ParamMetadata("Gauss Error", -0.005, 0.005, "RdBu", "gauss", ["dive", "rho"], combine="difference")
