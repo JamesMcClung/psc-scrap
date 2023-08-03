@@ -99,7 +99,7 @@ class Loader:
 
     def _get_xr_dataset(self, outputBaseName: typing.Literal["pfd", "pfd_moments", "gauss"], step: int) -> xr.Dataset:
         return xr.open_dataset(
-            os.path.join(self.path, f"{outputBaseName}.{str(step).rjust(9,'0')}.bp"),
+            os.path.join(self.path, f"{outputBaseName}.{step:09d}.bp"),
             engine=self.engine,
             species_names=self.species_names,
         )
