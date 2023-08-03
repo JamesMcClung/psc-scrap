@@ -16,7 +16,17 @@ __all__ = ["ParticleReader"]
 def _read_step(path: str, step: int, electronsOnly: bool = True) -> pd.DataFrame:
     rank = 0
     df = pd.read_hdf(os.path.join(path, f"prt.{step:06d}_p{rank:06d}.h5"), "particles/p0/1d")
+
+    df["r"] = (df.y**2 + df.z**2) ** 0.5
+    df.drop(df[df.r > df.y.max()].index, inplace=True)
+
+    df["v_phi"] = (df.pz * df.y - df.py * df.z) / df.r
+    df["v_rho"] = (df.py * df.y + df.pz * df.z) / df.r
+    df.v_rho.fillna(0, inplace=True)
+    df.v_phi.fillna(0, inplace=True)
+
     df.drop(columns=["x", "px", "m", "w", "tag"], inplace=True)
+
     if electronsOnly:
         df = df[df.q == -1]
         df.drop(columns=["q"], inplace=True)
@@ -41,16 +51,6 @@ class ParticleReader:
 
         self.df = _read_step(self.path, step)
         self.input = Input(self.inputFile)
-
-        df = self.df
-        df["r"] = (df.y**2 + df.z**2) ** 0.5
-        df["v_phi"] = (df.pz * df.y - df.py * df.z) / df.r
-        df["v_rho"] = (df.py * df.y + df.pz * df.z) / df.r
-        df.v_rho.fillna(0, inplace=True)
-        df.v_phi.fillna(0, inplace=True)
-
-        # size = df.y.max() - df.y.min()
-        # self.df = df[df.r < size / 2**0.5]
 
     def plot_distribution(
         self, param: str, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False, show_mean: bool = True
