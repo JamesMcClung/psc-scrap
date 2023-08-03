@@ -74,7 +74,7 @@ def _get_out_max(bpfiles: list[str], outType: str) -> int:
 
 
 class Loader:
-    def __init__(self, path: str, engine: str, species_names: list[str]) -> None:
+    def __init__(self, path: str, engine: str, species_names: list[str], max_step: int=0) -> None:
         self.path = path
         self.engine = engine
         self.species_names = species_names
@@ -93,9 +93,9 @@ class Loader:
         # init max written step for each type of output
         bpfiles = [fname for fname in os.listdir(self.path) if fname[-2:] == "bp"]
 
-        self.fields_max = _get_out_max(bpfiles, "pfd")
-        self.moments_max = _get_out_max(bpfiles, "pfd_moments")
-        self.gauss_max = _get_out_max(bpfiles, "gauss")
+        self.fields_max = max_step or _get_out_max(bpfiles, "pfd")
+        self.moments_max = max_step or _get_out_max(bpfiles, "pfd_moments")
+        self.gauss_max = max_step or _get_out_max(bpfiles, "gauss")
 
     def _get_xr_dataset(self, outputBaseName: typing.Literal["pfd", "pfd_moments", "gauss"], step: int) -> xr.Dataset:
         return xr.open_dataset(
