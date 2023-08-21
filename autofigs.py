@@ -27,7 +27,7 @@ config = get_autofigs_config()
 
 ########################################################
 
-FIGURE_OPTIONS = ["profiles", "videos", "stabilities", "origin_means", "periodograms"]
+FIGURE_OPTIONS = ["profiles", "videos", "stabilities", "origin_means", "periodograms", "sequences"]
 empty_suite = {figure_option: [] for figure_option in FIGURE_OPTIONS}
 
 
@@ -215,7 +215,7 @@ for item in config["instructions"]:
 
     ##########################
 
-    if item.get("sequences", []):
+    if item["sequences"]:
         # get times and step indices
         print(f"  Loading ne for sequences...")
         videoMaker.loadData(bgk.run_params.ne)
