@@ -18,10 +18,18 @@ _TRIVIAL_FIGURE_TYPES.remove("sequences")
 
 _VALID_FLAGS = {"save"}
 
-flags = {arg.lstrip("-") for arg in sys.argv if arg.startswith("-")}
+
+def _extract_flag_and_val(arg: str) -> tuple[str, str | None]:
+    arg = arg.lstrip("-")
+    if "=" in arg:
+        return tuple(arg.split("="))
+    return arg, None
+
+
+flags = dict(_extract_flag_and_val(arg) for arg in sys.argv if arg.startswith("-"))
 args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
 
-if invalid_flags := flags - _VALID_FLAGS:
+if invalid_flags := set(flags) - _VALID_FLAGS:
     print(f"Invalid flags: {invalid_flags}")
     exit(1)
 
