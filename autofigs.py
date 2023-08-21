@@ -9,7 +9,10 @@ import matplotlib.cm as mplcm
 import numpy as np
 import xarray as xr
 from sequence import Sequence
-from autofigs_history import History
+from autofigs_history import History, _FIGURE_TYPES
+
+_TRIVIAL_FIGURE_TYPES = _FIGURE_TYPES.copy()
+_TRIVIAL_FIGURE_TYPES.remove("sequences")
 
 ########################################################
 
@@ -27,8 +30,7 @@ config = get_autofigs_config()
 
 ########################################################
 
-FIGURE_OPTIONS = ["profiles", "videos", "stabilities", "origin_means", "periodograms", "sequences"]
-empty_suite = {figure_option: [] for figure_option in FIGURE_OPTIONS}
+empty_suite = {figure_option: [] for figure_option in _FIGURE_TYPES}
 
 
 def apply_suite(instruction_item: dict) -> dict:
@@ -43,7 +45,7 @@ def apply_suite(instruction_item: dict) -> dict:
 
 
 def get_params_in_order(item: dict[str, list[str]]) -> list[str]:
-    params = set(sum((item[option] for option in FIGURE_OPTIONS), start=[]))
+    params = set(sum((item[option] for option in _TRIVIAL_FIGURE_TYPES), start=[]))
     if "ne" in params:
         params.remove("ne")
         return ["ne"] + list(params)
