@@ -9,6 +9,7 @@ import matplotlib.cm as mplcm
 import numpy as np
 import xarray as xr
 from sequence import Sequence
+from autofigs_history import History
 
 ########################################################
 
@@ -50,6 +51,8 @@ def get_params_in_order(item: dict[str, list[str]]) -> list[str]:
 
 
 ########################################################
+
+history = History("autofigs.history.yml")
 
 for item in config["instructions"]:
     item = apply_suite(item)
@@ -253,3 +256,7 @@ for item in config["instructions"]:
 
             params_latex = ", ".join([name_to_latex(seq_param) for seq_param in seq_params])
             save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {duration_in_title}"), get_fig_name("sequence", ",".join(seq_params).replace(":", ""), case))
+
+    history.log_item(item)
+
+history.save()
