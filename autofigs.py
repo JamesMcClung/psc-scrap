@@ -300,6 +300,5 @@ for item in config["instructions"]:
             save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {duration_in_title}"), get_fig_name("sequence", ",".join(seq_params).replace(":", ""), case))
 
     history.log_item(item)
-
-if "save" in flags:
-    history.save()
+    if "save" in flags:
+        history.save()
