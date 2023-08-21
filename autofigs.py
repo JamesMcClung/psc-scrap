@@ -16,9 +16,22 @@ _TRIVIAL_FIGURE_TYPES.remove("sequences")
 
 ########################################################
 
+_VALID_FLAGS = {"save"}
+
+flags = {arg.lstrip("-") for arg in sys.argv if arg.startswith("-")}
+args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
+
+if invalid_flags := flags - _VALID_FLAGS:
+    print(f"Invalid flags: {invalid_flags}")
+    exit(1)
+
+
+if "save" not in flags:
+    print("WARNING: NOT SAVING TO HISTORY. ADD --save TO RECORD.")
+
 
 def get_autofigs_config() -> str:
-    file = "autofigs.yml" if len(sys.argv) == 1 else sys.argv[1]
+    file = "autofigs.yml" if not args else args[0]
     with open(file, "r") as stream:
         try:
             return yaml.safe_load(stream)
@@ -261,4 +274,5 @@ for item in config["instructions"]:
 
     history.log_item(item)
 
-history.save()
+if "save" in flags:
+    history.save()
