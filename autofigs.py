@@ -16,7 +16,7 @@ _TRIVIAL_FIGURE_TYPES.remove("sequences")
 
 ########################################################
 
-_VALID_FLAGS = {"save"}
+_VALID_FLAGS = {"save", "only"}
 
 
 def _extract_flag_and_val(arg: str) -> tuple[str, str | None]:
@@ -31,6 +31,9 @@ args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
 
 if invalid_flags := set(flags) - _VALID_FLAGS:
     print(f"Invalid flags: {invalid_flags}")
+    exit(1)
+if "only" in flags and flags["only"] not in _FIGURE_TYPES:
+    print(f"Invalid value for --only: {flags['only']}")
     exit(1)
 
 
@@ -62,6 +65,17 @@ def apply_suite(instruction_item: dict) -> dict:
     return filled_instruction_item
 
 
+def maybe_apply_only_flag(instruction_item: dict) -> dict:
+    if "only" not in flags:
+        return instruction_item
+    chosen_figure = flags["only"]
+    filtered_item = instruction_item.copy()
+    for opt in instruction_item:
+        if opt in _FIGURE_TYPES and opt != chosen_figure:
+            filtered_item[opt] = []
+    return filtered_item
+
+
 ########################################################
 
 
@@ -79,6 +93,7 @@ history = History("autofigs.history.yml")
 
 for item in config["instructions"]:
     item = apply_suite(item)
+    item = maybe_apply_only_flag(item)
     path = item["path"]
 
     outdir = item["output_directory"]
