@@ -31,14 +31,18 @@ args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
 
 if invalid_flags := set(flags) - _VALID_FLAGS:
     print(f"Invalid flags: {invalid_flags}")
+    print(f"Valid flags: {_VALID_FLAGS}")
     exit(1)
 if "only" in flags and flags["only"] not in _FIGURE_TYPES:
-    print(f"Invalid value for --only: {flags['only']}")
+    print(f"Invalid --only value: {flags['only']}")
+    print(f"Valid --only values: {_FIGURE_TYPES}")
     exit(1)
 
 
 if "save" not in flags:
     print("WARNING: NOT SAVING TO HISTORY. ADD --save TO RECORD.")
+
+########################################################
 
 
 def get_autofigs_config() -> str:
