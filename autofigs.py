@@ -16,7 +16,7 @@ _TRIVIAL_FIGURE_TYPES.remove("sequences")
 
 ########################################################
 
-_VALID_FLAGS = {"save", "only"}
+_VALID_FLAGS = {"save", "only", "warn"}
 
 
 def _extract_flag_and_val(arg: str) -> tuple[str, str | None]:
@@ -37,6 +37,11 @@ if "only" in flags and flags["only"] not in _FIGURE_TYPES:
     print(f"Invalid --only value: {flags['only']}")
     print(f"Valid --only values: {_FIGURE_TYPES}")
     exit(1)
+for flag in ["save", "warn"]:
+    if flag in flags and flags[flag] is not None:
+        print(f"Invalid --{flag} value: {flags[flag]}")
+        print(f"Flag --{flag} does not take values.")
+        exit(1)
 
 
 if "save" not in flags:
@@ -99,6 +104,8 @@ for item in config["instructions"]:
     item = apply_suite(item)
     item = maybe_apply_only_flag(item)
     path = item["path"]
+
+    history.log_item(item, warn="warn" in flags)
 
     outdir = item["output_directory"]
     os.makedirs(outdir, exist_ok=True)
@@ -299,6 +306,5 @@ for item in config["instructions"]:
             params_latex = ", ".join([name_to_latex(seq_param) for seq_param in seq_params])
             save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {duration_in_title}"), get_fig_name("sequence", ",".join(seq_params).replace(":", ""), case))
 
-    history.log_item(item)
     if "save" in flags:
         history.save()
