@@ -37,40 +37,36 @@ def _update_figure_lists(old_item: dict, new_item: dict):
 class History:
     def __init__(self, file: str) -> None:
         self.file = file
-        self.items: list[dict] = []
 
-    def log_item(self, item: dict):
-        self.items.append(item)
-
-    def save(self):
         if not os.path.isfile(self.file):
-            history = {"instructions": []}
+            self.history = {"instructions": []}
         else:
             with open(self.file, "r") as stream:
                 try:
-                    history = yaml.safe_load(stream)
+                    self.history = yaml.safe_load(stream)
                 except yaml.YAMLError as e:
                     print(e)
 
-        for new_item in self.items:
-            path = new_item["path"]
+    def log_item(self, new_item: dict):
+        path = new_item["path"]
 
-            old_items_same_path = [old_item for old_item in history["instructions"] if old_item["path"] == path]
+        old_items_same_path = [old_item for old_item in self.history["instructions"] if old_item["path"] == path]
 
+        for old_item in old_items_same_path:
+            if not _find_item_setting_differences(old_item, new_item):
+                _update_figure_lists(old_item, new_item)
+                break
+        else:
+            print(f"New settings used for {path} ({len(old_items_same_path)} old settings found)")
             for old_item in old_items_same_path:
-                if not _find_item_setting_differences(old_item, new_item):
-                    _update_figure_lists(old_item, new_item)
-                    break
-            else:
-                print(f"New settings used for {path} ({len(old_items_same_path)} old settings found)")
-                for old_item in old_items_same_path:
-                    print(f"  Old: " + _get_settings_as_str(old_item))
-                print(f"  New: " + _get_settings_as_str(new_item))
+                print(f"  Old: " + _get_settings_as_str(old_item))
+            print(f"  New: " + _get_settings_as_str(new_item))
 
-                history["instructions"].append(new_item)
+            self.history["instructions"].append(new_item)
 
+    def save(self):
         with open(self.file, "w") as stream:
             try:
-                yaml.safe_dump(history, stream)
+                yaml.safe_dump(self.history, stream)
             except yaml.YAMLError as e:
                 print(e)
