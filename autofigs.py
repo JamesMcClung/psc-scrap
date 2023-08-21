@@ -37,7 +37,9 @@ def apply_suite(instruction_item: dict) -> dict:
     filled_instruction_item.update(instruction_item)
     return filled_instruction_item
 
+
 ########################################################
+
 
 def get_params_in_order(item: dict[str, list[str]]) -> list[str]:
     params = set(sum((item[option] for option in FIGURE_OPTIONS), start=[]))
@@ -46,20 +48,21 @@ def get_params_in_order(item: dict[str, list[str]]) -> list[str]:
         return ["ne"] + list(params)
     return list(params)
 
+
 ########################################################
-
-outdir = config["output_directory"]
-os.makedirs(outdir, exist_ok=True)
-
-print(f"Generating figures in {outdir}")
 
 for item in config["instructions"]:
     item = apply_suite(item)
     path = item["path"]
+
+    outdir = item["output_directory"]
+    os.makedirs(outdir, exist_ok=True)
+
     prefix = item.get("prefix", "")
     if prefix.endswith("/"):
         os.makedirs(os.path.join(outdir, item["prefix"]), exist_ok=True)
     print(f"Entering {path}")
+    print(f"Saving to {outdir}")
 
     case = item.get("case", "auto")
     if case == "auto":

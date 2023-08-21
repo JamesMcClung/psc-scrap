@@ -1,6 +1,6 @@
-output_directory: /mnt/lustre/IAM851/jm1667/psc-scrap/figs-exact/
 suites:
   standard:
+    output_directory: /mnt/lustre/IAM851/jm1667/psc-scrap/figs-exact/
     slice: whole # Either "whole" or "center". The former works better for small B, but it's best to put those in a separate output directory.
     periodic: true # Not all runs are aperiodic! Manually set periodic: true when applicable
     videos: [ne, j_rho, j_phi, e_rho, e_phi]
