@@ -103,18 +103,19 @@ history = History("autofigs.history.yml")
 for item in config["instructions"]:
     item = apply_suite(item)
     item = maybe_apply_only_flag(item)
+
     path = item["path"]
-
-    history.log_item(item, warn="warn" in flags)
-
     outdir = item["output_directory"]
     os.makedirs(outdir, exist_ok=True)
+
+    print(f"Entering {path}")
+    print(f"Saving to {outdir}")
+
+    history.log_item(item, warn="warn" in flags)
 
     prefix = item.get("prefix", "")
     if prefix.endswith("/"):
         os.makedirs(os.path.join(outdir, item["prefix"]), exist_ok=True)
-    print(f"Entering {path}")
-    print(f"Saving to {outdir}")
 
     case = item.get("case", "auto")
     if case == "auto":
