@@ -135,6 +135,7 @@ class VideoMaker:
         self.nframes = nframes
         self.rGrid = None
         self._currentParam = None
+        self._lengths = None
 
         # init stepsPerFrame for each type of output
         self.gauss_stepsPerFrame = self.loader.gauss_max // self.nframes
@@ -193,8 +194,14 @@ class VideoMaker:
                 rawData = rawData.fillna(0)
         else:
             rawData = _prepData(dataset[param.varName])
-        self.length: npt.NDArray = dataset.length
+        self._lengths = tuple(dataset.length)
         return param.coef * rawData, dataset.time
+
+    @property
+    def lengths(self) -> tuple[float, float, float]:
+        if self._lengths is None:
+            self._lengths = tuple(self.loader._get_xr_dataset("pfd", 0))
+        return self._lengths
 
     def loadData(self, param: ParamMetadata) -> None:
         if param == self._currentParam:
@@ -205,9 +212,9 @@ class VideoMaker:
 
     def setSlice(self, _slice: DataSlice) -> None:
         if _slice.slice.start is None:
-            _slice.slice = slice(-self.length[1] / 2, _slice.slice.stop)
+            _slice.slice = slice(-self.lengths[1] / 2, _slice.slice.stop)
         if _slice.slice.stop is None:
-            _slice.slice = slice(_slice.slice.start, self.length[1] / 2)
+            _slice.slice = slice(_slice.slice.start, self.lengths[1] / 2)
         self._currentSlice = _slice
         self.slicedDatas = [data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for data in self.datas]
 
