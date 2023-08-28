@@ -311,3 +311,6 @@ class VideoMaker:
 
         ax.plot(freq, power)
         return fig, ax
+
+    def getLocalExtremaIndices(self, comparator=np.greater) -> np.array:
+        return sig.argrelextrema(self._getMeansAtOrigin(), comparator, order=5)[0]
