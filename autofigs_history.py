@@ -2,7 +2,7 @@ import yaml
 import os
 
 _SETTINGS = ["nframes", "slice", "periodic", "output_directory"]
-_FIGURE_TYPES = ["videos", "profiles", "sequences", "stabilities", "origin_means", "periodograms"]
+_FIGURE_TYPES = ["videos", "profiles", "sequences", "stabilities", "origin_means", "periodograms", "extrema"]
 
 
 def _find_item_setting_differences(item1: dict, item2: dict):

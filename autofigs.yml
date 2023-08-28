@@ -10,6 +10,7 @@ suites:
     stabilities: [ne]
     origin_means: [ne]
     periodograms: [ne]
+    extrema: [ne]
 instructions:
   - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B00.10-n256
     suite: standard
