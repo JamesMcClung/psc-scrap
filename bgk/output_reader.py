@@ -53,28 +53,30 @@ class DataSlice:
 def _prepData(data: xr.DataArray, recenter_x=False, recenter_y=False, recenter_z=False) -> xr.DataArray:
     if recenter_x:
         rolled = data.rolling(x=2).mean()
-        rolled[0,:,:] = (data[0,:,:] + data[-1,:,:]) / 2
+        rolled[0, :, :] = (data[0, :, :] + data[-1, :, :]) / 2
         data = rolled
     if recenter_y:
         rolled = data.rolling(y=2).mean()
-        rolled[:,0,:] = (data[:,0,:] + data[:,-1,:]) / 2
+        rolled[:, 0, :] = (data[:, 0, :] + data[:, -1, :]) / 2
         data = rolled
     if recenter_z:
         rolled = data.rolling(z=2).mean()
-        rolled[:,:,0] = (data[:,:,0] + data[:,:,-1]) / 2
+        rolled[:, :, 0] = (data[:, :, 0] + data[:, :, -1]) / 2
         data = rolled
-    return data[0, :, :].transpose() # This is correct - y and z may be initially mislabeled
+    return data[0, :, :].transpose()  # This is correct - y and z may be initially mislabeled
+
 
 def _recenter(name: str, dim: str) -> bool:
     # ec => recenter same dim; fc => recenter other dims
     return (name[1] == dim) == name.endswith("ec")
+
 
 def _get_out_max(bpfiles: list[str], outType: str) -> int:
     return max(itertools.chain([0], (int(fname.split(".")[1]) for fname in bpfiles if fname.startswith(f"{outType}."))))
 
 
 class Loader:
-    def __init__(self, path: str, engine: str, species_names: list[str], max_step: int=0) -> None:
+    def __init__(self, path: str, engine: str, species_names: list[str], max_step: int = 0) -> None:
         self.path = path
         self.engine = engine
         self.species_names = species_names
