@@ -286,7 +286,7 @@ class VideoMaker:
         ax.plot(self.times, self._getMeansAtOrigin())
         return fig, ax
 
-    def getIdxPeriod(self) -> float:
+    def getIdxPeriod(self) -> int:
         data = self._getMeansAtOrigin()
         idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
         return round(1 / idx_freq[sig.find_peaks(power, prominence=power.max() / 10)[0][0]])
