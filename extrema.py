@@ -31,13 +31,13 @@ def plot_extrema(
     def plot_lines(indices, cmap, label_indices):
         for i in indices:
             label = f"$t={videoMaker.times[i]:.2f}$" if i in label_indices else "_nolegend_"
-            ax.plot(rs, allMeans[i], color=cmap(i / max(indices)), label=label)
+            ax.plot(rs, allMeans[i], color=cmap(i / max(indices) if len(indices) > 1 else 0.5), label=label)
 
     def get_cmap(name: str, min: float = 0.0, max: float = 1.0, reverse: bool = False):
         return lambda x: matplotlib.colormaps[name](min + (1 - x if reverse else x) * (max - min))
 
-    cmap_mins = get_cmap("Blues", min=0.4)
-    cmap_maxs = get_cmap("Reds", min=0.4)
+    cmap_mins = get_cmap("Blues", min=0.3, max=0.9)
+    cmap_maxs = get_cmap("Reds", min=0.3, max=0.9)
 
     plot_lines(indices_mins, cmap_mins, [indices_mins[0], indices_mins[-1]])
     plot_lines(indices_maxs, cmap_maxs, [indices_maxs[0], indices_maxs[-1]])
