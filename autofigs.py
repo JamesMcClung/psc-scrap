@@ -9,11 +9,10 @@ import matplotlib as mpl
 import numpy as np
 import xarray as xr
 from sequence import Sequence
-from autofigs_history import History, _FIGURE_TYPES
+from autofigs_history import History
 import bgk.autofigs as autofigs
+from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
-_TRIVIAL_FIGURE_TYPES = _FIGURE_TYPES.copy()
-_TRIVIAL_FIGURE_TYPES.remove("sequences")
 
 ########################################################
 
@@ -34,9 +33,9 @@ if invalid_flags := set(flags) - _VALID_FLAGS:
     print(f"Invalid flags: {invalid_flags}")
     print(f"Valid flags: {_VALID_FLAGS}")
     exit(1)
-if "only" in flags and flags["only"] not in _FIGURE_TYPES:
+if "only" in flags and flags["only"] not in FIGURE_TYPES:
     print(f"Invalid --only value: {flags['only']}")
-    print(f"Valid --only values: {_FIGURE_TYPES}")
+    print(f"Valid --only values: {FIGURE_TYPES}")
     exit(1)
 for flag in ["save", "warn"]:
     if flag in flags and flags[flag] is not None:
@@ -64,7 +63,7 @@ config = get_autofigs_config()
 
 ########################################################
 
-empty_suite = {figure_option: [] for figure_option in _FIGURE_TYPES}
+empty_suite = {figure_option: [] for figure_option in FIGURE_TYPES}
 
 
 def apply_suite(instruction_item: dict) -> dict:
@@ -81,7 +80,7 @@ def maybe_apply_only_flag(instruction_item: dict) -> dict:
     chosen_figure = flags["only"]
     filtered_item = instruction_item.copy()
     for opt in instruction_item:
-        if opt in _FIGURE_TYPES and opt != chosen_figure:
+        if opt in FIGURE_TYPES and opt != chosen_figure:
             filtered_item[opt] = []
     return filtered_item
 
@@ -90,7 +89,7 @@ def maybe_apply_only_flag(instruction_item: dict) -> dict:
 
 
 def get_params_in_order(item: dict[str, list[str]]) -> list[str]:
-    params = set(sum((item[option] for option in _TRIVIAL_FIGURE_TYPES), start=[]))
+    params = set(sum((item[option] for option in TRIVIAL_FIGURE_TYPES), start=[]))
     if "ne" in params:
         params.remove("ne")
         return ["ne"] + list(params)
