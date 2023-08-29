@@ -44,7 +44,7 @@ def plot_extrema(
 
     ax.set_xlabel("$\\rho$")
     ax.set_ylabel(videoMaker._currentParam.title)
-    ax.set_title(f"Extremal Profiles of {videoMaker._currentParam.title} for $B={videoMaker.loader.B}$ over Run")
+    ax.set_title(f"Extremal Profiles of {videoMaker._currentParam.title} for $B_0={videoMaker.loader.B}$")
     ax.legend()
     fig.tight_layout()
 
