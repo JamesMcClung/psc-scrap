@@ -22,8 +22,8 @@ def plot_extrema(
 
     allMeans = np.array([[getMean(videoMaker.slicedDatas[idx], r) for r in rs] for idx in range(videoMaker.nframes)])
 
-    indices_maxs = videoMaker.getLocalExtremaIndices()
-    indices_mins = videoMaker.getLocalExtremaIndices(np.less)
+    indices_maxs = videoMaker.getLocalExtremaIndices(np.greater_equal) or [videoMaker.nframes - 1]
+    indices_mins = videoMaker.getLocalExtremaIndices(np.less_equal) or [0]
 
     if not (fig or ax):
         fig, ax = plt.subplots()
