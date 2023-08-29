@@ -3,9 +3,17 @@ import os
 
 _SETTINGS = ["nframes", "slice", "periodic", "output_directory"]
 _FIGURE_TYPES = ["videos", "profiles", "sequences", "stabilities", "origin_means", "periodograms", "extrema"]
+_METASETTINGS = ["suite"]
 
 
-def _find_item_setting_differences(item1: dict, item2: dict):
+def _without_metasettings(item: dict) -> dict:
+    item = dict(item)
+    for ms in _METASETTINGS:
+        item.pop(ms, None)
+    return item
+
+
+def _find_item_setting_differences(item1: dict, item2: dict) -> list[str]:
     diffs = []
     for setting in _SETTINGS:
         if item1[setting] != item2[setting]:
@@ -48,6 +56,7 @@ class History:
                     print(e)
 
     def log_item(self, new_item: dict, warn: bool = False):
+        new_item = _without_metasettings(new_item)
         path = new_item["path"]
 
         old_items_same_path = [old_item for old_item in self.history["instructions"] if old_item["path"] == path]
