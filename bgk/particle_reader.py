@@ -53,7 +53,12 @@ class ParticleReader:
         self.input = Input(self.inputFile)
 
     def plot_distribution(
-        self, param: str, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False, show_mean: bool = True
+        self,
+        param: str,
+        fig: mplf.Figure = None,
+        ax: plt.Axes = None,
+        minimal: bool = False,
+        show_mean: bool = True,
     ) -> tuple[mplf.Figure, plt.Axes, mplc.QuadMesh]:
         """param: "v_phi", "v_rho", "py", "pz" """
 
@@ -83,6 +88,6 @@ class ParticleReader:
 
             ax.plot(rhos_cc, mean_vals, "k", label="mean")
             # ax.plot(rhos_cc, mean_vals_input, "b", label="target mean")
-            ax.legend()
+            ax.legend(loc="lower right")
 
         return fig, ax, mesh
