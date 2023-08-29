@@ -10,7 +10,7 @@ import numpy as np
 import xarray as xr
 from sequence import Sequence
 from autofigs_history import History, _FIGURE_TYPES
-import extrema
+import bgk.autofigs as autofigs
 
 _TRIVIAL_FIGURE_TYPES = _FIGURE_TYPES.copy()
 _TRIVIAL_FIGURE_TYPES.remove("sequences")
@@ -182,7 +182,7 @@ for item in config["instructions"]:
 
         if param_str in item["extrema"]:
             print(f"    Generating extrema profiles...")
-            fig, _ = extrema.plot_extrema(videoMaker)
+            fig, _ = autofigs.plot_extrema(videoMaker)
             save_fig(fig, get_fig_name("extrema", param_str, case))
 
         ##########################
