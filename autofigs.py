@@ -188,47 +188,10 @@ for item in config["instructions"]:
 
         if param_str in item["profiles"]:
             print(f"    Generating profile...")
-            maxR = videoMaker._currentSlice.slice.stop
-            rStep = size / 100
-
-            def getMean(data: xr.DataArray, r: float) -> float:
-                rslice = data.where((r <= videoMaker.rGrid) & (videoMaker.rGrid < r + rStep))
-                return rslice.mean().item()
-
-            rs = np.arange(0, maxR, rStep)
-
-            # ————————————————————————#
-
-            allMeans = np.array([[getMean(videoMaker.slicedDatas[idx], r) for r in rs] for idx in range(nframes)])
-
-            # ————————————————————————#
 
             if not item["periodic"]:
                 time_cutoff_idx = len(videoMaker.times) - 1
-
-            # ————————————————————————#
-
-            nsamples = 13
-
-            indices = sorted(list({round(i) for i in np.linspace(0, time_cutoff_idx, nsamples)}))
-
-            cmap = mpl.colormaps["rainbow"]
-            n_label_indices = min(5, time_cutoff_idx + 1)
-            label_indices = [indices[round(i * (len(indices) - 1) / (n_label_indices - 1))] for i in range(n_label_indices)]
-
-            fig, ax = plt.subplots()
-
-            for i in indices:
-                label = f"$t={videoMaker.times[i]:.2f}$" if i in label_indices else "_nolegend_"
-                ax.plot(rs, allMeans[i], color=cmap(i / max(indices)), label=label)
-
-            ax.set_xlabel("$\\rho$")
-            ax.set_ylabel(param.title)
-            ax.set_title(f"Changing Radial Profile of {param.title} for $B_0={B}$ {duration_in_title}")
-            ax.legend()
-            fig.tight_layout()
-
-            # ————————————————————————#
+            fig, _ = autofigs.plot_profiles(videoMaker, time_cutoff_idx, duration_in_title)
 
             save_fig(fig, get_fig_name("profile", param_str, case))
 
