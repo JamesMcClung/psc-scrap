@@ -30,7 +30,7 @@ def plot_profiles(
     indices = sorted(list({round(i) for i in np.linspace(0, time_cutoff_idx, n_plots)}))
     label_indices = [indices[round(i * (len(indices) - 1) / (n_labels - 1))] for i in range(n_labels)]
 
-    cmap = util.get_cmap("rainbow")
+    cmap = util.get_cmap("Reds", min=0.3)
 
     extrema._plot_lines(ax, cmap, indices, label_indices, xdata=rs, ydatas=allMeans, tdata=videoMaker.times)
 
