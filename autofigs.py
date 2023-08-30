@@ -159,6 +159,8 @@ for item in config["instructions"]:
     nframes = item.get("nframes", 100)
     videoMaker = bgk.VideoMaker(nframes, loader)
 
+    params_to_load = get_params_in_order(item)
+
     if item["periodic"]:
         print(f"  Loading ne for determining period...")
         videoMaker.loadData(bgk.run_params.ne)
@@ -166,11 +168,15 @@ for item in config["instructions"]:
         time_cutoff_idx = videoMaker.getIdxPeriod()
         duration_in_title = "Over First Oscillation"
     else:
-        # time_cutoff_idx is determined cheaply later
+        first_param_str = params_to_load[0]
+        print(f"  Loading {first_param_str} for determining run duration...")
+        videoMaker.loadData(bgk.run_params.__dict__[first_param_str])
+        videoMaker.setSlice(which_slice)
+        time_cutoff_idx = len(videoMaker.times) - 1
         duration_in_title = "Over Run"
 
     ##########################
-    for param_str in get_params_in_order(item):
+    for param_str in params_to_load:
         print(f"  Loading {param_str}...")
 
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
@@ -188,11 +194,7 @@ for item in config["instructions"]:
 
         if param_str in item["profiles"]:
             print(f"    Generating profile...")
-
-            if not item["periodic"]:
-                time_cutoff_idx = len(videoMaker.times) - 1
             fig, _ = autofigs.plot_profiles(videoMaker, time_cutoff_idx, duration_in_title)
-
             save_fig(fig, get_fig_name("profile", param_str, case))
 
         ##########################
@@ -240,9 +242,6 @@ for item in config["instructions"]:
         print(f"  Loading ne for sequences...")
         videoMaker.loadData(bgk.run_params.ne)
         videoMaker.setSlice(which_slice)
-
-        if not item["periodic"]:
-            time_cutoff_idx = len(videoMaker.times) - 1
 
         n_frames = min(5, time_cutoff_idx + 1)
         frame_idxs = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
