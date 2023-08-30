@@ -1,12 +1,14 @@
 import bgk
-import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.figure as mplf
 from . import util
+
+# imports used for linting
+from matplotlib.figure import Figure
+from matplotlib.pyplot import Axes
 
 
 def _plot_lines(
-    ax: plt.Axes,
+    ax: Axes,
     cmap,
     plot_indices: list[int],
     label_indices: list[int],
@@ -21,9 +23,9 @@ def _plot_lines(
 
 def plot_extrema(
     videoMaker: bgk.output_reader.VideoMaker,
-    fig: mplf.Figure = None,
-    ax: plt.Axes = None,
-) -> tuple[mplf.Figure, plt.Axes]:
+    fig: Figure = None,
+    ax: Axes = None,
+) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     maxR = videoMaker._currentSlice.slice.stop
