@@ -88,6 +88,6 @@ class ParticleReader:
 
             ax.plot(rhos_cc, mean_vals, "k", label="mean")
             # ax.plot(rhos_cc, mean_vals_input, "b", label="target mean")
-            ax.legend(loc="lower right")
+            ax.legend(loc="right", fontsize="small")
 
         return fig, ax, mesh
