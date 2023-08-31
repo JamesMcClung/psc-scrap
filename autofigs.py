@@ -136,17 +136,15 @@ for item in config["instructions"]:
 
     ##########################
 
-    def get_fig_name(fig_type: str, param_str: str, case: str) -> str:
+    def get_fig_path(fig_type: str, param_str: str, case: str) -> str:
         ext = "mp4" if fig_type == "movie" else "png"
         param_str = param_str.replace("_", "")
         maybe_rev = "-rev" if ve_coef < 0 else ""
-        return f"{prefix}{fig_type}-{param_str}-{case}{maybe_rev}-B{B:05.2f}-n{res}.{ext}"
-
-    def get_fig_path(fig_name: str) -> str:
+        fig_name = f"{prefix}{fig_type}-{param_str}-{case}{maybe_rev}-B{B:05.2f}-n{res}.{ext}"
         return os.path.join(outdir, fig_name)
 
-    def save_fig(fig: mplf.Figure, fig_name: str) -> None:
-        fig.savefig(get_fig_path(fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
+    def save_fig(fig: mplf.Figure, fig_path: str) -> None:
+        fig.savefig(fig_path, bbox_inches="tight", pad_inches=0.01, dpi=300)
         plt.close("all")
 
     ##########################
@@ -183,14 +181,14 @@ for item in config["instructions"]:
         if param_str in item["extrema"]:
             print(f"    Generating extrema profiles...")
             fig, _ = autofigs.plot_extrema(videoMaker)
-            save_fig(fig, get_fig_name("extrema", param_str, case))
+            save_fig(fig, get_fig_path("extrema", param_str, case))
 
         ##########################
 
         if param_str in item["profiles"]:
             print(f"    Generating profile...")
             fig, _ = autofigs.plot_profiles(videoMaker, time_cutoff_idx, duration_in_title)
-            save_fig(fig, get_fig_name("profile", param_str, case))
+            save_fig(fig, get_fig_path("profile", param_str, case))
 
         ##########################
 
@@ -201,7 +199,7 @@ for item in config["instructions"]:
             fig.tight_layout(pad=0)
             anim = videoMaker.viewMovie(fig, ax, im)
 
-            anim.save(get_fig_path(get_fig_name("movie", param_str, case)), dpi=450)
+            anim.save(get_fig_path("movie", param_str, case), dpi=450)
 
         ##########################
 
@@ -210,7 +208,7 @@ for item in config["instructions"]:
 
             fig, _ = videoMaker.viewStability()
 
-            save_fig(fig, get_fig_name("stability", param_str, case))
+            save_fig(fig, get_fig_path("stability", param_str, case))
 
         ##########################
 
@@ -219,7 +217,7 @@ for item in config["instructions"]:
 
             fig, _ = videoMaker.viewMeansAtOrigin()
 
-            save_fig(fig, get_fig_name("originmean", param_str, case))
+            save_fig(fig, get_fig_path("originmean", param_str, case))
 
         ##########################
 
@@ -228,7 +226,7 @@ for item in config["instructions"]:
 
             fig, _ = videoMaker.viewPeriodogram()
 
-            save_fig(fig, get_fig_name("periodogram", param_str, case))
+            save_fig(fig, get_fig_path("periodogram", param_str, case))
 
     ##########################
 
@@ -269,7 +267,7 @@ for item in config["instructions"]:
                 return name
 
             params_latex = ", ".join([name_to_latex(seq_param) for seq_param in seq_params])
-            save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {duration_in_title}"), get_fig_name("sequence", ",".join(seq_params).replace(":", ""), case))
+            save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {duration_in_title}"), get_fig_path("sequence", ",".join(seq_params).replace(":", ""), case))
 
     if "save" in flags:
         history.save()
