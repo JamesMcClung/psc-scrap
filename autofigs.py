@@ -5,9 +5,6 @@ import yaml
 import bgk
 import matplotlib.pyplot as plt
 import matplotlib.figure as mplf
-import matplotlib as mpl
-import numpy as np
-import xarray as xr
 from sequence import Sequence
 from autofigs_history import History
 import bgk.autofigs as autofigs
@@ -113,7 +110,7 @@ for item in config["instructions"]:
 
     history.log_item(item, warn="warn" in flags)
 
-    prefix = item.get("prefix", "")
+    prefix: str = item.get("prefix", "")
     if prefix.endswith("/"):
         os.makedirs(os.path.join(outdir, item["prefix"]), exist_ok=True)
 
