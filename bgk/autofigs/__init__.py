@@ -1,3 +1,2 @@
-from .extrema import plot_extrema
-from .profiles import plot_profiles
+from .profiles import plot_profiles, plot_extrema
 from . import options
