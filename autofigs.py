@@ -8,6 +8,7 @@ import matplotlib.figure as mplf
 from sequence import Sequence
 from autofigs_history import History
 import bgk.autofigs as autofigs
+import bgk.autofigs.util as util
 from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
 
@@ -143,10 +144,6 @@ for item in config["instructions"]:
         fig_name = f"{prefix}{fig_type}-{param_str}-{case}{maybe_rev}-B{B:05.2f}-n{res}.{ext}"
         return os.path.join(outdir, fig_name)
 
-    def save_fig(fig: mplf.Figure, fig_path: str) -> None:
-        fig.savefig(fig_path, bbox_inches="tight", pad_inches=0.01, dpi=300)
-        plt.close("all")
-
     ##########################
 
     nframes = item.get("nframes", 100)
@@ -181,14 +178,14 @@ for item in config["instructions"]:
         if param_str in item["extrema"]:
             print(f"    Generating extrema profiles...")
             fig, _ = autofigs.plot_extrema(videoMaker)
-            save_fig(fig, get_fig_path("extrema", param_str, case))
+            util.save_fig(fig, get_fig_path("extrema", param_str, case), close=True)
 
         ##########################
 
         if param_str in item["profiles"]:
             print(f"    Generating profile...")
             fig, _ = autofigs.plot_profiles(videoMaker, time_cutoff_idx, duration_in_title)
-            save_fig(fig, get_fig_path("profile", param_str, case))
+            util.save_fig(fig, get_fig_path("profile", param_str, case), close=True)
 
         ##########################
 
@@ -200,33 +197,28 @@ for item in config["instructions"]:
             anim = videoMaker.viewMovie(fig, ax, im)
 
             anim.save(get_fig_path("movie", param_str, case), dpi=450)
+            plt.close(fig)
 
         ##########################
 
         if param_str in item["stabilities"]:
             print(f"    Generating stability plot...")
-
             fig, _ = videoMaker.viewStability()
-
-            save_fig(fig, get_fig_path("stability", param_str, case))
+            util.save_fig(fig, get_fig_path("stability", param_str, case), close=True)
 
         ##########################
 
         if param_str in item["origin_means"]:
             print(f"    Generating origin mean plot...")
-
             fig, _ = videoMaker.viewMeansAtOrigin()
-
-            save_fig(fig, get_fig_path("originmean", param_str, case))
+            util.save_fig(fig, get_fig_path("originmean", param_str, case), close=True)
 
         ##########################
 
         if param_str in item["periodograms"]:
             print(f"    Generating periodogram...")
-
             fig, _ = videoMaker.viewPeriodogram()
-
-            save_fig(fig, get_fig_path("periodogram", param_str, case))
+            util.save_fig(fig, get_fig_path("periodogram", param_str, case), close=True)
 
     ##########################
 
@@ -267,7 +259,7 @@ for item in config["instructions"]:
                 return name
 
             params_latex = ", ".join([name_to_latex(seq_param) for seq_param in seq_params])
-            save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {duration_in_title}"), get_fig_path("sequence", ",".join(seq_params).replace(":", ""), case))
+            util.save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {duration_in_title}"), get_fig_path("sequence", ",".join(seq_params).replace(":", ""), case), close=True)
 
     if "save" in flags:
         history.save()
