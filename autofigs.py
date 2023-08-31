@@ -140,12 +140,10 @@ for item in config["instructions"]:
         ext = "mp4" if fig_type == "movie" else "png"
         param_str = param_str.replace("_", "")
         maybe_rev = "-rev" if ve_coef < 0 else ""
-        return f"{fig_type}-{param_str}-{case}{maybe_rev}-B{B:05.2f}-n{res}.{ext}"
+        return f"{prefix}{fig_type}-{param_str}-{case}{maybe_rev}-B{B:05.2f}-n{res}.{ext}"
 
     def get_fig_path(fig_name: str) -> str:
-        if prefix.endswith("/"):
-            return os.path.join(outdir, prefix, fig_name)
-        return os.path.join(outdir, prefix + fig_name)
+        return os.path.join(outdir, fig_name)
 
     def save_fig(fig: mplf.Figure, fig_name: str) -> None:
         fig.savefig(get_fig_path(fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
