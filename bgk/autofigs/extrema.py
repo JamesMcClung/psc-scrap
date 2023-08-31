@@ -5,6 +5,20 @@ import matplotlib.figure as mplf
 from . import util
 
 
+def _plot_lines(
+    ax: plt.Axes,
+    cmap,
+    plot_indices: list[int],
+    label_indices: list[int],
+    xdata: list[float],
+    ydatas: list[list[float]],
+    tdata: list[float],
+):
+    for i in plot_indices:
+        label = f"$t={tdata[i]:.2f}$" if i in label_indices else "_nolegend_"
+        ax.plot(xdata, ydatas[i], color=cmap(i / max(plot_indices) if len(plot_indices) > 1 else 0.5), label=label)
+
+
 def plot_extrema(
     videoMaker: bgk.output_reader.VideoMaker,
     fig: mplf.Figure = None,
@@ -22,16 +36,11 @@ def plot_extrema(
     indices_maxs = videoMaker.getLocalExtremaIndices(np.greater_equal) or [videoMaker.nframes - 1]
     indices_mins = videoMaker.getLocalExtremaIndices(np.less_equal) or [0]
 
-    def plot_lines(indices, cmap, label_indices):
-        for i in indices:
-            label = f"$t={videoMaker.times[i]:.2f}$" if i in label_indices else "_nolegend_"
-            ax.plot(rs, allMeans[i], color=cmap(i / max(indices) if len(indices) > 1 else 0.5), label=label)
-
     cmap_mins = util.get_cmap("Blues", min=0.3, max=0.9)
     cmap_maxs = util.get_cmap("Reds", min=0.3, max=0.9)
 
-    plot_lines(indices_mins, cmap_mins, [indices_mins[0], indices_mins[-1]])
-    plot_lines(indices_maxs, cmap_maxs, [indices_maxs[0], indices_maxs[-1]])
+    _plot_lines(ax, cmap_mins, indices_mins, [indices_mins[0], indices_mins[-1]], xdata=rs, ydatas=allMeans, tdata=videoMaker.times)
+    _plot_lines(ax, cmap_maxs, indices_maxs, [indices_maxs[0], indices_maxs[-1]], xdata=rs, ydatas=allMeans, tdata=videoMaker.times)
 
     ax.set_xlabel("$\\rho$")
     ax.set_ylabel(videoMaker._currentParam.title)
