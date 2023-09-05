@@ -103,10 +103,15 @@ for item in config["instructions"]:
     item = maybe_apply_only_flag(item)
 
     path = item["path"]
+    print(f"Entering {path}")
+
+    params_to_load = get_params_in_order(item)
+    if not params_to_load:
+        print(f"No figures requested. Skipping.")
+        continue
+
     outdir = item["output_directory"]
     os.makedirs(outdir, exist_ok=True)
-
-    print(f"Entering {path}")
     print(f"Saving to {outdir}")
 
     history.log_item(item, warn="warn" in flags)
@@ -148,8 +153,6 @@ for item in config["instructions"]:
 
     nframes = item.get("nframes", 100)
     videoMaker = bgk.VideoMaker(nframes, loader)
-
-    params_to_load = get_params_in_order(item)
 
     if item["periodic"]:
         print(f"  Loading ne for determining period...")
