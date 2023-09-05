@@ -1,5 +1,16 @@
 class ParamMetadata:
-    def __init__(self, title, vmin, vmax, colors, outputBaseName, varName, coef=1, skipFirst=False, combine="magnitude"):
+    def __init__(
+        self,
+        title: str,
+        vmin: float | None,
+        vmax: float | None,
+        colors: str,
+        outputBaseName: str,
+        varName: str,
+        coef: float = 1.0,
+        skipFirst: bool = False,
+        combine: str = "magnitude",
+    ):
         self.title = title
         self.vmin = vmin
         self.vmax = vmax
