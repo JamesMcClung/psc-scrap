@@ -25,19 +25,20 @@ class ParamMetadata:
 
 
 # pfd
-e_y = ParamMetadata("e_y", "$E_y$", None, None, "RdBu", "pfd", "ey_ec")
-e_z = ParamMetadata("e_z", "$E_z$", None, None, "RdBu", "pfd", "ez_ec")
-e_rho = ParamMetadata("e_rho", "$E_\\rho$", None, None, "RdBu", "pfd", ["ey_ec", "ez_ec"], combine="radial")
-e_phi = ParamMetadata("e_phi", "$E_\\phi$", None, None, "RdBu", "pfd", ["ey_ec", "ez_ec"], combine="azimuthal")
-b_x = ParamMetadata("b_x", "$B_x$", None, None, "RdBu", "pfd", "hx_fc")
-b_y = ParamMetadata("b_y", "$B_y$", None, None, "RdBu", "pfd", "hy_fc", skipFirst=True)
-b_z = ParamMetadata("b_z", "$B_z$", None, None, "RdBu", "pfd", "hz_fc", skipFirst=True)
-b_rho = ParamMetadata("b_rho", "$B_\\rho$", None, None, "RdBu", "pfd", ["hy_fc", "hz_fc"], combine="radial")
-b_phi = ParamMetadata("b_phi", "$B_\\phi$", None, None, "RdBu", "pfd", ["hy_fc", "hz_fc"], combine="azimuthal")
-j_y = ParamMetadata("j_y", "$J_y$", None, None, "RdBu", "pfd", "jy_ec", skipFirst=True)
-j_z = ParamMetadata("j_z", "$J_z$", None, None, "RdBu", "pfd", "jz_ec", skipFirst=True)
-j_rho = ParamMetadata("j_rho", "$J_\\rho$", None, None, "RdBu", "pfd", ["jy_ec", "jz_ec"], skipFirst=True, combine="radial")
-j_phi = ParamMetadata("j_phi", "$J_\\phi$", None, None, "RdBu", "pfd", ["jy_ec", "jz_ec"], skipFirst=True, combine="azimuthal")
+e_y = ParamMetadata("e_y", "$E_y$", None, None, "RdBu_r", "pfd", "ey_ec")
+e_z = ParamMetadata("e_z", "$E_z$", None, None, "RdBu_r", "pfd", "ez_ec")
+e_rho = ParamMetadata("e_rho", "$E_\\rho$", None, None, "RdBu_r", "pfd", ["ey_ec", "ez_ec"], combine="radial")
+e_phi = ParamMetadata("e_phi", "$E_\\phi$", None, None, "RdBu_r", "pfd", ["ey_ec", "ez_ec"], combine="azimuthal")
+e = ParamMetadata("e", "$|E|$", 0, None, "inferno", "pfd", ["ey_ec", "ez_ec"], combine="magnitude")
+b_x = ParamMetadata("b_x", "$B_x$", None, None, "RdBu_r", "pfd", "hx_fc")
+b_y = ParamMetadata("b_y", "$B_y$", None, None, "RdBu_r", "pfd", "hy_fc", skipFirst=True)
+b_z = ParamMetadata("b_z", "$B_z$", None, None, "RdBu_r", "pfd", "hz_fc", skipFirst=True)
+b_rho = ParamMetadata("b_rho", "$B_\\rho$", None, None, "RdBu_r", "pfd", ["hy_fc", "hz_fc"], combine="radial")
+b_phi = ParamMetadata("b_phi", "$B_\\phi$", None, None, "RdBu_r", "pfd", ["hy_fc", "hz_fc"], combine="azimuthal")
+j_y = ParamMetadata("j_y", "$J_y$", None, None, "RdBu_r", "pfd", "jy_ec", skipFirst=True)
+j_z = ParamMetadata("j_z", "$J_z$", None, None, "RdBu_r", "pfd", "jz_ec", skipFirst=True)
+j_rho = ParamMetadata("j_rho", "$J_\\rho$", None, None, "RdBu_r", "pfd", ["jy_ec", "jz_ec"], skipFirst=True, combine="radial")
+j_phi = ParamMetadata("j_phi", "$J_\\phi$", None, None, "RdBu_r", "pfd", ["jy_ec", "jz_ec"], skipFirst=True, combine="azimuthal")
 
 # pfd_moments
 ne = ParamMetadata("ne", "$n_e$", 0, None, "inferno", "pfd_moments", "rho_e", coef=-1)
