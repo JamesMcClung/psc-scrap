@@ -10,6 +10,7 @@ import numpy.typing as npt
 import os
 import itertools
 import scipy.signal as sig
+from scipy.optimize import fmin
 
 from .run_params import ParamMetadata
 
@@ -136,6 +137,7 @@ class VideoMaker:
         self.rGrid = None
         self._currentParam = None
         self._lengths = None
+        self._last_lmin = 0, 0
 
         # init stepsPerFrame for each type of output
         self.gauss_stepsPerFrame = self.loader.gauss_max // self.nframes
@@ -185,13 +187,29 @@ class VideoMaker:
             else:
                 rawData_x = _prepData(dataset[param.varName[0]], recenter_y=_recenter(param.varName[0], "y"), recenter_z=_recenter(param.varName[0], "z"))
                 rawData_y = _prepData(dataset[param.varName[1]], recenter_y=_recenter(param.varName[1], "y"), recenter_z=_recenter(param.varName[1], "z"))
-                if param.combine == "radial":
-                    rawData = (rawData_x * self.xGrid + rawData_y * self.yGrid) / self.rGrid
-                elif param.combine == "azimuthal":
-                    rawData = (-rawData_x * self.yGrid + rawData_y * self.xGrid) / self.rGrid
-                else:
-                    raise Exception(f"Invalid combine method: {param.combine}")
-                rawData = rawData.fillna(0)
+
+                # recenter structure
+                def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
+                    adjusted_xgrid = self.xGrid - p[0]
+                    adjusted_ygrid = self.yGrid - p[1]
+                    adjusted_rgrid = (adjusted_xgrid**2 + adjusted_ygrid**2) ** 0.5
+
+                    if param.combine == "radial":
+                        rawData = (rawData_x * adjusted_xgrid + rawData_y * adjusted_ygrid) / adjusted_rgrid
+                    elif param.combine == "azimuthal":
+                        rawData = (-rawData_x * adjusted_ygrid + rawData_y * adjusted_xgrid) / adjusted_rgrid
+                    else:
+                        raise Exception(f"Invalid combine method: {param.combine}")
+                    rawData = rawData.fillna(0)
+
+                    if ret_rawdata:
+                        return rawData
+
+                    return np.sum(rawData**2)
+
+                self._last_lmin = fmin(sumsq, self._last_lmin, disp=False)
+
+                rawData = sumsq(self._last_lmin, True)
         else:
             rawData = _prepData(dataset[param.varName])
         self._lengths = tuple(dataset.length)
