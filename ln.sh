@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # usage: ln.sh <from> <to>
-# example: ln.sh exact/B01.00-n256 B01.00-n256-cont
+# example: ln.sh exact/B01.00-n256 exact/B01.00-n256-cont
 
 # to remove dead symlinks in current dir: `find . -xtype l -delete`
 
