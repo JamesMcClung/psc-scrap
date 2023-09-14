@@ -34,18 +34,9 @@ class Loader:
         self.engine = engine
         self.species_names = species_names
 
-        params_record = ParamsRecord(path)
+        self.params_record = ParamsRecord(path)
 
-        self.B = params_record.B0
-
-        self.fields_every = params_record.interval_fields
-        self.moments_every = params_record.interval_moments
-        self.gauss_every = params_record.interval_gauss
-        self.nmax = params_record.nmax
-
-        self.maxwellian = params_record.init_strategy == "max"
-        self.ve_coef = 1 if params_record.reversed else -1
-        self.case_name = ("Maxwellian" if self.maxwellian else "Exact") + (", Reversed" if self.ve_coef < 0 else "")
+        self.case_name = ("Maxwellian" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
         # init max written step for each type of output
         bpfiles = [fname for fname in os.listdir(self.path) if fname[-2:] == "bp"]
@@ -63,9 +54,9 @@ class Loader:
 
     def get_all_suggested_nframes(self, min_nframes: int) -> tuple[int, int, int]:
         """Return tuple of suggested nframes for fields, moments, and gauss outputs"""
-        fields_nframes = self._get_suggested_nframes(min_nframes, self.fields_max, self.fields_every)
-        moments_nframes = self._get_suggested_nframes(min_nframes, self.moments_max, self.moments_every)
-        gauss_nframes = self._get_suggested_nframes(min_nframes, self.gauss_max, self.gauss_every)
+        fields_nframes = self._get_suggested_nframes(min_nframes, self.fields_max, self.params_record.interval_fields)
+        moments_nframes = self._get_suggested_nframes(min_nframes, self.moments_max, self.params_record.interval_moments)
+        gauss_nframes = self._get_suggested_nframes(min_nframes, self.gauss_max, self.params_record.interval_gauss)
 
         return fields_nframes, moments_nframes, gauss_nframes
 

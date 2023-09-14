@@ -45,6 +45,7 @@ def _recenter(name: str, dim: str) -> bool:
 class VideoMaker:
     def __init__(self, nframes: int, loader: Loader) -> None:
         self.loader = loader
+        self.params_record = loader.params_record
         self.nframes = nframes
         self.rGrid = None
         self._currentParam = None
@@ -53,22 +54,22 @@ class VideoMaker:
 
         # init stepsPerFrame for each type of output
         self.gauss_stepsPerFrame = self.loader.gauss_max // self.nframes
-        self.gauss_stepsPerFrame -= self.gauss_stepsPerFrame % self.loader.gauss_every
+        self.gauss_stepsPerFrame -= self.gauss_stepsPerFrame % self.params_record.interval_gauss
 
         self.fields_stepsPerFrame = self.loader.fields_max // self.nframes
-        self.fields_stepsPerFrame -= self.fields_stepsPerFrame % self.loader.fields_every
+        self.fields_stepsPerFrame -= self.fields_stepsPerFrame % self.params_record.interval_fields
 
         self.moments_stepsPerFrame = self.loader.moments_max // self.nframes
-        self.moments_stepsPerFrame -= self.moments_stepsPerFrame % self.loader.moments_every
+        self.moments_stepsPerFrame -= self.moments_stepsPerFrame % self.params_record.interval_moments
 
     def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
-        ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.loader.B}$, {self.loader.case_name})")
+        ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self.loader.case_name})")
 
     def _which_every(self, outputBaseName: str) -> int:
         return {
-            "pfd": self.loader.fields_every,
-            "pfd_moments": self.loader.moments_every,
-            "gauss": self.loader.gauss_every,
+            "pfd": self.params_record.interval_fields,
+            "pfd_moments": self.params_record.interval_moments,
+            "gauss": self.params_record.interval_gauss,
         }[outputBaseName]
 
     def _which_stepsPerFrame(self, outputBaseName: str) -> int:
@@ -204,7 +205,7 @@ class VideoMaker:
 
         ax.set_xlabel("Time")
         ax.set_ylabel("2-Norm of Difference")
-        ax.set_title(f"Deviation from ICs of {self._currentSlice.viewAdjective}{self._currentParam.title} ($B_0={self.loader.B}$, {self.loader.case_name})")
+        ax.set_title(f"Deviation from ICs of {self._currentSlice.viewAdjective}{self._currentParam.title} ($B_0={self.params_record.B0}$, {self.loader.case_name})")
 
         ax.plot(self.times, self._getNormsOfDiffs())
         return fig, ax
@@ -220,7 +221,7 @@ class VideoMaker:
 
         ax.set_xlabel("Time")
         ax.set_ylabel(f"Mean {self._currentParam.title}")
-        ax.set_title(f"Mean {self._currentParam.title} Near Origin for $B_0={self.loader.B}$")
+        ax.set_title(f"Mean {self._currentParam.title} Near Origin for $B_0={self.params_record.B0}$")
 
         ax.plot(self.times, self._getMeansAtOrigin())
         return fig, ax
@@ -246,7 +247,7 @@ class VideoMaker:
 
         ax.set_xlabel("Frequency")
         ax.set_ylabel("Amplitude")
-        ax.set_title(f"Periodogram of $n_e(0,0)$ ($B_0={self.loader.B}$, {self.loader.case_name})")
+        ax.set_title(f"Periodogram of $n_e(0,0)$ ($B_0={self.params_record.B0}$, {self.loader.case_name})")
 
         ax.plot(freq, power)
         return fig, ax
