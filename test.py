@@ -19,5 +19,21 @@ for om, omr in zip(originmeans_ne, originmeans_reference_ne):
         print("Ref: [" + ", ".join(str(a) for a in originmeans_reference_ne) + "]")
         exit(1)
 
+# e_phi
+
+vm.loadData(bgk.run_params.e_phi)
+vm.setSlice(bgk.DataSlice(slice(None, None), ""))
+originmeans_ephi = vm._getMeansAtOrigin()
+
+originmeans_reference_ephi = [0.0, -5.821362447078367e-07, 1.2809847005002541e-06, 6.283653225057476e-07, 1.6482102010080233e-07, 1.7435539236190851e-06, -1.1990810999444915e-06, -1.7719621779482818e-06, 8.292421902933122e-07, 3.4683652129999285e-08]
+
+
+for om, omr in zip(originmeans_ephi, originmeans_reference_ephi):
+    if om != omr:
+        print("Test failed for e_phi.")
+        print("New: [" + ", ".join(str(a) for a in originmeans_ephi) + "]")
+        print("Ref: [" + ", ".join(str(a) for a in originmeans_reference_ephi) + "]")
+        exit(1)
+
 
 print("Test passed.")
