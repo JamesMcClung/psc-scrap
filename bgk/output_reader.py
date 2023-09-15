@@ -81,9 +81,10 @@ class VideoMaker:
 
     def _getDataAndTime(self, param: ParamMetadata, frameIdx: int) -> tuple[xr.DataArray, float]:
         if frameIdx == 0 and param.skipFirst:
-            dataset = self.loader._get_xr_dataset(param.outputBaseName, self._which_every(param.outputBaseName))
+            step = self._which_every(param.outputBaseName)
         else:
-            dataset = self.loader._get_xr_dataset(param.outputBaseName, frameIdx * self._which_stepsPerFrame(param.outputBaseName))
+            step = frameIdx * self._which_stepsPerFrame(param.outputBaseName)
+        dataset = self.loader._get_xr_dataset(param.outputBaseName, step)
 
         if self.rGrid is None:
             self.xGrid = dataset.y
