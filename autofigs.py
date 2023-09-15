@@ -233,7 +233,7 @@ for item in config["instructions"]:
         frame_idxs = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
 
         times = [videoMaker.times[frame_idx] for frame_idx in frame_idxs]
-        step_idxs = [frame_idx * videoMaker._which_stepsPerFrame(videoMaker._currentParam.outputBaseName) for frame_idx in frame_idxs]
+        step_idxs = [frame_idx * videoMaker._stepsPerFrame_of(videoMaker._currentParam.outputBaseName) for frame_idx in frame_idxs]
         particles = bgk.ParticleReader(path)
 
         for seq_params in item["sequences"]:
