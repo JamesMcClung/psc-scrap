@@ -131,7 +131,7 @@ for item in config["instructions"]:
     if item["slice"] == "whole":
         which_slice = bgk.DataSlice(slice(None, None), "")
     elif item["slice"] == "center":
-        struct_radius = bgk.Input(params_record.path_to_input).get_radius_of_structure()
+        struct_radius = bgk.Input(params_record.path_input).get_radius_of_structure()
         which_slice = bgk.DataSlice(slice(-struct_radius, struct_radius), "Central ")
 
     loader = bgk.Loader(path, engine="pscadios2", species_names=["e", "i"])

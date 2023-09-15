@@ -42,7 +42,7 @@ class ParticleReader:
         self.path = path
         params_record = ParamsRecord(path)
 
-        self.inputFile = params_record.path_to_input
+        self.inputFile = params_record.path_input
         self.B = params_record.B0
         self.maxStep = params_record.nmax
         self.reversed = params_record.reversed

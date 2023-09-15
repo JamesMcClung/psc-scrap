@@ -18,19 +18,19 @@ class ParamsRecord:
     nmax: int
     nicell: int
 
-    path_to_run: str
-    path_to_input: str
-    path_to_checkpoint: str | None
+    path_run: str
+    path_input: str
+    path_checkpoint: str | None
 
     interval_fields: int | None
     interval_moments: int | None
     interval_gauss: int | None
     interval_particles: int | None
 
-    def __init__(self, path_to_run: str, params_record_name: str = "params_record.txt") -> None:
-        self.path_to_run = path_to_run
+    def __init__(self, path_run: str, params_record_name: str = "params_record.txt") -> None:
+        self.path_run = path_run
         self._raw_params: dict[str, str] = {}
-        with open(os.path.join(path_to_run, params_record_name)) as records:
+        with open(os.path.join(path_run, params_record_name)) as records:
             for line in records:
                 if line.strip():
                     [param_name, param_val, *_] = line.split()
@@ -45,9 +45,9 @@ class ParamsRecord:
         self.nmax = self._parse_param("nmax", int)
         self.nicell = self._parse_param("nicell", int, 100)
 
-        self.path_to_input = self._parse_param("path_to_data", str)
+        self.path_input = self._parse_param("path_to_data", str)
         from_checkpoint = self._parse_param("read_checkpoint", bool, False)
-        self.path_to_checkpoint = None if not from_checkpoint else self._parse_param("path_to_checkpoint", str)
+        self.path_checkpoint = None if not from_checkpoint else self._parse_param("path_to_checkpoint", str)
 
         self.interval_fields = self._parse_param("fields_every", int, 200) or None
         self.interval_moments = self._parse_param("moments_every", int, 200) or None
