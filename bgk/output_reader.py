@@ -47,7 +47,7 @@ class VideoMaker:
         self.loader = loader
         self.params_record = loader.params_record
         self.nframes = nframes
-        self.rGrid = None
+        self.grid_rho = None
         self._currentParam = None
         self._lengths = None
         self._last_lmin = 0, 0
@@ -86,10 +86,10 @@ class VideoMaker:
             step = frameIdx * self._stepsPerFrame_of(param.outputBaseName)
         dataset = self.loader._get_xr_dataset(param.outputBaseName, step)
 
-        if self.rGrid is None:
-            self.xGrid = dataset.y
-            self.yGrid = dataset.z
-            self.rGrid = (self.xGrid**2 + self.yGrid**2) ** 0.5
+        if self.grid_rho is None:
+            self.axis_y = dataset.y
+            self.axis_z = dataset.z
+            self.grid_rho = (self.axis_y**2 + self.axis_z**2) ** 0.5
 
         if isinstance(param.varName, list):
             if param.combine == "magnitude":
@@ -104,14 +104,14 @@ class VideoMaker:
 
                 # recenter structure
                 def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
-                    adjusted_xgrid = self.xGrid - p[0]
-                    adjusted_ygrid = self.yGrid - p[1]
-                    adjusted_rgrid = (adjusted_xgrid**2 + adjusted_ygrid**2) ** 0.5
+                    adjusted_axis_y = self.axis_y - p[0]
+                    adjusted_axis_z = self.axis_z - p[1]
+                    adjusted_grid_rho = (adjusted_axis_y**2 + adjusted_axis_z**2) ** 0.5
 
                     if param.combine == "radial":
-                        rawData = (rawData_x * adjusted_xgrid + rawData_y * adjusted_ygrid) / adjusted_rgrid
+                        rawData = (rawData_x * adjusted_axis_y + rawData_y * adjusted_axis_z) / adjusted_grid_rho
                     elif param.combine == "azimuthal":
-                        rawData = (-rawData_x * adjusted_ygrid + rawData_y * adjusted_xgrid) / adjusted_rgrid
+                        rawData = (-rawData_x * adjusted_axis_z + rawData_y * adjusted_axis_y) / adjusted_grid_rho
                     else:
                         raise Exception(f"Invalid combine method: {param.combine}")
                     rawData = rawData.fillna(0)
