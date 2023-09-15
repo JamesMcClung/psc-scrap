@@ -53,37 +53,37 @@ class VideoMaker:
         self._last_lmin = 0, 0
 
         # init stepsPerFrame for each type of output
-        self.gauss_stepsPerFrame = self.loader.gauss_max // self.nframes
-        self.gauss_stepsPerFrame -= self.gauss_stepsPerFrame % self.params_record.interval_gauss
+        self.stepsPerFrame_gauss = self.loader.gauss_max // self.nframes
+        self.stepsPerFrame_gauss -= self.stepsPerFrame_gauss % self.params_record.interval_gauss
 
-        self.fields_stepsPerFrame = self.loader.fields_max // self.nframes
-        self.fields_stepsPerFrame -= self.fields_stepsPerFrame % self.params_record.interval_fields
+        self.stepsPerFrame_fields = self.loader.fields_max // self.nframes
+        self.stepsPerFrame_fields -= self.stepsPerFrame_fields % self.params_record.interval_fields
 
-        self.moments_stepsPerFrame = self.loader.moments_max // self.nframes
-        self.moments_stepsPerFrame -= self.moments_stepsPerFrame % self.params_record.interval_moments
+        self.stepsPerFrame_moments = self.loader.moments_max // self.nframes
+        self.stepsPerFrame_moments -= self.stepsPerFrame_moments % self.params_record.interval_moments
 
     def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
         ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self.loader.case_name})")
 
-    def _which_every(self, outputBaseName: str) -> int:
+    def _interval_of(self, outputBaseName: str) -> int:
         return {
             "pfd": self.params_record.interval_fields,
             "pfd_moments": self.params_record.interval_moments,
             "gauss": self.params_record.interval_gauss,
         }[outputBaseName]
 
-    def _which_stepsPerFrame(self, outputBaseName: str) -> int:
+    def _stepsPerFrame_of(self, outputBaseName: str) -> int:
         return {
-            "pfd": self.fields_stepsPerFrame,
-            "pfd_moments": self.moments_stepsPerFrame,
-            "gauss": self.gauss_stepsPerFrame,
+            "pfd": self.stepsPerFrame_fields,
+            "pfd_moments": self.stepsPerFrame_moments,
+            "gauss": self.stepsPerFrame_gauss,
         }[outputBaseName]
 
     def _getDataAndTime(self, param: ParamMetadata, frameIdx: int) -> tuple[xr.DataArray, float]:
         if frameIdx == 0 and param.skipFirst:
-            step = self._which_every(param.outputBaseName)
+            step = self._interval_of(param.outputBaseName)
         else:
-            step = frameIdx * self._which_stepsPerFrame(param.outputBaseName)
+            step = frameIdx * self._stepsPerFrame_of(param.outputBaseName)
         dataset = self.loader._get_xr_dataset(param.outputBaseName, step)
 
         if self.rGrid is None:
