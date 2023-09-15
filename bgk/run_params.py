@@ -1,3 +1,6 @@
+from .backend.loader import PrefixBP
+
+
 class ParamMetadata:
     def __init__(
         self,
@@ -6,7 +9,7 @@ class ParamMetadata:
         vmin: float | None,
         vmax: float | None,
         colors: str,
-        outputBaseName: str,
+        prefix_bp: PrefixBP,
         varName: str,
         coef: float = 1.0,
         skipFirst: bool = False,
@@ -17,7 +20,7 @@ class ParamMetadata:
         self.vmin = vmin
         self.vmax = vmax
         self.colors = colors
-        self.outputBaseName = outputBaseName
+        self.prefix_bp = prefix_bp
         self.varName = varName
         self.coef = coef
         self.skipFirst = skipFirst

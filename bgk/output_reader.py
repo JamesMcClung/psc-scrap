@@ -9,7 +9,7 @@ import scipy.signal as sig
 from scipy.optimize import fmin
 
 from .run_params import ParamMetadata
-from .backend import Loader
+from .backend import Loader, PrefixBP
 
 
 __all__ = ["ParamMetadata", "DataSlice", "VideoMaker"]
@@ -65,26 +65,26 @@ class VideoMaker:
     def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
         ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self.loader.case_name})")
 
-    def _interval_of(self, outputBaseName: str) -> int:
+    def _interval_of(self, prefix_bp: PrefixBP) -> int:
         return {
             "pfd": self.params_record.interval_fields,
             "pfd_moments": self.params_record.interval_moments,
             "gauss": self.params_record.interval_gauss,
-        }[outputBaseName]
+        }[prefix_bp]
 
-    def _stepsPerFrame_of(self, outputBaseName: str) -> int:
+    def _stepsPerFrame_of(self, prefix_bp: PrefixBP) -> int:
         return {
             "pfd": self.stepsPerFrame_fields,
             "pfd_moments": self.stepsPerFrame_moments,
             "gauss": self.stepsPerFrame_gauss,
-        }[outputBaseName]
+        }[prefix_bp]
 
     def _getDataAndTime(self, param: ParamMetadata, frameIdx: int) -> tuple[xr.DataArray, float]:
         if frameIdx == 0 and param.skipFirst:
-            step = self._interval_of(param.outputBaseName)
+            step = self._interval_of(param.prefix_bp)
         else:
-            step = frameIdx * self._stepsPerFrame_of(param.outputBaseName)
-        dataset = self.loader._get_xr_dataset(param.outputBaseName, step)
+            step = frameIdx * self._stepsPerFrame_of(param.prefix_bp)
+        dataset = self.loader._get_xr_dataset(param.prefix_bp, step)
 
         if self.grid_rho is None:
             self.axis_y = dataset.y

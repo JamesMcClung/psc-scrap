@@ -1,14 +1,18 @@
-import typing
 import xarray as xr
 import os
 from math import prod
 import itertools
+from typing import Literal as _Literal
+
 from .params_record import ParamsRecord
 
 # enables xarray to load bp files
 import psc
 
-__all__ = ["Loader"]
+__all__ = ["Loader", "PrefixBP"]
+
+
+PrefixBP = _Literal["pfd", "pfd_moments", "gauss"]
 
 
 def _getFactors(n: int) -> list[int]:
@@ -45,9 +49,9 @@ class Loader:
         self.moments_max = max_step or _get_out_max(bpfiles, "pfd_moments")
         self.gauss_max = max_step or _get_out_max(bpfiles, "gauss")
 
-    def _get_xr_dataset(self, outputBaseName: typing.Literal["pfd", "pfd_moments", "gauss"], step: int) -> xr.Dataset:
+    def _get_xr_dataset(self, prefix_bp: PrefixBP, step: int) -> xr.Dataset:
         return xr.open_dataset(
-            os.path.join(self.path, f"{outputBaseName}.{step:09d}.bp"),
+            os.path.join(self.path, f"{prefix_bp}.{step:09d}.bp"),
             engine=self.engine,
             species_names=self.species_names,
         )
