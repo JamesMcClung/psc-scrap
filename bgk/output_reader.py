@@ -70,7 +70,7 @@ class VideoMaker:
             self.axis_z = dataset.axis_z
             self.grid_rho = dataset.grid_rho
 
-        c = "nc" if param.prefix_bp == "pfd" else "cc"
+        c = self._centering
 
         if isinstance(param.varName, list):
             if param.combine == "magnitude":
@@ -120,6 +120,7 @@ class VideoMaker:
         if param == self._currentParam:
             return
         self._currentParam = param
+        self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
         self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, idx) for idx in range(self.nframes)])]
         self.times = np.array(self.times)
 
@@ -194,7 +195,11 @@ class VideoMaker:
 
     def _getMeansAtOrigin(self, sample_size: int = 2) -> npt.NDArray[np.float64]:
         orig_idx = len(self.datas[0]) // 2
-        orig_slice = slice(orig_idx - sample_size // 2, orig_idx + sample_size // 2)
+        if self._centering == "nc":
+            sample_size -= (sample_size + 1) % 2
+            orig_slice = slice(orig_idx - sample_size // 2, orig_idx + 1 + sample_size // 2)
+        elif self._centering == "cc":
+            orig_slice = slice(orig_idx - sample_size // 2, orig_idx + sample_size // 2)
         return np.array([data.isel(y=orig_slice, z=orig_slice).values.mean() for data in self.datas])
 
     def viewMeansAtOrigin(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
