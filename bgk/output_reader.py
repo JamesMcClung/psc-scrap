@@ -9,7 +9,7 @@ import scipy.signal as sig
 from scipy.optimize import fmin
 
 from .run_params import ParamMetadata
-from .backend import Loader, PrefixBP
+from .backend import Loader, PrefixBP, load_bp
 
 
 __all__ = ["ParamMetadata", "DataSlice", "VideoMaker"]
@@ -19,27 +19,6 @@ class DataSlice:
     def __init__(self, slice: slice, viewAdjective: str) -> None:
         self.slice = slice
         self.viewAdjective = viewAdjective
-
-
-def _prepData(data: xr.DataArray, recenter_x=False, recenter_y=False, recenter_z=False) -> xr.DataArray:
-    if recenter_x:
-        rolled = data.rolling(x=2).mean()
-        rolled[0, :, :] = (data[0, :, :] + data[-1, :, :]) / 2
-        data = rolled
-    if recenter_y:
-        rolled = data.rolling(y=2).mean()
-        rolled[:, 0, :] = (data[:, 0, :] + data[:, -1, :]) / 2
-        data = rolled
-    if recenter_z:
-        rolled = data.rolling(z=2).mean()
-        rolled[:, :, 0] = (data[:, :, 0] + data[:, :, -1]) / 2
-        data = rolled
-    return data[0, :, :].transpose()  # This is correct - y and z may be initially mislabeled
-
-
-def _recenter(name: str, dim: str) -> bool:
-    # ec => recenter same dim; fc => recenter other dims
-    return (name[1] == dim) == name.endswith("ec")
 
 
 class VideoMaker:
@@ -84,23 +63,25 @@ class VideoMaker:
             step = self._interval_of(param.prefix_bp)
         else:
             step = frameIdx * self._stepsPerFrame_of(param.prefix_bp)
-        dataset = self.loader._get_xr_dataset(param.prefix_bp, step)
+        dataset = load_bp(self.params_record.path_run, param.prefix_bp, step)
 
         if self.grid_rho is None:
-            self.axis_y = dataset.y
-            self.axis_z = dataset.z
-            self.grid_rho = (self.axis_y**2 + self.axis_z**2) ** 0.5
+            self.axis_y = dataset.axis_y
+            self.axis_z = dataset.axis_z
+            self.grid_rho = dataset.grid_rho
+
+        c = "nc" if param.prefix_bp == "pfd" else "cc"
 
         if isinstance(param.varName, list):
             if param.combine == "magnitude":
-                rawData = _prepData(sum(dataset[var] ** 2 for var in param.varName)) ** 0.5
+                rawData = (sum(dataset.get(var, c) ** 2 for var in param.varName)) ** 0.5
             elif param.combine == "sum":
-                rawData = _prepData(sum(dataset[var] for var in param.varName))
+                rawData = sum(dataset.get(var, c) for var in param.varName)
             elif param.combine == "difference":
-                rawData = _prepData(dataset[param.varName[0]] - dataset[param.varName[1]])
+                rawData = dataset.get(param.varName[0], c) - dataset.get(param.varName[1], c)
             else:
-                rawData_x = _prepData(dataset[param.varName[0]], recenter_y=_recenter(param.varName[0], "y"), recenter_z=_recenter(param.varName[0], "z"))
-                rawData_y = _prepData(dataset[param.varName[1]], recenter_y=_recenter(param.varName[1], "y"), recenter_z=_recenter(param.varName[1], "z"))
+                rawData_x = dataset.get(param.varName[0], c)
+                rawData_y = dataset.get(param.varName[1], c)
 
                 # recenter structure
                 def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
@@ -125,14 +106,14 @@ class VideoMaker:
 
                 rawData = sumsq(self._last_lmin, True)
         else:
-            rawData = _prepData(dataset[param.varName])
-        self._lengths = tuple(dataset.length)
+            rawData = dataset.get(param.varName, c)
+        self._lengths = dataset.lengths
         return param.coef * rawData, dataset.time
 
     @property
     def lengths(self) -> tuple[float, float, float]:
         if self._lengths is None:
-            self._lengths = tuple(self.loader._get_xr_dataset("pfd", 0))
+            self._lengths = tuple(load_bp(self.params_record.path_run, "pfd", 0))
         return self._lengths
 
     def loadData(self, param: ParamMetadata) -> None:
