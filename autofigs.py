@@ -134,7 +134,7 @@ for item in config["instructions"]:
         struct_radius = bgk.Input(params_record.path_input).get_radius_of_structure()
         which_slice = bgk.DataSlice(slice(-struct_radius, struct_radius), "Central ")
 
-    loader = bgk.Loader(path, engine="pscadios2", species_names=["e", "i"])
+    loader = bgk.Loader(path)
 
     size = bgk.backend.load_bp(params_record.path_run, "pfd", 0).lengths[1]  # get the y-length (= z-length)
 
