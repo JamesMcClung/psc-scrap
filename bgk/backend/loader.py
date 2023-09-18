@@ -29,11 +29,8 @@ def _get_out_max(bpfiles: list[str], outType: str) -> int:
 
 
 class Loader:
-    def __init__(self, path: str, engine: str, species_names: list[str], max_step: int = 0) -> None:
+    def __init__(self, path: str, max_step: int = 0) -> None:
         self.path = path
-        self.engine = engine
-        self.species_names = species_names
-
         self.params_record = ParamsRecord(path)
 
         self.case_name = ("Maxwellian" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")

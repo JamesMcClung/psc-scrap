@@ -1,6 +1,6 @@
 import bgk
 
-loader = bgk.Loader("/mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B01.00-n256", engine="pscadios2", species_names=["e", "i"])
+loader = bgk.Loader("/mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B01.00-n256")
 vm = bgk.VideoMaker(10, loader)
 
 # ne
