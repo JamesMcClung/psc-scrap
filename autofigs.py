@@ -136,7 +136,7 @@ for item in config["instructions"]:
 
     loader = bgk.Loader(path, engine="pscadios2", species_names=["e", "i"])
 
-    size = loader._get_xr_dataset("pfd", 0).length[1]  # get the y-length (= z-length)
+    size = bgk.backend.load_bp(params_record.path_run, "pfd", 0).lengths[1]  # get the y-length (= z-length)
 
     ##########################
 

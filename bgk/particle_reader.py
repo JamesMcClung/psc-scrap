@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import os
 
-from .backend import Loader, ParamsRecord
+from .backend import ParamsRecord, load_bp
 from .input_reader import Input
 
 __all__ = ["ParticleReader"]
@@ -48,7 +48,7 @@ class ParticleReader:
         self.reversed = params_record.reversed
 
     def read_step(self, step: int) -> None:
-        self.t: float = Loader(self.path, engine="pscadios2", species_names=["e", "i"])._get_xr_dataset("pfd", step).time
+        self.t: float = load_bp(self.path, "pfd", step).time
 
         self.df = _read_step(self.path, step)
         self.input = Input(self.inputFile)
