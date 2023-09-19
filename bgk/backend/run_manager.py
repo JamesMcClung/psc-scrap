@@ -87,13 +87,23 @@ class RunManager:
         self.interval_gauss = self.params_record.interval_gauss
         self.interval_prt = self.params_record.interval_particles
 
+    def get_max_step(self, prefix: PrefixBP | PrefixH5 | None = None) -> int | None:
+        if prefix is None:
+            return max([step for step in [self.max_pfd, self.max_pfd_moments, self.max_gauss, self.max_prt] if step is not None] or [None])
+        return {
+            "pfd": self.max_pfd,
+            "pfd_moments": self.max_pfd_moments,
+            "gauss": self.max_gauss,
+            "prt": self.max_prt,
+        }[prefix]
+
+    def get_interval(self, prefix: PrefixBP | PrefixH5) -> int:
+        return {
+            "pfd": self.interval_pfd,
+            "pfd_moments": self.interval_pfd_moments,
+            "gauss": self.interval_gauss,
+            "prt": self.interval_prt,
+        }[prefix]
+
     def get_suggested_nframes(self, nframes_min: int, prefix: PrefixBP | PrefixH5) -> int | None:
-        match prefix:
-            case "pfd":
-                return get_suggested_nframes(nframes_min, self.max_pfd, self.interval_pfd)
-            case "pfd_moments":
-                return get_suggested_nframes(nframes_min, self.max_pfd_moments, self.interval_pfd_moments)
-            case "gauss":
-                return get_suggested_nframes(nframes_min, self.max_gauss, self.interval_gauss)
-            case "prt":
-                return get_suggested_nframes(nframes_min, self.max_prt, self.interval_prt)
+        return get_suggested_nframes(nframes_min, self.get_max_step(prefix), self.get_interval(prefix))
