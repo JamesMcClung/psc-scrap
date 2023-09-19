@@ -6,6 +6,7 @@ from itertools import combinations
 from math import prod
 
 from .params_record import ParamsRecord
+from ..util.stream import Stream
 
 PrefixBP = Literal["pfd", "pfd_moments", "gauss"]
 PrefixH5 = Literal["prt"]
@@ -23,8 +24,19 @@ def _get_step_h5(file_h5: str) -> int:
     return int(file_h5.split(".")[1].split("_")[0])
 
 
-def _get_max_step(files: list[str], prefix: str, get_step: Callable[[str], int]) -> int | None:
-    return max([get_step(file) for file in files if file.startswith(prefix)] or [None])
+def _get_max_step(
+    files: list[str],
+    prefix: str,
+    get_step: Callable[[str], int],
+    max_step_override: int | None = None,
+) -> int | None:
+    steps = Stream(files).filter(lambda file: file.startswith(prefix)).map(get_step)
+    if max_step_override is not None:
+        steps = steps.filter(lambda step: step <= max_step_override)
+    max_step = steps.reduce(max, -1)
+    if max_step < 0:
+        return None
+    return max_step
 
 
 def _get_factors(n: int) -> list[int]:
@@ -59,16 +71,16 @@ def get_suggested_nframes(nframes_min: int, out_max: int | None, out_interval: i
 
 
 class RunManager:
-    def __init__(self, path_run: str) -> None:
+    def __init__(self, path_run: str, max_step_override: int | None = None) -> None:
         self.params_record = ParamsRecord(path_run)
 
         files_bp = _get_files_by_extension(path_run, ".bp")
         files_h5 = _get_files_by_extension(path_run, ".h5")
 
-        self.max_pfd = _get_max_step(files_bp, "pfd.", _get_step_bp)
-        self.max_pfd_moments = _get_max_step(files_bp, "pfd_moments.", _get_step_bp)
-        self.max_gauss = _get_max_step(files_bp, "gauss.", _get_step_bp)
-        self.max_prt = _get_max_step(files_h5, "prt.", _get_step_h5)
+        self.max_pfd = _get_max_step(files_bp, "pfd.", _get_step_bp, max_step_override)
+        self.max_pfd_moments = _get_max_step(files_bp, "pfd_moments.", _get_step_bp, max_step_override)
+        self.max_gauss = _get_max_step(files_bp, "gauss.", _get_step_bp, max_step_override)
+        self.max_prt = _get_max_step(files_h5, "prt.", _get_step_h5, max_step_override)
 
         self.interval_pfd = self.params_record.interval_fields
         self.interval_pfd_moments = self.params_record.interval_moments
