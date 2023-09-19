@@ -30,6 +30,7 @@ class VideoMaker:
         self._currentParam = None
         self._lengths = None
         self._last_lmin = 0, 0
+        self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
         # init stepsPerFrame for each type of output
         self.stepsPerFrame_gauss = self.loader.gauss_max // self.nframes
@@ -42,7 +43,7 @@ class VideoMaker:
         self.stepsPerFrame_moments -= self.stepsPerFrame_moments % self.params_record.interval_moments
 
     def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
-        ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self.loader.case_name})")
+        ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self._case_name})")
 
     def _interval_of(self, prefix_bp: PrefixBP) -> int:
         return {
@@ -188,7 +189,7 @@ class VideoMaker:
 
         ax.set_xlabel("Time")
         ax.set_ylabel("2-Norm of Difference")
-        ax.set_title(f"Deviation from ICs of {self._currentSlice.viewAdjective}{self._currentParam.title} ($B_0={self.params_record.B0}$, {self.loader.case_name})")
+        ax.set_title(f"Deviation from ICs of {self._currentSlice.viewAdjective}{self._currentParam.title} ($B_0={self.params_record.B0}$, {self._case_name})")
 
         ax.plot(self.times, self._getNormsOfDiffs())
         return fig, ax
@@ -234,7 +235,7 @@ class VideoMaker:
 
         ax.set_xlabel("Frequency")
         ax.set_ylabel("Amplitude")
-        ax.set_title(f"Periodogram of $n_e(0,0)$ ($B_0={self.params_record.B0}$, {self.loader.case_name})")
+        ax.set_title(f"Periodogram of $n_e(0,0)$ ($B_0={self.params_record.B0}$, {self._case_name})")
 
         ax.plot(freq, power)
         return fig, ax
