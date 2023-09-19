@@ -1,17 +1,14 @@
 __all__ = ["WrapperBP", "load_bp"]
 
 import os
-from typing import Literal
 from functools import cached_property
-
 import xarray as xr
+
+from .types import PrefixBP, Centering, Dim
 
 # enables xarray to load bp files
 import psc
 
-PrefixBP = Literal["pfd", "pfd_moments", "gauss"]
-Centering = Literal["cc", "nc"]
-Dim = Literal["x", "y", "z"]
 
 _SPECIES_NAMES = ["e", "i"]
 _ENGINE = "pscadios2"
