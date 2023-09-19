@@ -1,4 +1,4 @@
-__all__ = ["RunManager", "get_suggested_nframes"]
+__all__ = ["RunManager"]
 
 import os
 from typing import Callable, Literal
@@ -53,7 +53,7 @@ def _get_factors(n: int) -> list[int]:
     return factors
 
 
-def get_suggested_nframes(nframes_min: int, out_max: int | None, out_interval: int) -> int | None:
+def _get_suggested_nframes(nframes_min: int, out_max: int | None, out_interval: int) -> int | None:
     if out_max is None:
         return None
 
@@ -106,4 +106,4 @@ class RunManager:
         }[prefix]
 
     def get_suggested_nframes(self, nframes_min: int, prefix: PrefixBP | PrefixH5) -> int | None:
-        return get_suggested_nframes(nframes_min, self.get_max_step(prefix), self.get_interval(prefix))
+        return _get_suggested_nframes(nframes_min, self.get_max_step(prefix), self.get_interval(prefix))
