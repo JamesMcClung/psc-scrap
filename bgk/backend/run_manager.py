@@ -70,6 +70,15 @@ def _get_suggested_nframes(nframes_min: int, out_max: int | None, out_interval: 
     return nframes_best
 
 
+def _get_steps_per_frame(nframes: int, out_max: int | None, out_interval: int) -> int | None:
+    if out_max is None:
+        return None
+
+    steps_per_frame = out_max // nframes
+    steps_per_frame -= steps_per_frame % out_interval
+    return steps_per_frame
+
+
 class RunManager:
     def __init__(self, path_run: str, max_step_override: int | None = None) -> None:
         self.params_record = ParamsRecord(path_run)
@@ -107,3 +116,6 @@ class RunManager:
 
     def get_suggested_nframes(self, nframes_min: int, prefix: PrefixBP | PrefixH5) -> int | None:
         return _get_suggested_nframes(nframes_min, self.get_max_step(prefix), self.get_interval(prefix))
+
+    def get_steps_per_frame(self, nframes: int, prefix: PrefixBP | PrefixH5) -> int | None:
+        return _get_steps_per_frame(nframes, self.get_max_step(prefix), self.get_interval(prefix))
