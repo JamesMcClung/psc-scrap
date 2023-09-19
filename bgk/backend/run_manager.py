@@ -1,15 +1,13 @@
 __all__ = ["RunManager"]
 
 import os
-from typing import Callable, Literal
+from typing import Callable
 from itertools import combinations
 from math import prod
 
 from .params_record import ParamsRecord
 from ..util.stream import Stream
-
-PrefixBP = Literal["pfd", "pfd_moments", "gauss"]
-PrefixH5 = Literal["prt"]
+from .types import PrefixBP, PrefixH5
 
 
 def _get_files_by_extension(path: str, extension: str) -> list[str]:
