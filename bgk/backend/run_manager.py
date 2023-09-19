@@ -119,3 +119,12 @@ class RunManager:
 
     def get_steps_per_frame(self, nframes: int, prefix: PrefixBP | PrefixH5) -> int | None:
         return _get_steps_per_frame(nframes, self.get_max_step(prefix), self.get_interval(prefix))
+
+    def get_completion_percent(self) -> float:
+        return 100.0 * self.get_max_step() / self.params_record.nmax
+
+    def get_time_coverage_percent(self, nframes: int, prefix: PrefixBP | PrefixH5) -> float:
+        return 100.0 * nframes * self.get_steps_per_frame(nframes, prefix) / self.params_record.nmax
+
+    def get_steps_coverage_percent(self, nframes: int, prefix: PrefixBP | PrefixH5) -> float:
+        return 100 * nframes / (self.get_max_step(prefix) / self.get_interval(prefix))

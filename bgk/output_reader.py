@@ -7,9 +7,13 @@ import numpy as np
 import numpy.typing as npt
 import scipy.signal as sig
 from scipy.optimize import fmin
+from typing import Literal
 
 from .run_params import ParamMetadata
-from .backend import RunManager, PrefixBP, load_bp
+from .backend import RunManager, load_bp
+
+
+PrefixBP = Literal["pfd", "pfd_moments", "gauss"]
 
 
 __all__ = ["ParamMetadata", "DataSlice", "VideoMaker"]
