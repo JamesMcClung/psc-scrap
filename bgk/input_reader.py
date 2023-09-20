@@ -8,10 +8,11 @@ def _line_to_list(row: str) -> list[float]:
 
 
 class Input:
-    def __init__(self, file: str) -> None:
-        with open(file) as io:
-            labels = io.readline().split()
-            data = np.array([_line_to_list(line) for line in io.readlines()])
+    def __init__(self, path_input: str) -> None:
+        self.path_input = path_input
+        with open(path_input) as input:
+            labels = input.readline().split()
+            data = np.array([_line_to_list(line) for line in input.readlines()])
         for i, label in enumerate(labels):
             self.__dict__[label] = data[:, i]
 
