@@ -7,6 +7,7 @@ import numpy as np
 import numpy.typing as npt
 import scipy.signal as sig
 from scipy.optimize import fmin
+from functools import cached_property
 
 from .run_params import ParamMetadata
 from .backend import RunManager, load_bp, PrefixBP
@@ -28,7 +29,6 @@ class VideoMaker:
         self.nframes = nframes
         self.grid_rho = None
         self._currentParam = None
-        self._lengths = None
         self._last_lmin = 0, 0
         self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
@@ -102,14 +102,12 @@ class VideoMaker:
                 rawData = sumsq(self._last_lmin, True)
         else:
             rawData = dataset.get(param.varName, c)
-        self._lengths = dataset.lengths
+        self.lengths = dataset.lengths
         return param.coef * rawData, dataset.time
 
-    @property
+    @cached_property
     def lengths(self) -> tuple[float, float, float]:
-        if self._lengths is None:
-            self._lengths = tuple(load_bp(self.params_record.path_run, "pfd", 0))
-        return self._lengths
+        return load_bp(self.params_record.path_run, "pfd", 0).lengths
 
     def loadData(self, param: ParamMetadata) -> None:
         if param == self._currentParam:
