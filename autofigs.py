@@ -5,7 +5,7 @@ import yaml
 import bgk
 import matplotlib.pyplot as plt
 import matplotlib.figure as mplf
-from sequence import Sequence
+from bgk.autofigs import Sequence
 from bgk.autofigs.history import History
 import bgk.autofigs as autofigs
 import bgk.autofigs.util as util

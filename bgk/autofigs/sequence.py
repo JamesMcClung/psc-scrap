@@ -1,3 +1,5 @@
+__all__ = ["Sequence"]
+
 from matplotlib import pyplot as plt
 import matplotlib.figure as mplf
 import matplotlib.ticker as ticker
