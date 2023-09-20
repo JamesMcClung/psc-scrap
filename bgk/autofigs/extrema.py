@@ -1,9 +1,8 @@
 import bgk
-import matplotlib
 import matplotlib.pyplot as plt
-import xarray as xr
 import numpy as np
 import matplotlib.figure as mplf
+from . import util
 
 
 def plot_extrema(
@@ -11,33 +10,25 @@ def plot_extrema(
     fig: mplf.Figure = None,
     ax: plt.Axes = None,
 ) -> tuple[mplf.Figure, plt.Axes]:
+    fig, ax = util.ensure_fig_ax(fig, ax)
+
     maxR = videoMaker._currentSlice.slice.stop
     rStep = videoMaker.lengths[1] / 100
 
     rs = np.arange(0, maxR, rStep)
 
-    def getMean(data: xr.DataArray, r: float) -> float:
-        rslice = data.where((r <= videoMaker.rGrid) & (videoMaker.rGrid < r + rStep))
-        return rslice.mean().item()
-
-    allMeans = np.array([[getMean(videoMaker.slicedDatas[idx], r) for r in rs] for idx in range(videoMaker.nframes)])
+    allMeans = np.array([[util.get_mean(videoMaker.slicedDatas[idx], r, rStep, videoMaker) for r in rs] for idx in range(videoMaker.nframes)])
 
     indices_maxs = videoMaker.getLocalExtremaIndices(np.greater_equal) or [videoMaker.nframes - 1]
     indices_mins = videoMaker.getLocalExtremaIndices(np.less_equal) or [0]
-
-    if not (fig or ax):
-        fig, ax = plt.subplots()
 
     def plot_lines(indices, cmap, label_indices):
         for i in indices:
             label = f"$t={videoMaker.times[i]:.2f}$" if i in label_indices else "_nolegend_"
             ax.plot(rs, allMeans[i], color=cmap(i / max(indices) if len(indices) > 1 else 0.5), label=label)
 
-    def get_cmap(name: str, min: float = 0.0, max: float = 1.0, reverse: bool = False):
-        return lambda x: matplotlib.colormaps[name](min + (1 - x if reverse else x) * (max - min))
-
-    cmap_mins = get_cmap("Blues", min=0.3, max=0.9)
-    cmap_maxs = get_cmap("Reds", min=0.3, max=0.9)
+    cmap_mins = util.get_cmap("Blues", min=0.3, max=0.9)
+    cmap_maxs = util.get_cmap("Reds", min=0.3, max=0.9)
 
     plot_lines(indices_mins, cmap_mins, [indices_mins[0], indices_mins[-1]])
     plot_lines(indices_maxs, cmap_maxs, [indices_maxs[0], indices_maxs[-1]])
@@ -104,4 +95,4 @@ if __name__ == "__main__":
     print(f"view: {whichSlice.viewAdjective}= {whichSlice.slice}")
 
     fig, ax = plot_extrema(videoMaker)
-    fig.savefig("figs-cmaps/wee.png", bbox_inches="tight", pad_inches=0.01, dpi=300)
+    util.save_fig(fig, "figs-test/extrema.png")
