@@ -12,7 +12,7 @@ from .params_record import ParamsRecord
 from ..util.stream import Stream
 from .types import PrefixBP, PrefixH5
 from .wrapper_bp import load_bp
-from ..input_reader import Input
+from ..input_reader import Input, get_B0
 
 
 def _get_files_by_extension(path: str, extension: str) -> list[str]:
@@ -159,6 +159,23 @@ class RunDiagnostics:
     @cached_property
     def hole_radius(self) -> float:
         return self._run_manager.run_input.get_radius_of_structure()
+
+    def check_params(self) -> None:
+        param_B0 = self._run_manager.params_record.B0
+        input_B0 = get_B0(self._run_manager.params_record.path_input)
+        if param_B0 != input_B0:
+            print("PROBLEM: MISMATCH IN B0")
+            print(f"Params record: B0={param_B0}")
+            print(f"Input:         B0={input_B0}")
+        else:
+            print("Check passed: param B0 = input B0")
+
+        if self.hole_radius * 2 >= self.domain_size:
+            print("PROBLEM: DOMAIN SIZE TOO SMALL")
+            print(f"Hole diameter: {self.hole_radius * 2}")
+            print(f"Domain size:   {self.domain_size}")
+        else:
+            print("Check passed: hole diameter < domain size")
 
     def print_params(self) -> None:
         print(f"B0:            {self._run_manager.params_record.B0}")
