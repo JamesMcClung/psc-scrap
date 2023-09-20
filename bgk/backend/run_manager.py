@@ -100,6 +100,10 @@ class RunManager:
         self.interval_gauss = self.params_record.interval_gauss
         self.interval_prt = self.params_record.interval_particles
 
+    @cached_property
+    def run_input(self) -> Input:
+        return Input(self.params_record.path_input)
+
     def get_max_step(self, prefix: PrefixBP | PrefixH5 | None = None) -> int | None:
         if prefix is None:
             return max([step for step in [self.max_pfd, self.max_pfd_moments, self.max_gauss, self.max_prt] if step is not None] or [None])
@@ -154,7 +158,7 @@ class RunDiagnostics:
 
     @cached_property
     def hole_radius(self) -> float:
-        return Input(self._run_manager.params_record.path_input).get_radius_of_structure()
+        return self._run_manager.run_input.get_radius_of_structure()
 
     def print_params(self) -> None:
         print(f"B0:            {self._run_manager.params_record.B0}")
