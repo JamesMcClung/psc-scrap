@@ -58,7 +58,7 @@ class VideoMaker:
             step = self._interval_of(param.prefix_bp)
         else:
             step = frameIdx * self._stepsPerFrame_of(param.prefix_bp)
-        dataset = load_bp(self.params_record.path_run, param.prefix_bp, step)
+        dataset = load_bp(self.run_manager.path_run, param.prefix_bp, step)
 
         if self.grid_rho is None:
             self.axis_y = dataset.axis_y
@@ -107,7 +107,7 @@ class VideoMaker:
 
     @cached_property
     def lengths(self) -> tuple[float, float, float]:
-        return load_bp(self.params_record.path_run, "pfd", 0).lengths
+        return load_bp(self.run_manager.path_run, "pfd", 0).lengths
 
     def loadData(self, param: ParamMetadata) -> None:
         if param == self._currentParam:
