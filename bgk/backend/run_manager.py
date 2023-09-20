@@ -84,6 +84,7 @@ def _get_steps_per_frame(nframes: int, out_max: int | None, out_interval: int) -
 
 class RunManager:
     def __init__(self, path_run: str, max_step_override: int | None = None) -> None:
+        self.path_run = path_run
         self.params_record = ParamsRecord(path_run)
         self.run_diagnostics = RunDiagnostics(self)
 
@@ -154,7 +155,7 @@ class RunDiagnostics:
 
     @cached_property
     def domain_size(self) -> float:
-        return load_bp(self._run_manager.params_record.path_run, "pfd", 0).lengths[1]
+        return load_bp(self._run_manager.path_run, "pfd", 0).lengths[1]
 
     @cached_property
     def hole_radius(self) -> float:
