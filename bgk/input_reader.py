@@ -1,10 +1,17 @@
 __all__ = ["Input"]
 
 import numpy as np
+import os
 
 
 def _line_to_list(row: str) -> list[float]:
     return [float(val) for val in row.split()]
+
+
+def get_B0(path_input: str) -> float:
+    for item in os.path.basename(path_input).split("-"):
+        if item.startswith("B="):
+            return float(item.removeprefix("B="))
 
 
 class Input:
