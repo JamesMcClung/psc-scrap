@@ -1,13 +1,18 @@
+from __future__ import annotations
+
 __all__ = ["RunManager"]
 
 import os
 from typing import Callable
 from itertools import combinations
+from functools import cached_property
 from math import prod
 
 from .params_record import ParamsRecord
 from ..util.stream import Stream
 from .types import PrefixBP, PrefixH5
+from .wrapper_bp import load_bp
+from ..input_reader import Input
 
 
 def _get_files_by_extension(path: str, extension: str) -> list[str]:
@@ -80,6 +85,7 @@ def _get_steps_per_frame(nframes: int, out_max: int | None, out_interval: int) -
 class RunManager:
     def __init__(self, path_run: str, max_step_override: int | None = None) -> None:
         self.params_record = ParamsRecord(path_run)
+        self.run_diagnostics = RunDiagnostics(self)
 
         files_bp = _get_files_by_extension(path_run, ".bp")
         files_h5 = _get_files_by_extension(path_run, ".h5")
@@ -118,11 +124,42 @@ class RunManager:
     def get_steps_per_frame(self, nframes: int, prefix: PrefixBP | PrefixH5) -> int | None:
         return _get_steps_per_frame(nframes, self.get_max_step(prefix), self.get_interval(prefix))
 
+
+class RunDiagnostics:
+    def __init__(self, run_manager: RunManager) -> None:
+        self._run_manager = run_manager
+
     def get_completion_percent(self) -> float:
-        return 100.0 * self.get_max_step() / self.params_record.nmax
+        return 100.0 * self._run_manager.get_max_step() / self._run_manager.params_record.nmax
 
     def get_time_coverage_percent(self, nframes: int, prefix: PrefixBP | PrefixH5) -> float:
-        return 100.0 * nframes * self.get_steps_per_frame(nframes, prefix) / self.params_record.nmax
+        return 100.0 * nframes * self._run_manager.get_steps_per_frame(nframes, prefix) / self._run_manager.params_record.nmax
 
     def get_steps_coverage_percent(self, nframes: int, prefix: PrefixBP | PrefixH5) -> float:
-        return 100 * nframes / (self.get_max_step(prefix) / self.get_interval(prefix))
+        return 100.0 * nframes / (self._run_manager.get_max_step(prefix) / self._run_manager.get_interval(prefix))
+
+    def print_coverage(self, nframes: int, prefix: PrefixBP | PrefixH5 = "pfd") -> None:
+        time_coverage_percent = self.get_time_coverage_percent(nframes, prefix)
+        steps_per_frame = self._run_manager.get_steps_per_frame(nframes, prefix)
+        print(f"Steps in run:      {self._run_manager.get_max_step()} ({self.get_completion_percent():.1f}% complete)")
+        print(f"nframes:           {nframes}")
+        print(f"Steps per frame:   {steps_per_frame}")
+        print(f"Last step used:    {nframes * steps_per_frame} ({time_coverage_percent:.1f}% coverage, {self.get_steps_coverage_percent(nframes, prefix):.1f}% step used)")
+        if time_coverage_percent != 100:
+            print(f"Suggested nframes: {self._run_manager.get_suggested_nframes(nframes, prefix)}")
+
+    @cached_property
+    def domain_size(self) -> float:
+        return load_bp(self._run_manager.params_record.path_run, "pfd", 0).lengths[1]
+
+    @cached_property
+    def hole_radius(self) -> float:
+        return Input(self._run_manager.params_record.path_input).get_radius_of_structure()
+
+    def print_params(self) -> None:
+        print(f"B0:            {self._run_manager.params_record.B0}")
+        print(f"Resolution:    {self._run_manager.params_record.res}^2")
+        print(f"Domain size:   {self.domain_size}")
+        print(f"Hole diameter: {2 * self.hole_radius:.3f} ({100.0 * 2 * self.hole_radius / self.domain_size:.1f}% of domain)")
+        print(f"Reversed:      {self._run_manager.params_record.reversed}")
+        print(f"Input path:    {self._run_manager.params_record.path_input}")
