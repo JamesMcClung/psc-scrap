@@ -6,7 +6,7 @@ import bgk
 import matplotlib.pyplot as plt
 import matplotlib.figure as mplf
 from sequence import Sequence
-from autofigs_history import History
+from bgk.autofigs.history import History
 import bgk.autofigs as autofigs
 import bgk.autofigs.util as util
 from bgk.backend import ParamsRecord
