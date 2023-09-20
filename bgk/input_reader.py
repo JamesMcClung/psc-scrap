@@ -1,6 +1,6 @@
-import numpy as np
-
 __all__ = ["Input"]
+
+import numpy as np
 
 
 def _line_to_list(row: str) -> list[float]:
