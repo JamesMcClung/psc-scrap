@@ -36,7 +36,7 @@ def _get_max_step(
     steps = Stream(files).filter(lambda file: file.startswith(prefix)).map(get_step)
     if max_step_override is not None:
         steps = steps.filter(lambda step: step <= max_step_override)
-    max_step = steps.reduce(max, -1)
+    max_step = steps.fold(-1, max)
     if max_step < 0:
         return None
     return max_step
