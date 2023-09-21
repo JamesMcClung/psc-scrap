@@ -11,7 +11,7 @@ class Sequence:
         self.steps = steps
         self.times = times
 
-        self.fig, self.axs = plt.subplots(
+        self.fig, self.ax_rows = plt.subplots(
             n_rows,
             len(times) + 1,  # +1 col for the cmap
             squeeze=False,
@@ -19,26 +19,26 @@ class Sequence:
         )
 
     def plot_row_pfd(self, row_idx: int, videoMaker: bgk.VideoMaker) -> None:
-        axs_row = self.axs[row_idx]
-        cmap_ax = axs_row[-1]
+        ax_row = self.ax_rows[row_idx]
+        cmap_ax = ax_row[-1]
 
-        for step, ax, time in zip(self.steps, axs_row, self.times):
+        for step, ax, time in zip(self.steps, ax_row, self.times):
             frame = step // videoMaker._stepsPerFrame_of(videoMaker._currentParam.prefix_bp)
             _, _, im = videoMaker.viewFrame(frame, self.fig, ax, minimal=True)
             ax.set_title(f"$t={time:.2f}$" if row_idx == 0 else "")
-            ax.tick_params("both", which="both", labelbottom=row_idx == len(self.axs) - 1, labelleft=step == self.steps[0])
+            ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
             ax.set_aspect("auto")
         cmap_ax.set_aspect("auto")
         self.fig.colorbar(im, cax=cmap_ax)
 
     def plot_row_prt(self, row_idx: int, particles: bgk.ParticleReader, param: str) -> None:
-        axs_row = self.axs[row_idx]
-        cmap_ax = axs_row[-1]
-        for step, ax, time in zip(self.steps, axs_row, self.times):
+        ax_row = self.ax_rows[row_idx]
+        cmap_ax = ax_row[-1]
+        for step, ax, time in zip(self.steps, ax_row, self.times):
             particles.read_step(step)
             _, _, mesh = particles.plot_distribution(param, self.fig, ax, minimal=True, show_mean=True)
             ax.set_title(f"$t={time}$" if row_idx == 0 else "")
-            ax.tick_params("both", which="both", labelbottom=row_idx == len(self.axs) - 1, labelleft=step == self.steps[0])
+            ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
             ax.set_aspect("auto")
 
         cmap_ax.set_aspect("auto")
@@ -48,5 +48,5 @@ class Sequence:
 
     def get_fig(self, title: str) -> mplf.Figure:
         self.fig.suptitle(title)
-        self.fig.set_size_inches(2 * len(self.axs[0]), 2 * len(self.axs))
+        self.fig.set_size_inches(2 * len(self.ax_rows[0]), 2 * len(self.ax_rows))
         return self.fig
