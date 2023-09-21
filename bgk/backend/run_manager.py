@@ -10,7 +10,7 @@ from math import prod
 
 from .params_record import ParamsRecord
 from ..util.stream import Stream
-from .types import PrefixBP, PrefixH5
+from ..typing import PrefixBP, PrefixH5
 from .wrapper_bp import load_bp
 from ..input_reader import Input, get_B0
 

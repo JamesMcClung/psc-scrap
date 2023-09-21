@@ -10,7 +10,8 @@ from scipy.optimize import fmin
 from functools import cached_property
 
 from .run_params import ParamMetadata
-from .backend import RunManager, load_bp, PrefixBP
+from .typing import PrefixBP
+from .backend import RunManager, load_bp
 
 
 __all__ = ["ParamMetadata", "DataSlice", "VideoMaker"]

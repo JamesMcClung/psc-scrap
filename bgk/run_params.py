@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .backend import PrefixBP
+from .typing import PrefixBP
 
 
 @dataclass
