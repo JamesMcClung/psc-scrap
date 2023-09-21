@@ -4,7 +4,7 @@ import os
 from functools import cached_property
 import xarray as xr
 
-from .types import PrefixBP, Centering, Dim
+from ..typing import PrefixBP, Centering, Dim
 
 # enables xarray to load bp files
 import psc
