@@ -115,7 +115,7 @@ class RunManager:
             "prt": self.max_prt,
         }[prefix]
 
-    def get_interval(self, prefix: PrefixBP | PrefixH5) -> int:
+    def get_interval(self, prefix: PrefixBP | PrefixH5) -> int | None:
         return {
             "pfd": self.interval_pfd,
             "pfd_moments": self.interval_pfd_moments,
