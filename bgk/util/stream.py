@@ -31,5 +31,5 @@ class Stream(Generic[T]):
     def collect(self, collector: Callable[[Iterable[T]], U]) -> U:
         return collector(self._iter)
 
-    def reduce(self, func: Callable[[U, T], U], first: U) -> U:
+    def fold(self, first: U, func: Callable[[U, T], U]) -> U:
         return reduce(func, self._iter, first)
