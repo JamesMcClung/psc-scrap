@@ -53,11 +53,11 @@ class VideoMaker:
             "gauss": self.stepsPerFrame_gauss,
         }[prefix_bp]
 
-    def _getDataAndTime(self, param: ParamMetadata, frameIdx: int) -> tuple[xr.DataArray, float]:
-        if frameIdx == 0 and param.skipFirst:
+    def _getDataAndTime(self, param: ParamMetadata, frame: int) -> tuple[xr.DataArray, float]:
+        if frame == 0 and param.skipFirst:
             step = self._interval_of(param.prefix_bp)
         else:
-            step = frameIdx * self._stepsPerFrame_of(param.prefix_bp)
+            step = frame * self._stepsPerFrame_of(param.prefix_bp)
         dataset = load_bp(self.run_manager.path_run, param.prefix_bp, step)
 
         if self.grid_rho is None:
@@ -114,7 +114,7 @@ class VideoMaker:
             return
         self._currentParam = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
-        self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, idx) for idx in range(self.nframes)])]
+        self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
         self.times = np.array(self.times)
 
     def setSlice(self, _slice: DataSlice) -> None:
@@ -134,12 +134,12 @@ class VideoMaker:
 
     # Methods that use the data
 
-    def viewFrame(self, frameIdx: int, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> tuple[mplf.Figure, plt.Axes, mpli.AxesImage]:
+    def viewFrame(self, frame: int, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> tuple[mplf.Figure, plt.Axes, mpli.AxesImage]:
         if not (fig or ax):
             fig, ax = plt.subplots()
 
         im = ax.imshow(
-            self.slicedDatas[frameIdx],
+            self.slicedDatas[frame],
             cmap=self._currentParam.colors,
             vmin=self._vmin,
             vmax=self._vmax,
@@ -155,16 +155,16 @@ class VideoMaker:
         if not minimal:
             ax.set_xlabel("y")
             ax.set_ylabel("z")
-            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
+            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frame])
             plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
             fig.colorbar(im, ax=ax)
 
         return fig, ax, im
 
     def viewMovie(self, fig: mplf.Figure, ax: plt.Axes, im: mpli.AxesImage) -> animation.FuncAnimation:
-        def updateIm(frameIdx: int):
-            im.set_array(self.slicedDatas[frameIdx])
-            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
+        def updateIm(frame: int):
+            im.set_array(self.slicedDatas[frame])
+            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frame])
             return [im]
 
         return animation.FuncAnimation(fig, updateIm, interval=30, frames=self.nframes, repeat=False, blit=True)
