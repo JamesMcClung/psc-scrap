@@ -7,6 +7,9 @@ import bgk
 
 
 class Sequence:
+    fig: mplf.Figure
+    ax_rows: list[list[plt.Axes]]  # technically it's a numpy ndarray
+
     def __init__(self, n_rows: int, steps: list[int], times: list[float]) -> None:
         self.steps = steps
         self.times = times
