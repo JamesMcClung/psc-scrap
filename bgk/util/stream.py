@@ -36,3 +36,15 @@ class Stream(Generic[T]):
 
     def reduce(self, func: Callable[[T, T], T]) -> T:
         return reduce(func, self._iter, next(self._iter))
+
+    def any(self) -> bool:
+        for x in self._iter:
+            if x:
+                return True
+        return False
+
+    def all(self) -> bool:
+        for x in self._iter:
+            if not x:
+                return False
+        return True
