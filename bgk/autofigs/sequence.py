@@ -25,8 +25,8 @@ class Sequence:
         ax_row = self.ax_rows[row_idx]
         cmap_ax = ax_row[-1]
 
-        for step, ax, time in zip(self.steps, ax_row, self.times):
-            frame = step // videoMaker._stepsPerFrame_of(videoMaker._currentParam.prefix_bp)
+        for ax, step, time in zip(ax_row, self.steps, self.times):
+            frame = videoMaker.frame_manager.steps.index(step)
             _, _, im = videoMaker.viewFrame(frame, self.fig, ax, minimal=True)
             ax.set_title(f"$t={time:.2f}$" if row_idx == 0 else "")
             ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
