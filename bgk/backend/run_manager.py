@@ -1,18 +1,20 @@
 from __future__ import annotations
 
-__all__ = ["RunManager"]
+__all__ = ["RunManager", "FrameManagerLinear"]
 
 import os
-from typing import Callable
+from typing import Callable, Type
 from itertools import combinations
 from functools import cached_property
-from math import prod
+from math import prod, lcm
+from abc import ABCMeta, abstractmethod
 
 from .params_record import ParamsRecord
 from ..util.stream import Stream
 from ..typing import PrefixBP, PrefixH5
 from .wrapper_bp import load_bp
 from ..input_reader import Input, get_B0
+from ..run_params import ParamMetadata
 
 
 def _get_files_by_extension(path: str, extension: str) -> list[str]:
@@ -126,6 +128,14 @@ class RunManager:
     def get_suggested_nframes(self, nframes_min: int, prefix: PrefixBP | PrefixH5) -> int | None:
         return _get_suggested_nframes(nframes_min, self.get_max_step(prefix), self.get_interval(prefix))
 
+    def get_frame_manager(
+        self,
+        frame_manager_type: Type[FrameManager],
+        nframes: int,
+        params: list[ParamMetadata],
+    ) -> FrameManager:
+        return frame_manager_type(self, nframes, params)
+
     def get_steps_per_frame(self, nframes: int, prefix: PrefixBP | PrefixH5) -> int | None:
         return _get_steps_per_frame(nframes, self.get_max_step(prefix), self.get_interval(prefix))
 
@@ -185,3 +195,33 @@ class RunDiagnostics:
         print(f"Hole diameter: {2 * self.hole_radius:.3f} ({100.0 * 2 * self.hole_radius / self.domain_size:.1f}% of domain)")
         print(f"Reversed:      {self._run_manager.params_record.reversed}")
         print(f"Input path:    {self._run_manager.params_record.path_input}")
+
+
+class FrameManager(metaclass=ABCMeta):
+    def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
+        self._run_manager = run_manager
+
+        for param in params:
+            if self._run_manager.get_interval(param.prefix_bp) is None:
+                raise Exception(f"Run at {self._run_manager.path_run} has no {param.prefix_bp} output.")
+
+        self.steps = self._get_steps(nframes, params)
+        self.nframes = len(self.steps)
+
+    @abstractmethod
+    def _get_steps(self, nframes: int, params: list[ParamMetadata]) -> list[int]:
+        raise NotImplementedError()
+
+
+class FrameManagerLinear(FrameManager):
+    def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
+        super().__init__(run_manager, nframes, params)
+
+    def _get_steps(self, nframes: int, params: list[ParamMetadata]) -> list[int]:
+        interval_all = Stream(params).map(lambda param: self._run_manager.get_interval(param.prefix_bp)).reduce(lcm)
+        last_step = Stream(params).map(lambda param: self._run_manager.get_max_step(param.prefix_bp)).reduce(min)
+        steps_per_frame = _get_steps_per_frame(nframes, last_step, interval_all)
+        steps = list(range(0, last_step, steps_per_frame))
+        if Stream(params).map(lambda param: param.skipFirst).any():
+            steps[0] = interval_all
+        return steps
