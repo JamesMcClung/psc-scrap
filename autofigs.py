@@ -228,15 +228,15 @@ for item in config["instructions"]:
         videoMaker.setSlice(which_slice)
 
         n_frames = min(5, time_cutoff_idx + 1)
-        frame_idxs = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
+        frames = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
 
-        times = [videoMaker.times[frame_idx] for frame_idx in frame_idxs]
-        step_idxs = [frame_idx * videoMaker._stepsPerFrame_of(videoMaker._currentParam.prefix_bp) for frame_idx in frame_idxs]
+        times = [videoMaker.times[frame] for frame in frames]
+        steps = [videoMaker.frame_manager.steps[frame] for frame in frames]
         particles = bgk.ParticleReader(path)
 
         for seq_params in item["sequences"]:
             print(f"    Generating sequence [{', '.join(seq_params)}]...")
-            seq = autofigs.Sequence(len(seq_params), step_idxs, times)
+            seq = autofigs.Sequence(len(seq_params), steps, times)
             for i, seq_param in enumerate(seq_params):
                 seq_param = str(seq_param)  # just for the linter; doesn't do anything
                 print(f"      Loading {seq_param}...")
