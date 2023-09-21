@@ -33,3 +33,6 @@ class Stream(Generic[T]):
 
     def fold(self, first: U, func: Callable[[U, T], U]) -> U:
         return reduce(func, self._iter, first)
+
+    def reduce(self, func: Callable[[T, T], T]) -> T:
+        return reduce(func, self._iter, next(self._iter))
