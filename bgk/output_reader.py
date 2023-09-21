@@ -33,26 +33,8 @@ class VideoMaker:
         self._last_lmin = 0, 0
         self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
-        self.stepsPerFrame_fields = self.run_manager.get_steps_per_frame(nframes, "pfd")
-        self.stepsPerFrame_moments = self.run_manager.get_steps_per_frame(nframes, "pfd_moments")
-        self.stepsPerFrame_gauss = self.run_manager.get_steps_per_frame(nframes, "gauss")
-
     def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
         ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self._case_name})")
-
-    def _interval_of(self, prefix_bp: PrefixBP) -> int:
-        return {
-            "pfd": self.params_record.interval_fields,
-            "pfd_moments": self.params_record.interval_moments,
-            "gauss": self.params_record.interval_gauss,
-        }[prefix_bp]
-
-    def _stepsPerFrame_of(self, prefix_bp: PrefixBP) -> int:
-        return {
-            "pfd": self.stepsPerFrame_fields,
-            "pfd_moments": self.stepsPerFrame_moments,
-            "gauss": self.stepsPerFrame_gauss,
-        }[prefix_bp]
 
     def _getDataAndTime(self, param: ParamMetadata, frame: int) -> tuple[xr.DataArray, float]:
         dataset = load_bp(self.run_manager.path_run, param.prefix_bp, self.frame_manager.steps[frame])
