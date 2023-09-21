@@ -11,7 +11,7 @@ from functools import cached_property
 
 from .run_params import ParamMetadata
 from .typing import PrefixBP
-from .backend import RunManager, load_bp
+from .backend import RunManager, load_bp, FrameManagerLinear
 
 
 __all__ = ["ParamMetadata", "DataSlice", "VideoMaker"]
@@ -55,11 +55,7 @@ class VideoMaker:
         }[prefix_bp]
 
     def _getDataAndTime(self, param: ParamMetadata, frame: int) -> tuple[xr.DataArray, float]:
-        if frame == 0 and param.skipFirst:
-            step = self._interval_of(param.prefix_bp)
-        else:
-            step = frame * self._stepsPerFrame_of(param.prefix_bp)
-        dataset = load_bp(self.run_manager.path_run, param.prefix_bp, step)
+        dataset = load_bp(self.run_manager.path_run, param.prefix_bp, self.frame_manager.steps[frame])
 
         if self.grid_rho is None:
             self.axis_y = dataset.axis_y
@@ -113,6 +109,7 @@ class VideoMaker:
     def loadData(self, param: ParamMetadata) -> None:
         if param == self._currentParam:
             return
+        self.frame_manager = self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [param])
         self._currentParam = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
         self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
