@@ -44,20 +44,6 @@ def _get_max_step(
     return max_step
 
 
-def _get_factors(n: int) -> list[int]:
-    factors = []
-    maybe_factor = 2
-    product_of_remaining_factors = n
-    while maybe_factor**2 <= product_of_remaining_factors:
-        if product_of_remaining_factors % maybe_factor == 0:
-            factors.append(maybe_factor)
-            product_of_remaining_factors //= maybe_factor
-        else:
-            maybe_factor += 1
-    factors.append(product_of_remaining_factors)
-    return factors
-
-
 class RunManager:
     def __init__(self, path_run: str, max_step_override: int | None = None) -> None:
         self.path_run = path_run
@@ -212,25 +198,16 @@ class FrameManagerLinear(FrameManager):
 
     def print_coverage(self) -> None:
         super().print_coverage()
-        if self.get_time_coverage_percent() != 100:
-            print(f"Suggested nframes: {FrameManagerLinear.get_suggested_nframes(self.nframes, self._last_step, self._interval_all)}")
+        suggested_nframes = FrameManagerLinear.get_suggested_nframes(self.nframes, self._last_step, self._interval_all)
+        if self.nframes != suggested_nframes:
+            print(f"Suggested nframes: {suggested_nframes}")
 
     @staticmethod
     def get_suggested_nframes(nframes_min: int, out_max: int | None, out_interval: int) -> int | None:
         if out_max is None:
             return None
 
-        nframes_max = out_max // out_interval
-        factors = _get_factors(nframes_max)
-        nframes_best = nframes_max
-
-        for factors_subset_len in range(0, len(factors) + 1):
-            for factors_subset in combinations(factors, factors_subset_len):
-                nframes_test = nframes_max // prod(factors_subset)
-                if nframes_min <= nframes_test < nframes_best:
-                    nframes_best = nframes_test
-
-        return nframes_best
+        return out_max // FrameManagerLinear.get_steps_per_frame(nframes_min, out_max, out_interval)
 
     @staticmethod
     def get_steps_per_frame(nframes: int, out_max: int | None, out_interval: int) -> int | None:
