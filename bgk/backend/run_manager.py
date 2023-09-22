@@ -189,6 +189,18 @@ class FrameManager(metaclass=ABCMeta):
     def _get_steps(self) -> list[int]:
         raise NotImplementedError()
 
+    def get_time_coverage_percent(self) -> float:
+        return 100.0 * self.steps[-1] / self._run_manager.params_record.nmax
+
+    def get_steps_coverage_percent(self) -> float:
+        return 100.0 * self.nframes / (self._run_manager.params_record.nmax / self._interval_all + 1)  # +1 because of t=0
+
+    def print_coverage(self) -> None:
+        print(f"Steps in run:      {self._run_manager.get_max_step()} ({self._run_manager.run_diagnostics.get_completion_percent():.1f}% complete)")
+        print(f"nframes:           {self.nframes}")
+        print(f"Steps per frame:   {self.steps[-1] / (self.nframes - 1)}")
+        print(f"Last step used:    {self.steps[-1]} ({self.get_time_coverage_percent():.1f}% coverage, {self.get_steps_coverage_percent():.1f}% step used)")
+
 
 class FrameManagerLinear(FrameManager):
     def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
@@ -197,6 +209,11 @@ class FrameManagerLinear(FrameManager):
     def _get_steps(self) -> list[int]:
         steps_per_frame = FrameManagerLinear.get_steps_per_frame(self.nframes, self._last_step, self._interval_all)
         return list(range(0, self._last_step, steps_per_frame))
+
+    def print_coverage(self) -> None:
+        super().print_coverage()
+        if self.get_time_coverage_percent() != 100:
+            print(f"Suggested nframes: {FrameManagerLinear.get_suggested_nframes(self.nframes, self._last_step, self._interval_all)}")
 
     @staticmethod
     def get_suggested_nframes(nframes_min: int, out_max: int | None, out_interval: int) -> int | None:
