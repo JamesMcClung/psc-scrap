@@ -106,22 +106,6 @@ class RunDiagnostics:
     def get_completion_percent(self) -> float:
         return 100.0 * self._run_manager.get_max_step() / self._run_manager.params_record.nmax
 
-    def get_time_coverage_percent(self, nframes: int, prefix: PrefixBP | PrefixH5) -> float:
-        return 100.0 * nframes * self._run_manager.get_steps_per_frame(nframes, prefix) / self._run_manager.params_record.nmax
-
-    def get_steps_coverage_percent(self, nframes: int, prefix: PrefixBP | PrefixH5) -> float:
-        return 100.0 * nframes / (self._run_manager.get_max_step(prefix) / self._run_manager.get_interval(prefix))
-
-    def print_coverage(self, nframes: int, prefix: PrefixBP | PrefixH5 = "pfd") -> None:
-        time_coverage_percent = self.get_time_coverage_percent(nframes, prefix)
-        steps_per_frame = self._run_manager.get_steps_per_frame(nframes, prefix)
-        print(f"Steps in run:      {self._run_manager.get_max_step()} ({self.get_completion_percent():.1f}% complete)")
-        print(f"nframes:           {nframes}")
-        print(f"Steps per frame:   {steps_per_frame}")
-        print(f"Last step used:    {nframes * steps_per_frame} ({time_coverage_percent:.1f}% coverage, {self.get_steps_coverage_percent(nframes, prefix):.1f}% step used)")
-        if time_coverage_percent != 100:
-            print(f"Suggested nframes: {self._run_manager.get_suggested_nframes(nframes, prefix)}")
-
     @cached_property
     def domain_size(self) -> float:
         return load_bp(self._run_manager.path_run, "pfd", 0).lengths[1]
