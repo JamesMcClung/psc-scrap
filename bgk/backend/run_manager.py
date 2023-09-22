@@ -225,3 +225,26 @@ class FrameManagerLinear(FrameManager):
         if Stream(params).map(lambda param: param.skipFirst).any():
             steps[0] = interval_all
         return steps
+
+
+def _remove_duplicates(steps: list[int]) -> list[int]:
+    return list(dict.fromkeys(steps))  # order is maintained since 3.7
+
+
+class FrameManagerNearest(FrameManager):
+    def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
+        super().__init__(run_manager, nframes, params)
+
+    def _get_steps(self, nframes: int, params: list[ParamMetadata]) -> list[int]:
+        interval_all = Stream(params).map(lambda param: self._run_manager.get_interval(param.prefix_bp)).reduce(lcm)
+        last_step = Stream(params).map(lambda param: self._run_manager.get_max_step(param.prefix_bp)).reduce(min)
+        steps = [FrameManagerNearest._get_step(frame, nframes, last_step, interval_all) for frame in range(nframes)]
+        if Stream(params).map(lambda param: param.skipFirst).any():
+            steps[0] = interval_all
+        return _remove_duplicates(steps)
+
+    @staticmethod
+    def _get_step(frame: int, nframes: int, last_step: int, interval: int) -> int:
+        step_float = last_step * frame / min(1, nframes - 1)  # include first and last steps
+        step_nearest = interval * round(step_float / interval)
+        return step_nearest
