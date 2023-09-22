@@ -10,7 +10,6 @@ from scipy.optimize import fmin
 from functools import cached_property
 
 from .run_params import ParamMetadata
-from .typing import PrefixBP
 from .backend import RunManager, load_bp, FrameManagerLinear
 
 
