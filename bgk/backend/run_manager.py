@@ -192,6 +192,11 @@ class FrameManager(metaclass=ABCMeta):
     def _get_last_step(self, params: list[ParamMetadata]) -> int:
         return Stream(params).map(lambda param: self._run_manager.get_max_step(param.prefix_bp)).reduce(min)
 
+    @staticmethod
+    def _maybe_skip_first(steps: list[int], params: list[ParamMetadata], interval_all: int) -> list[int]:
+        if Stream(params).map(lambda param: param.skipFirst).any():
+            steps[0] = interval_all
+
 
 class FrameManagerLinear(FrameManager):
     def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
@@ -201,9 +206,7 @@ class FrameManagerLinear(FrameManager):
         interval_all = self._get_interval_all(params)
         last_step = self._get_last_step(params)
         steps = list(range(0, last_step, FrameManagerLinear.get_steps_per_frame(nframes, last_step, interval_all)))
-        if Stream(params).map(lambda param: param.skipFirst).any():
-            steps[0] = interval_all
-        return steps
+        return FrameManager._maybe_skip_first(steps, params, interval_all)
 
     @staticmethod
     def get_suggested_nframes(nframes_min: int, out_max: int | None, out_interval: int) -> int | None:
@@ -244,9 +247,7 @@ class FrameManagerNearest(FrameManager):
         interval_all = self._get_interval_all(params)
         last_step = self._get_last_step(params)
         steps = [FrameManagerNearest._get_step(frame, nframes, last_step, interval_all) for frame in range(nframes)]
-        if Stream(params).map(lambda param: param.skipFirst).any():
-            steps[0] = interval_all
-        return _remove_duplicates(steps)
+        return FrameManager._maybe_skip_first(_remove_duplicates(steps), params, interval_all)
 
     @staticmethod
     def _get_step(frame: int, nframes: int, last_step: int, interval: int) -> int:
