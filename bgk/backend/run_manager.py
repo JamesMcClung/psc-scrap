@@ -5,7 +5,7 @@ __all__ = ["RunManager", "FrameManagerLinear"]
 import os
 from typing import Callable, Type
 from functools import cached_property
-from math import lcm
+from math import lcm, floor
 from abc import ABCMeta, abstractmethod
 
 from .params_record import ParamsRecord
@@ -206,14 +206,14 @@ class FrameManagerLinear(FrameManager):
         if out_max is None:
             return None
 
-        return out_max // FrameManagerLinear.get_steps_per_frame(nframes_min, out_max, out_interval)
+        return floor(1 + out_max // FrameManagerLinear.get_steps_per_frame(nframes_min, out_max, out_interval))
 
     @staticmethod
     def get_steps_per_frame(nframes: int, out_max: int | None, out_interval: int) -> int | None:
         if out_max is None:
             return None
 
-        steps_per_frame = out_max // nframes
+        steps_per_frame = out_max // (nframes - 1)
         steps_per_frame -= steps_per_frame % out_interval
         return steps_per_frame
 
