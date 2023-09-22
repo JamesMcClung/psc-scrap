@@ -58,32 +58,6 @@ def _get_factors(n: int) -> list[int]:
     return factors
 
 
-def _get_suggested_nframes(nframes_min: int, out_max: int | None, out_interval: int) -> int | None:
-    if out_max is None:
-        return None
-
-    nframes_max = out_max // out_interval
-    factors = _get_factors(nframes_max)
-    nframes_best = nframes_max
-
-    for factors_subset_len in range(0, len(factors) + 1):
-        for factors_subset in combinations(factors, factors_subset_len):
-            nframes_test = nframes_max // prod(factors_subset)
-            if nframes_min <= nframes_test < nframes_best:
-                nframes_best = nframes_test
-
-    return nframes_best
-
-
-def _get_steps_per_frame(nframes: int, out_max: int | None, out_interval: int) -> int | None:
-    if out_max is None:
-        return None
-
-    steps_per_frame = out_max // nframes
-    steps_per_frame -= steps_per_frame % out_interval
-    return steps_per_frame
-
-
 class RunManager:
     def __init__(self, path_run: str, max_step_override: int | None = None) -> None:
         self.path_run = path_run
@@ -126,7 +100,7 @@ class RunManager:
         }[prefix]
 
     def get_suggested_nframes(self, nframes_min: int, prefix: PrefixBP | PrefixH5) -> int | None:
-        return _get_suggested_nframes(nframes_min, self.get_max_step(prefix), self.get_interval(prefix))
+        return FrameManagerLinear.get_suggested_nframes(nframes_min, self.get_max_step(prefix), self.get_interval(prefix))
 
     def get_frame_manager(
         self,
@@ -137,7 +111,7 @@ class RunManager:
         return frame_manager_type(self, nframes, params)
 
     def get_steps_per_frame(self, nframes: int, prefix: PrefixBP | PrefixH5) -> int | None:
-        return _get_steps_per_frame(nframes, self.get_max_step(prefix), self.get_interval(prefix))
+        return FrameManagerLinear.get_steps_per_frame(nframes, self.get_max_step(prefix), self.get_interval(prefix))
 
 
 class RunDiagnostics:
@@ -220,11 +194,37 @@ class FrameManagerLinear(FrameManager):
     def _get_steps(self, nframes: int, params: list[ParamMetadata]) -> list[int]:
         interval_all = Stream(params).map(lambda param: self._run_manager.get_interval(param.prefix_bp)).reduce(lcm)
         last_step = Stream(params).map(lambda param: self._run_manager.get_max_step(param.prefix_bp)).reduce(min)
-        steps_per_frame = _get_steps_per_frame(nframes, last_step, interval_all)
+        steps_per_frame = FrameManagerLinear.get_steps_per_frame(nframes, last_step, interval_all)
         steps = list(range(0, last_step, steps_per_frame))
         if Stream(params).map(lambda param: param.skipFirst).any():
             steps[0] = interval_all
         return steps
+
+    @staticmethod
+    def get_suggested_nframes(nframes_min: int, out_max: int | None, out_interval: int) -> int | None:
+        if out_max is None:
+            return None
+
+        nframes_max = out_max // out_interval
+        factors = _get_factors(nframes_max)
+        nframes_best = nframes_max
+
+        for factors_subset_len in range(0, len(factors) + 1):
+            for factors_subset in combinations(factors, factors_subset_len):
+                nframes_test = nframes_max // prod(factors_subset)
+                if nframes_min <= nframes_test < nframes_best:
+                    nframes_best = nframes_test
+
+        return nframes_best
+
+    @staticmethod
+    def get_steps_per_frame(nframes: int, out_max: int | None, out_interval: int) -> int | None:
+        if out_max is None:
+            return None
+
+        steps_per_frame = out_max // nframes
+        steps_per_frame -= steps_per_frame % out_interval
+        return steps_per_frame
 
 
 def _remove_duplicates(steps: list[int]) -> list[int]:
