@@ -194,7 +194,7 @@ class FrameManagerLinear(FrameManager):
 
     def _get_steps(self) -> list[int]:
         steps_per_frame = FrameManagerLinear.get_steps_per_frame(self.nframes, self._last_step, self._interval_all)
-        return list(range(0, self._last_step, steps_per_frame))
+        return [frame * steps_per_frame for frame in range(self.nframes)]
 
     def print_coverage(self) -> None:
         super().print_coverage()
