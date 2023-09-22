@@ -186,16 +186,21 @@ class FrameManager(metaclass=ABCMeta):
     def _get_steps(self, nframes: int, params: list[ParamMetadata]) -> list[int]:
         raise NotImplementedError()
 
+    def _get_interval_all(self, params: list[ParamMetadata]) -> int:
+        return Stream(params).map(lambda param: self._run_manager.get_interval(param.prefix_bp)).reduce(lcm)
+
+    def _get_last_step(self, params: list[ParamMetadata]) -> int:
+        return Stream(params).map(lambda param: self._run_manager.get_max_step(param.prefix_bp)).reduce(min)
+
 
 class FrameManagerLinear(FrameManager):
     def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
         super().__init__(run_manager, nframes, params)
 
     def _get_steps(self, nframes: int, params: list[ParamMetadata]) -> list[int]:
-        interval_all = Stream(params).map(lambda param: self._run_manager.get_interval(param.prefix_bp)).reduce(lcm)
-        last_step = Stream(params).map(lambda param: self._run_manager.get_max_step(param.prefix_bp)).reduce(min)
-        steps_per_frame = FrameManagerLinear.get_steps_per_frame(nframes, last_step, interval_all)
-        steps = list(range(0, last_step, steps_per_frame))
+        interval_all = self._get_interval_all(params)
+        last_step = self._get_last_step(params)
+        steps = list(range(0, last_step, FrameManagerLinear.get_steps_per_frame(nframes, last_step, interval_all)))
         if Stream(params).map(lambda param: param.skipFirst).any():
             steps[0] = interval_all
         return steps
@@ -236,8 +241,8 @@ class FrameManagerNearest(FrameManager):
         super().__init__(run_manager, nframes, params)
 
     def _get_steps(self, nframes: int, params: list[ParamMetadata]) -> list[int]:
-        interval_all = Stream(params).map(lambda param: self._run_manager.get_interval(param.prefix_bp)).reduce(lcm)
-        last_step = Stream(params).map(lambda param: self._run_manager.get_max_step(param.prefix_bp)).reduce(min)
+        interval_all = self._get_interval_all(params)
+        last_step = self._get_last_step(params)
         steps = [FrameManagerNearest._get_step(frame, nframes, last_step, interval_all) for frame in range(nframes)]
         if Stream(params).map(lambda param: param.skipFirst).any():
             steps[0] = interval_all
