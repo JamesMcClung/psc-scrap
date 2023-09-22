@@ -174,39 +174,29 @@ class RunDiagnostics:
 class FrameManager(metaclass=ABCMeta):
     def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
         self._run_manager = run_manager
+        self._prefixes = {param.prefix_bp for param in params}
+        self._interval_all = Stream(self._prefixes).map(run_manager.get_interval).reduce(lcm)
+        self._last_step = Stream(self._prefixes).map(run_manager.get_max_step).reduce(min)
 
-        for param in params:
-            if self._run_manager.get_interval(param.prefix_bp) is None:
-                raise Exception(f"Run at {self._run_manager.path_run} has no {param.prefix_bp} output.")
+        self.nframes = nframes
+        self.steps = self._get_steps()
+        assert nframes == len(self.steps)
 
-        self.steps = self._get_steps(nframes, params)
-        self.nframes = len(self.steps)
+        if Stream(params).map(lambda param: param.skipFirst).any():
+            self.steps[0] = self._interval_all
 
     @abstractmethod
-    def _get_steps(self, nframes: int, params: list[ParamMetadata]) -> list[int]:
+    def _get_steps(self) -> list[int]:
         raise NotImplementedError()
-
-    def _get_interval_all(self, params: list[ParamMetadata]) -> int:
-        return Stream(params).map(lambda param: self._run_manager.get_interval(param.prefix_bp)).reduce(lcm)
-
-    def _get_last_step(self, params: list[ParamMetadata]) -> int:
-        return Stream(params).map(lambda param: self._run_manager.get_max_step(param.prefix_bp)).reduce(min)
-
-    @staticmethod
-    def _maybe_skip_first(steps: list[int], params: list[ParamMetadata], interval_all: int) -> list[int]:
-        if Stream(params).map(lambda param: param.skipFirst).any():
-            steps[0] = interval_all
 
 
 class FrameManagerLinear(FrameManager):
     def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
         super().__init__(run_manager, nframes, params)
 
-    def _get_steps(self, nframes: int, params: list[ParamMetadata]) -> list[int]:
-        interval_all = self._get_interval_all(params)
-        last_step = self._get_last_step(params)
-        steps = list(range(0, last_step, FrameManagerLinear.get_steps_per_frame(nframes, last_step, interval_all)))
-        return FrameManager._maybe_skip_first(steps, params, interval_all)
+    def _get_steps(self) -> list[int]:
+        steps_per_frame = FrameManagerLinear.get_steps_per_frame(self.nframes, self._last_step, self._interval_all)
+        return list(range(0, self._last_step, steps_per_frame))
 
     @staticmethod
     def get_suggested_nframes(nframes_min: int, out_max: int | None, out_interval: int) -> int | None:
@@ -243,14 +233,12 @@ class FrameManagerNearest(FrameManager):
     def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
         super().__init__(run_manager, nframes, params)
 
-    def _get_steps(self, nframes: int, params: list[ParamMetadata]) -> list[int]:
-        interval_all = self._get_interval_all(params)
-        last_step = self._get_last_step(params)
-        steps = [FrameManagerNearest._get_step(frame, nframes, last_step, interval_all) for frame in range(nframes)]
-        return FrameManager._maybe_skip_first(_remove_duplicates(steps), params, interval_all)
+    def _get_steps(self) -> list[int]:
+        steps = [FrameManagerNearest.get_step(frame, self.nframes, self._last_step, self._interval_all) for frame in range(self.nframes)]
+        return _remove_duplicates(steps)
 
     @staticmethod
-    def _get_step(frame: int, nframes: int, last_step: int, interval: int) -> int:
+    def get_step(frame: int, nframes: int, last_step: int, interval: int) -> int:
         step_float = last_step * frame / min(1, nframes - 1)  # include first and last steps
         step_nearest = interval * round(step_float / interval)
         return step_nearest
