@@ -9,7 +9,7 @@ import scipy.signal as sig
 from scipy.optimize import fmin
 from functools import cached_property
 
-from .run_params import ParamMetadata
+from .run_params import ParamMetadata, ne
 from .backend import RunManager, load_bp, FrameManagerLinear
 
 
@@ -26,6 +26,7 @@ class VideoMaker:
     def __init__(self, nframes: int, run_manager: RunManager) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
+        self.frame_manager = run_manager.get_frame_manager(FrameManagerLinear, nframes, [ne])  # never used except for diagnostics
         self.nframes = nframes
         self.grid_rho = None
         self._currentParam = None
