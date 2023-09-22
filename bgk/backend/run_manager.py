@@ -4,9 +4,8 @@ __all__ = ["RunManager", "FrameManagerLinear"]
 
 import os
 from typing import Callable, Type
-from itertools import combinations
 from functools import cached_property
-from math import prod, lcm
+from math import lcm
 from abc import ABCMeta, abstractmethod
 
 from .params_record import ParamsRecord
