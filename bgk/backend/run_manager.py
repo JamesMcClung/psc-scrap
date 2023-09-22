@@ -190,10 +190,10 @@ class FrameManager(metaclass=ABCMeta):
         raise NotImplementedError()
 
     def get_time_coverage_percent(self) -> float:
-        return 100.0 * self.steps[-1] / self._run_manager.params_record.nmax
+        return 100.0 * self.steps[-1] / self._last_step
 
     def get_steps_coverage_percent(self) -> float:
-        return 100.0 * self.nframes / (self._run_manager.params_record.nmax / self._interval_all + 1)  # +1 because of t=0
+        return 100.0 * self.nframes / (self._last_step / self._interval_all + 1)  # +1 because of t=0
 
     def print_coverage(self) -> None:
         print(f"Steps in run:      {self._run_manager.get_max_step()} ({self._run_manager.run_diagnostics.get_completion_percent():.1f}% complete)")
