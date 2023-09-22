@@ -184,7 +184,7 @@ class FrameManager(metaclass=ABCMeta):
     def print_coverage(self) -> None:
         print(f"Steps in run:      {self._run_manager.get_max_step()} ({self._run_manager.run_diagnostics.get_completion_percent():.1f}% complete)")
         print(f"nframes:           {self.nframes}")
-        print(f"Steps per frame:   {self.steps[-1] / self.nframes}")
+        print(f"Steps per frame:   {self.steps[-1] / (self.nframes - 1)}")
         print(f"Last step used:    {self.steps[-1]} ({self.get_time_coverage_percent():.1f}% coverage, {self.get_steps_coverage_percent():.1f}% step used)")
 
 
