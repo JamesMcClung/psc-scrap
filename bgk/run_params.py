@@ -1,16 +1,16 @@
-from dataclasses import dataclass
+from dataclasses import dataclass as _dataclass
 
-from .typing import PrefixBP
+from .typing import PrefixBP as _PrefixBP
 
 
-@dataclass
+@_dataclass
 class ParamMetadata:
     name: str
     title: str
     vmin: float | None
     vmax: float | None
     colors: str
-    prefix_bp: PrefixBP
+    prefix_bp: _PrefixBP
     varName: str
     coef: float = 1.0
     skipFirst: bool = False
