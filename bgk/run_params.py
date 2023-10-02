@@ -14,6 +14,7 @@ class ParamMetadata:
     varName: str
     coef: float = 1.0
     skipFirst: bool = False
+    recenter: bool = False
     combine: str = "magnitude"
 
 
@@ -22,7 +23,7 @@ e_x = ParamMetadata("e_x", "$E_x$", None, None, "RdBu_r", "pfd", "ex_ec", skipFi
 e_y = ParamMetadata("e_y", "$E_y$", None, None, "RdBu_r", "pfd", "ey_ec", skipFirst=True)
 e_z = ParamMetadata("e_z", "$E_z$", None, None, "RdBu_r", "pfd", "ez_ec", skipFirst=True)
 e_rho = ParamMetadata("e_rho", "$E_\\rho$", None, None, "RdBu_r", "pfd", ["ey_ec", "ez_ec"], combine="radial", skipFirst=True)
-e_phi = ParamMetadata("e_phi", "$E_\\phi$", None, None, "RdBu_r", "pfd", ["ey_ec", "ez_ec"], combine="azimuthal", skipFirst=True)
+e_phi = ParamMetadata("e_phi", "$E_\\phi$", None, None, "RdBu_r", "pfd", ["ey_ec", "ez_ec"], combine="azimuthal", skipFirst=True, recenter=True)
 e = ParamMetadata("e", "$|E|$", 0, None, "inferno", "pfd", ["ey_ec", "ez_ec"], combine="magnitude", skipFirst=True)
 b_x = ParamMetadata("b_x", "$B_x$", None, None, "RdBu_r", "pfd", "hx_fc", skipFirst=True)
 b_y = ParamMetadata("b_y", "$B_y$", None, None, "RdBu_r", "pfd", "hy_fc", skipFirst=True)
