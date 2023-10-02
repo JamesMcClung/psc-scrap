@@ -76,7 +76,8 @@ class VideoMaker:
 
                     return np.sum(rawData**2)
 
-                self._last_lmin = fmin(sumsq, self._last_lmin, disp=False)
+                if param.recenter:
+                    self._last_lmin = fmin(sumsq, self._last_lmin, disp=False)
 
                 rawData = sumsq(self._last_lmin, True)
         else:
