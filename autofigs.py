@@ -249,6 +249,8 @@ for item in config["instructions"]:
                     seq.plot_row_pfd(i, videoMaker)
 
             def name_to_latex(name: str) -> str:
+                if name.startswith(tuple("ebj")):
+                    name = name.capitalize()
                 name = name.replace("rho", "\\rho").replace("phi", "\\phi")
                 if "_" not in name:
                     name = name[0] + "_" + name[1:]
