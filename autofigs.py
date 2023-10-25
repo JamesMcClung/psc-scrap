@@ -158,7 +158,7 @@ for item in config["instructions"]:
         time_cutoff_idx = videoMaker.getIdxPeriod()
         duration_in_title = "Over First Oscillation"
     else:
-        first_param_str = (params_to_load_standard or params_to_load_special)[0]
+        first_param_str = (params_to_load_standard or ["ne"])[0]
         print(f"  Loading {first_param_str} for determining run duration...")
         videoMaker.loadData(bgk.run_params.__dict__[first_param_str])
         videoMaker.setSlice(which_slice)
