@@ -106,7 +106,8 @@ for item in config["instructions"]:
     print(f"Entering {path}")
 
     params_to_load_standard = get_params_in_order(item)
-    if not params_to_load_standard:
+    params_to_load_special = list({seq_param for seq_params in item["sequences"] for seq_param in seq_params})
+    if not params_to_load_standard and not params_to_load_special:
         print(f"No figures requested. Skipping.")
         continue
 
@@ -157,7 +158,7 @@ for item in config["instructions"]:
         time_cutoff_idx = videoMaker.getIdxPeriod()
         duration_in_title = "Over First Oscillation"
     else:
-        first_param_str = params_to_load_standard[0]
+        first_param_str = (params_to_load_standard or params_to_load_special)[0]
         print(f"  Loading {first_param_str} for determining run duration...")
         videoMaker.loadData(bgk.run_params.__dict__[first_param_str])
         videoMaker.setSlice(which_slice)
