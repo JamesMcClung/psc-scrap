@@ -1,23 +1,26 @@
 import os
 import itertools
 
-maxwellian = True
+maxwellian = False
 v_coef = 1
 
-B_vals = [0.1, 0.25, 0.5, 1, 2, 4, 10]
-res_vals = [256, 512]
+B_vals = [0.25]
+res_vals = [128]
+nicells = [100, 400, 1600]
+date = "nov9"  # change me
 
 ###################
 
 
-def get_file_name(B: float, res: int) -> str:
+def get_file_name(B: float, res: int, nicell: int) -> str:
     case_prefix = "max" if maxwellian else "exact"
     maybe_rev = "-rev" if v_coef < 0 else ""
-    return f"/mnt/lustre/IAM851/jm1667/psc-runs/case1/params/{case_prefix}{maybe_rev}/B{B:05.2f}-n{res}.txt"
+    maybe_nicell = f"-nicell{nicell}" if nicell != 100 else ""
+    return f"/mnt/lustre/IAM851/jm1667/psc-runs/case1/params/{case_prefix}{maybe_rev}/{date}/B{B:05.2f}-n{res}{maybe_nicell}.txt"
 
 
-for B, res in itertools.product(B_vals, res_vals):
-    dest_file = get_file_name(B, res)
+for B, res, nicell in itertools.product(B_vals, res_vals, nicells):
+    dest_file = get_file_name(B, res, nicell)
     text = f"""
 # Don't touch
 m_i 1e9
@@ -39,7 +42,7 @@ rel_box_size 1
 n_grid {res}
 n_cells_per_patch 16
 
-nicell 100
+nicell {100}
 cfl .75
 maxwellian {str(maxwellian).lower()}
 
