@@ -90,8 +90,8 @@ def get_params_in_order(item: dict[str, list[str]]) -> list[str]:
     params = set(sum((item[option] for option in TRIVIAL_FIGURE_TYPES), start=[]))
     if "ne" in params:
         params.remove("ne")
-        return ["ne"] + list(params)
-    return list(params)
+        return ["ne"] + sorted(list(params))
+    return sorted(list(params))
 
 
 ########################################################
