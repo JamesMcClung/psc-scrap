@@ -37,7 +37,7 @@ def plot_profiles(
 
     allMeans = np.array([[util.get_mean(videoMaker.slicedDatas[idx], r, rStep, videoMaker) for r in rs] for idx in range(videoMaker.nframes)])
 
-    n_plots = 13
+    n_plots = min(13, time_cutoff_idx + 1)
     n_labels = min(5, time_cutoff_idx + 1)
 
     indices = sorted(list({round(i) for i in np.linspace(0, time_cutoff_idx, n_plots)}))
