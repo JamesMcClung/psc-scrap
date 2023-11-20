@@ -1,17 +1,25 @@
-import numpy as np
-
 __all__ = ["Input"]
+
+import numpy as np
+import os
 
 
 def _line_to_list(row: str) -> list[float]:
     return [float(val) for val in row.split()]
 
 
+def get_B0(path_input: str) -> float:
+    for item in os.path.basename(path_input).split("-"):
+        if item.startswith("B="):
+            return float(item.removeprefix("B="))
+
+
 class Input:
-    def __init__(self, file: str) -> None:
-        with open(file) as io:
-            labels = io.readline().split()
-            data = np.array([_line_to_list(line) for line in io.readlines()])
+    def __init__(self, path_input: str) -> None:
+        self.path_input = path_input
+        with open(path_input) as input:
+            labels = input.readline().split()
+            data = np.array([_line_to_list(line) for line in input.readlines()])
         for i, label in enumerate(labels):
             self.__dict__[label] = data[:, i]
 
