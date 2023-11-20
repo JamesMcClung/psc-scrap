@@ -1,27 +1,24 @@
 import yaml
 import os
-
-_SETTINGS = ["nframes", "slice", "periodic", "output_directory"]
-_FIGURE_TYPES = ["videos", "profiles", "sequences", "stabilities", "origin_means", "periodograms", "extrema"]
-_METASETTINGS = ["suite"]
+from bgk.autofigs.options import SETTINGS, FIGURE_TYPES, METASETTINGS
 
 
 def _without_metasettings(item: dict) -> dict:
     item = dict(item)
-    for ms in _METASETTINGS:
+    for ms in METASETTINGS:
         item.pop(ms, None)
     return item
 
 
 def _find_item_setting_differences(item1: dict, item2: dict) -> list[str]:
     diffs = []
-    for setting in _SETTINGS:
+    for setting in SETTINGS:
         if item1[setting] != item2[setting]:
             diffs.append(setting)
     return diffs
 
 
-def _get_settings_as_str(item: dict, settings: list[str] = _SETTINGS) -> str:
+def _get_settings_as_str(item: dict, settings: list[str] = SETTINGS) -> str:
     return " ".join(f"{setting}={item[setting]}" for setting in settings)
 
 
@@ -37,7 +34,7 @@ def _figlist_duplicates_removed(fig_list: list[str] | list[list[str]]) -> list:
 
 
 def _update_figure_lists(old_item: dict, new_item: dict):
-    for fig_type in _FIGURE_TYPES:
+    for fig_type in FIGURE_TYPES:
         if new_item.get(fig_type, []):
             old_item[fig_type] = _figlist_duplicates_removed(old_item.get(fig_type, []) + new_item[fig_type])
 

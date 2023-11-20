@@ -5,15 +5,12 @@ import yaml
 import bgk
 import matplotlib.pyplot as plt
 import matplotlib.figure as mplf
-import matplotlib as mpl
-import numpy as np
-import xarray as xr
 from sequence import Sequence
-from autofigs_history import History, _FIGURE_TYPES
-import extrema
+from autofigs_history import History
+import bgk.autofigs as autofigs
+import bgk.autofigs.util as util
+from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
-_TRIVIAL_FIGURE_TYPES = _FIGURE_TYPES.copy()
-_TRIVIAL_FIGURE_TYPES.remove("sequences")
 
 ########################################################
 
@@ -34,9 +31,9 @@ if invalid_flags := set(flags) - _VALID_FLAGS:
     print(f"Invalid flags: {invalid_flags}")
     print(f"Valid flags: {_VALID_FLAGS}")
     exit(1)
-if "only" in flags and flags["only"] not in _FIGURE_TYPES:
+if "only" in flags and flags["only"] not in FIGURE_TYPES:
     print(f"Invalid --only value: {flags['only']}")
-    print(f"Valid --only values: {_FIGURE_TYPES}")
+    print(f"Valid --only values: {FIGURE_TYPES}")
     exit(1)
 for flag in ["save", "warn"]:
     if flag in flags and flags[flag] is not None:
@@ -64,7 +61,7 @@ config = get_autofigs_config()
 
 ########################################################
 
-empty_suite = {figure_option: [] for figure_option in _FIGURE_TYPES}
+empty_suite = {figure_option: [] for figure_option in FIGURE_TYPES}
 
 
 def apply_suite(instruction_item: dict) -> dict:
@@ -81,7 +78,7 @@ def maybe_apply_only_flag(instruction_item: dict) -> dict:
     chosen_figure = flags["only"]
     filtered_item = instruction_item.copy()
     for opt in instruction_item:
-        if opt in _FIGURE_TYPES and opt != chosen_figure:
+        if opt in FIGURE_TYPES and opt != chosen_figure:
             filtered_item[opt] = []
     return filtered_item
 
@@ -90,7 +87,7 @@ def maybe_apply_only_flag(instruction_item: dict) -> dict:
 
 
 def get_params_in_order(item: dict[str, list[str]]) -> list[str]:
-    params = set(sum((item[option] for option in _TRIVIAL_FIGURE_TYPES), start=[]))
+    params = set(sum((item[option] for option in TRIVIAL_FIGURE_TYPES), start=[]))
     if "ne" in params:
         params.remove("ne")
         return ["ne"] + list(params)
@@ -106,15 +103,20 @@ for item in config["instructions"]:
     item = maybe_apply_only_flag(item)
 
     path = item["path"]
+    print(f"Entering {path}")
+
+    params_to_load = get_params_in_order(item)
+    if not params_to_load:
+        print(f"No figures requested. Skipping.")
+        continue
+
     outdir = item["output_directory"]
     os.makedirs(outdir, exist_ok=True)
-
-    print(f"Entering {path}")
     print(f"Saving to {outdir}")
 
     history.log_item(item, warn="warn" in flags)
 
-    prefix = item.get("prefix", "")
+    prefix: str = item.get("prefix", "")
     if prefix.endswith("/"):
         os.makedirs(os.path.join(outdir, item["prefix"]), exist_ok=True)
 
@@ -140,20 +142,12 @@ for item in config["instructions"]:
 
     ##########################
 
-    def get_fig_name(fig_type: str, param_str: str, case: str) -> str:
+    def get_fig_path(fig_type: str, param_str: str, case: str) -> str:
         ext = "mp4" if fig_type == "movie" else "png"
         param_str = param_str.replace("_", "")
         maybe_rev = "-rev" if ve_coef < 0 else ""
-        return f"{fig_type}-{param_str}-{case}{maybe_rev}-B{B:05.2f}-n{res}.{ext}"
-
-    def get_fig_path(fig_name: str) -> str:
-        if prefix.endswith("/"):
-            return os.path.join(outdir, prefix, fig_name)
-        return os.path.join(outdir, prefix + fig_name)
-
-    def save_fig(fig: mplf.Figure, fig_name: str) -> None:
-        fig.savefig(get_fig_path(fig_name), bbox_inches="tight", pad_inches=0.01, dpi=300)
-        plt.close("all")
+        fig_name = f"{prefix}{fig_type}-{param_str}-{case}{maybe_rev}-B{B:05.2f}-n{res}.{ext}"
+        return os.path.join(outdir, fig_name)
 
     ##########################
 
@@ -167,11 +161,15 @@ for item in config["instructions"]:
         time_cutoff_idx = videoMaker.getIdxPeriod()
         duration_in_title = "Over First Oscillation"
     else:
-        # time_cutoff_idx is determined cheaply later
+        first_param_str = params_to_load[0]
+        print(f"  Loading {first_param_str} for determining run duration...")
+        videoMaker.loadData(bgk.run_params.__dict__[first_param_str])
+        videoMaker.setSlice(which_slice)
+        time_cutoff_idx = len(videoMaker.times) - 1
         duration_in_title = "Over Run"
 
     ##########################
-    for param_str in get_params_in_order(item):
+    for param_str in params_to_load:
         print(f"  Loading {param_str}...")
 
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
@@ -182,56 +180,15 @@ for item in config["instructions"]:
 
         if param_str in item["extrema"]:
             print(f"    Generating extrema profiles...")
-            fig, _ = extrema.plot_extrema(videoMaker)
-            save_fig(fig, get_fig_name("extrema", param_str, case))
+            fig, _ = autofigs.plot_extrema(videoMaker)
+            util.save_fig(fig, get_fig_path("extrema", param_str, case), close=True)
 
         ##########################
 
         if param_str in item["profiles"]:
             print(f"    Generating profile...")
-            maxR = videoMaker._currentSlice.slice.stop
-            rStep = size / 100
-
-            def getMean(data: xr.DataArray, r: float) -> float:
-                rslice = data.where((r <= videoMaker.rGrid) & (videoMaker.rGrid < r + rStep))
-                return rslice.mean().item()
-
-            rs = np.arange(0, maxR, rStep)
-
-            # ————————————————————————#
-
-            allMeans = np.array([[getMean(videoMaker.slicedDatas[idx], r) for r in rs] for idx in range(nframes)])
-
-            # ————————————————————————#
-
-            if not item["periodic"]:
-                time_cutoff_idx = len(videoMaker.times) - 1
-
-            # ————————————————————————#
-
-            nsamples = 13
-
-            indices = sorted(list({round(i) for i in np.linspace(0, time_cutoff_idx, nsamples)}))
-
-            cmap = mpl.colormaps["rainbow"]
-            n_label_indices = min(5, time_cutoff_idx + 1)
-            label_indices = [indices[round(i * (len(indices) - 1) / (n_label_indices - 1))] for i in range(n_label_indices)]
-
-            fig, ax = plt.subplots()
-
-            for i in indices:
-                label = f"$t={videoMaker.times[i]:.2f}$" if i in label_indices else "_nolegend_"
-                ax.plot(rs, allMeans[i], color=cmap(i / max(indices)), label=label)
-
-            ax.set_xlabel("$\\rho$")
-            ax.set_ylabel(param.title)
-            ax.set_title(f"Changing Radial Profile of {param.title} for $B_0={B}$ {duration_in_title}")
-            ax.legend()
-            fig.tight_layout()
-
-            # ————————————————————————#
-
-            save_fig(fig, get_fig_name("profile", param_str, case))
+            fig, _ = autofigs.plot_profiles(videoMaker, time_cutoff_idx, duration_in_title)
+            util.save_fig(fig, get_fig_path("profile", param_str, case), close=True)
 
         ##########################
 
@@ -242,34 +199,29 @@ for item in config["instructions"]:
             fig.tight_layout(pad=0)
             anim = videoMaker.viewMovie(fig, ax, im)
 
-            anim.save(get_fig_path(get_fig_name("movie", param_str, case)), dpi=450)
+            anim.save(get_fig_path("movie", param_str, case), dpi=450)
+            plt.close(fig)
 
         ##########################
 
         if param_str in item["stabilities"]:
             print(f"    Generating stability plot...")
-
             fig, _ = videoMaker.viewStability()
-
-            save_fig(fig, get_fig_name("stability", param_str, case))
+            util.save_fig(fig, get_fig_path("stability", param_str, case), close=True)
 
         ##########################
 
         if param_str in item["origin_means"]:
             print(f"    Generating origin mean plot...")
-
             fig, _ = videoMaker.viewMeansAtOrigin()
-
-            save_fig(fig, get_fig_name("originmean", param_str, case))
+            util.save_fig(fig, get_fig_path("originmean", param_str, case), close=True)
 
         ##########################
 
         if param_str in item["periodograms"]:
             print(f"    Generating periodogram...")
-
             fig, _ = videoMaker.viewPeriodogram()
-
-            save_fig(fig, get_fig_name("periodogram", param_str, case))
+            util.save_fig(fig, get_fig_path("periodogram", param_str, case), close=True)
 
     ##########################
 
@@ -278,9 +230,6 @@ for item in config["instructions"]:
         print(f"  Loading ne for sequences...")
         videoMaker.loadData(bgk.run_params.ne)
         videoMaker.setSlice(which_slice)
-
-        if not item["periodic"]:
-            time_cutoff_idx = len(videoMaker.times) - 1
 
         n_frames = min(5, time_cutoff_idx + 1)
         frame_idxs = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
@@ -313,7 +262,7 @@ for item in config["instructions"]:
                 return name
 
             params_latex = ", ".join([name_to_latex(seq_param) for seq_param in seq_params])
-            save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {duration_in_title}"), get_fig_name("sequence", ",".join(seq_params).replace(":", ""), case))
+            util.save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {duration_in_title}"), get_fig_path("sequence", ",".join(seq_params).replace(":", ""), case), close=True)
 
     if "save" in flags:
         history.save()

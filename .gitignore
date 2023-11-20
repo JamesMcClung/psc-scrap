@@ -5,5 +5,5 @@ __pycache__/
 env/
 figs*/
 TODO.md
-*.history.yml
-autofigs.yml
+*autofigs*.yml
+!autofigs_template.yml
