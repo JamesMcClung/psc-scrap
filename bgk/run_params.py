@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from typing import Literal
 
-from .backend.loader import PrefixBP
+PrefixBP = Literal["pfd", "pfd_moments", "gauss"]
 
 
 @dataclass

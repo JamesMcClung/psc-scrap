@@ -7,9 +7,13 @@ import numpy as np
 import numpy.typing as npt
 import scipy.signal as sig
 from scipy.optimize import fmin
+from typing import Literal
 
 from .run_params import ParamMetadata
-from .backend import Loader, PrefixBP, load_bp
+from .backend import RunManager, load_bp
+
+
+PrefixBP = Literal["pfd", "pfd_moments", "gauss"]
 
 
 __all__ = ["ParamMetadata", "DataSlice", "VideoMaker"]
@@ -22,9 +26,9 @@ class DataSlice:
 
 
 class VideoMaker:
-    def __init__(self, nframes: int, loader: Loader) -> None:
-        self.loader = loader
-        self.params_record = loader.params_record
+    def __init__(self, nframes: int, run_manager: RunManager) -> None:
+        self.run_manager = run_manager
+        self.params_record = run_manager.params_record
         self.nframes = nframes
         self.grid_rho = None
         self._currentParam = None
@@ -32,15 +36,9 @@ class VideoMaker:
         self._last_lmin = 0, 0
         self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
-        # init stepsPerFrame for each type of output
-        self.stepsPerFrame_gauss = self.loader.gauss_max // self.nframes
-        self.stepsPerFrame_gauss -= self.stepsPerFrame_gauss % self.params_record.interval_gauss
-
-        self.stepsPerFrame_fields = self.loader.fields_max // self.nframes
-        self.stepsPerFrame_fields -= self.stepsPerFrame_fields % self.params_record.interval_fields
-
-        self.stepsPerFrame_moments = self.loader.moments_max // self.nframes
-        self.stepsPerFrame_moments -= self.stepsPerFrame_moments % self.params_record.interval_moments
+        self.stepsPerFrame_fields = self.run_manager.get_steps_per_frame(nframes, "pfd")
+        self.stepsPerFrame_moments = self.run_manager.get_steps_per_frame(nframes, "pfd_moments")
+        self.stepsPerFrame_gauss = self.run_manager.get_steps_per_frame(nframes, "gauss")
 
     def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
         ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self._case_name})")

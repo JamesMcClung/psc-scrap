@@ -134,8 +134,6 @@ for item in config["instructions"]:
         struct_radius = bgk.Input(params_record.path_input).get_radius_of_structure()
         which_slice = bgk.DataSlice(slice(-struct_radius, struct_radius), "Central ")
 
-    loader = bgk.Loader(path)
-
     size = bgk.backend.load_bp(params_record.path_run, "pfd", 0).lengths[1]  # get the y-length (= z-length)
 
     ##########################
@@ -150,7 +148,7 @@ for item in config["instructions"]:
     ##########################
 
     nframes = item.get("nframes", 100)
-    videoMaker = bgk.VideoMaker(nframes, loader)
+    videoMaker = bgk.VideoMaker(nframes, bgk.RunManager(path))
 
     if item["periodic"]:
         print(f"  Loading ne for determining period...")
