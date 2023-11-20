@@ -9,8 +9,8 @@ import scipy.signal as sig
 from scipy.optimize import fmin
 from functools import cached_property
 
-from .run_params import ParamMetadata
-from .backend import RunManager, load_bp, PrefixBP
+from .run_params import ParamMetadata, ne
+from .backend import RunManager, load_bp, FrameManagerLinear
 
 
 __all__ = ["ParamMetadata", "DataSlice", "VideoMaker"]
@@ -26,39 +26,18 @@ class VideoMaker:
     def __init__(self, nframes: int, run_manager: RunManager) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
+        self.frame_manager = run_manager.get_frame_manager(FrameManagerLinear, nframes, [ne])  # never used except for diagnostics
         self.nframes = nframes
         self.grid_rho = None
         self._currentParam = None
         self._last_lmin = 0, 0
         self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
-        self.stepsPerFrame_fields = self.run_manager.get_steps_per_frame(nframes, "pfd")
-        self.stepsPerFrame_moments = self.run_manager.get_steps_per_frame(nframes, "pfd_moments")
-        self.stepsPerFrame_gauss = self.run_manager.get_steps_per_frame(nframes, "gauss")
-
     def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
         ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self._case_name})")
 
-    def _interval_of(self, prefix_bp: PrefixBP) -> int:
-        return {
-            "pfd": self.params_record.interval_fields,
-            "pfd_moments": self.params_record.interval_moments,
-            "gauss": self.params_record.interval_gauss,
-        }[prefix_bp]
-
-    def _stepsPerFrame_of(self, prefix_bp: PrefixBP) -> int:
-        return {
-            "pfd": self.stepsPerFrame_fields,
-            "pfd_moments": self.stepsPerFrame_moments,
-            "gauss": self.stepsPerFrame_gauss,
-        }[prefix_bp]
-
-    def _getDataAndTime(self, param: ParamMetadata, frameIdx: int) -> tuple[xr.DataArray, float]:
-        if frameIdx == 0 and param.skipFirst:
-            step = self._interval_of(param.prefix_bp)
-        else:
-            step = frameIdx * self._stepsPerFrame_of(param.prefix_bp)
-        dataset = load_bp(self.run_manager.path_run, param.prefix_bp, step)
+    def _getDataAndTime(self, param: ParamMetadata, frame: int) -> tuple[xr.DataArray, float]:
+        dataset = load_bp(self.run_manager.path_run, param.prefix_bp, self.frame_manager.steps[frame])
 
         if self.grid_rho is None:
             self.axis_y = dataset.axis_y
@@ -112,9 +91,10 @@ class VideoMaker:
     def loadData(self, param: ParamMetadata) -> None:
         if param == self._currentParam:
             return
+        self.frame_manager = self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [param])
         self._currentParam = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
-        self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, idx) for idx in range(self.nframes)])]
+        self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
         self.times = np.array(self.times)
 
     def setSlice(self, _slice: DataSlice) -> None:
@@ -134,12 +114,12 @@ class VideoMaker:
 
     # Methods that use the data
 
-    def viewFrame(self, frameIdx: int, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> tuple[mplf.Figure, plt.Axes, mpli.AxesImage]:
+    def viewFrame(self, frame: int, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> tuple[mplf.Figure, plt.Axes, mpli.AxesImage]:
         if not (fig or ax):
             fig, ax = plt.subplots()
 
         im = ax.imshow(
-            self.slicedDatas[frameIdx],
+            self.slicedDatas[frame],
             cmap=self._currentParam.colors,
             vmin=self._vmin,
             vmax=self._vmax,
@@ -155,16 +135,16 @@ class VideoMaker:
         if not minimal:
             ax.set_xlabel("y")
             ax.set_ylabel("z")
-            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
+            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frame])
             plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
             fig.colorbar(im, ax=ax)
 
         return fig, ax, im
 
     def viewMovie(self, fig: mplf.Figure, ax: plt.Axes, im: mpli.AxesImage) -> animation.FuncAnimation:
-        def updateIm(frameIdx: int):
-            im.set_array(self.slicedDatas[frameIdx])
-            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frameIdx])
+        def updateIm(frame: int):
+            im.set_array(self.slicedDatas[frame])
+            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frame])
             return [im]
 
         return animation.FuncAnimation(fig, updateIm, interval=30, frames=self.nframes, repeat=False, blit=True)
