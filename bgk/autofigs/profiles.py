@@ -49,7 +49,7 @@ def plot_profiles(
 
     ax.set_xlabel("$\\rho$")
     ax.set_ylabel(videoMaker._currentParam.title)
-    ax.set_title(f"Changing Profile of {videoMaker._currentParam.title} for $B_0={videoMaker.loader.B}$ {duration_in_title}")
+    ax.set_title(f"Changing Profile of {videoMaker._currentParam.title} for $B_0={videoMaker.params_record.B0}$ {duration_in_title}")
     ax.legend()
     fig.tight_layout()
 
@@ -81,7 +81,7 @@ def plot_extrema(
 
     ax.set_xlabel("$\\rho$")
     ax.set_ylabel(videoMaker._currentParam.title)
-    ax.set_title(f"Extremal Profiles of {videoMaker._currentParam.title} for $B_0={videoMaker.loader.B}$")
+    ax.set_title(f"Extremal Profiles of {videoMaker._currentParam.title} for $B_0={videoMaker.params_record.B0}$")
     ax.legend()
     fig.tight_layout()
 

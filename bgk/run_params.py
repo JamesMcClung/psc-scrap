@@ -1,27 +1,20 @@
+from dataclasses import dataclass
+
+from .backend.loader import PrefixBP
+
+
+@dataclass
 class ParamMetadata:
-    def __init__(
-        self,
-        name: str,
-        title: str,
-        vmin: float | None,
-        vmax: float | None,
-        colors: str,
-        outputBaseName: str,
-        varName: str,
-        coef: float = 1.0,
-        skipFirst: bool = False,
-        combine: str = "magnitude",
-    ):
-        self.name = name
-        self.title = title
-        self.vmin = vmin
-        self.vmax = vmax
-        self.colors = colors
-        self.outputBaseName = outputBaseName
-        self.varName = varName
-        self.coef = coef
-        self.skipFirst = skipFirst
-        self.combine = combine
+    name: str
+    title: str
+    vmin: float | None
+    vmax: float | None
+    colors: str
+    prefix_bp: PrefixBP
+    varName: str
+    coef: float = 1.0
+    skipFirst: bool = False
+    combine: str = "magnitude"
 
 
 # pfd

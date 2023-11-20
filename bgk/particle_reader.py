@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import os
 
-from .output_reader import readParam, Loader
+from .backend import ParamsRecord, load_bp
 from .input_reader import Input
 
 __all__ = ["ParticleReader"]
@@ -40,14 +40,15 @@ def _read_step(path: str, step: int, electronsOnly: bool = True) -> pd.DataFrame
 class ParticleReader:
     def __init__(self, path: str) -> None:
         self.path = path
+        params_record = ParamsRecord(path)
 
-        self.inputFile = readParam(path, "path_to_data", str)
-        self.B = readParam(path, "H_x", float)
-        self.maxStep = readParam(path, "nmax", int)
-        self.ve_coef = readParam(path, "v_e_coef", float)
+        self.inputFile = params_record.path_input
+        self.B = params_record.B0
+        self.maxStep = params_record.nmax
+        self.reversed = params_record.reversed
 
     def read_step(self, step: int) -> None:
-        self.t: float = Loader(self.path, engine="pscadios2", species_names=["e", "i"])._get_xr_dataset("pfd", step).time
+        self.t: float = load_bp(self.path, "pfd", step).time
 
         self.df = _read_step(self.path, step)
         self.input = Input(self.inputFile)

@@ -9,6 +9,7 @@ from sequence import Sequence
 from autofigs_history import History
 import bgk.autofigs as autofigs
 import bgk.autofigs.util as util
+from bgk.backend import ParamsRecord
 from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
 
@@ -120,33 +121,30 @@ for item in config["instructions"]:
     if prefix.endswith("/"):
         os.makedirs(os.path.join(outdir, item["prefix"]), exist_ok=True)
 
+    params_record = ParamsRecord(path)
+
     case = item.get("case", "auto")
     if case == "auto":
-        case = "max" if bgk.readParam(path, "maxwellian", str).lower() == "true" else "exact"
-
-    B = bgk.readParam(path, "H_x", float)
-    res = bgk.readParam(path, "n_grid", int)
-    ve_coef = bgk.readParam(path, "v_e_coef", float)
-    input_path = bgk.readParam(path, "path_to_data", str)
+        case = params_record.init_strategy
 
     print(f"  (slice={item['slice']})")
     if item["slice"] == "whole":
         which_slice = bgk.DataSlice(slice(None, None), "")
     elif item["slice"] == "center":
-        struct_radius = bgk.Input(input_path).get_radius_of_structure()
+        struct_radius = bgk.Input(params_record.path_input).get_radius_of_structure()
         which_slice = bgk.DataSlice(slice(-struct_radius, struct_radius), "Central ")
 
-    loader = bgk.Loader(path, engine="pscadios2", species_names=["e", "i"])
+    loader = bgk.Loader(path)
 
-    size = loader._get_xr_dataset("pfd", 0).length[1]  # get the y-length (= z-length)
+    size = bgk.backend.load_bp(params_record.path_run, "pfd", 0).lengths[1]  # get the y-length (= z-length)
 
     ##########################
 
     def get_fig_path(fig_type: str, param_str: str, case: str) -> str:
         ext = "mp4" if fig_type == "movie" else "png"
         param_str = param_str.replace("_", "")
-        maybe_rev = "-rev" if ve_coef < 0 else ""
-        fig_name = f"{prefix}{fig_type}-{param_str}-{case}{maybe_rev}-B{B:05.2f}-n{res}.{ext}"
+        maybe_rev = "-rev" if params_record.reversed else ""
+        fig_name = f"{prefix}{fig_type}-{param_str}-{case}{maybe_rev}-B{params_record.B0:05.2f}-n{params_record.res}.{ext}"
         return os.path.join(outdir, fig_name)
 
     ##########################
@@ -235,7 +233,7 @@ for item in config["instructions"]:
         frame_idxs = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
 
         times = [videoMaker.times[frame_idx] for frame_idx in frame_idxs]
-        step_idxs = [frame_idx * videoMaker._which_stepsPerFrame(videoMaker._currentParam.outputBaseName) for frame_idx in frame_idxs]
+        step_idxs = [frame_idx * videoMaker._stepsPerFrame_of(videoMaker._currentParam.prefix_bp) for frame_idx in frame_idxs]
         particles = bgk.ParticleReader(path)
 
         for seq_params in item["sequences"]:
@@ -262,7 +260,7 @@ for item in config["instructions"]:
                 return name
 
             params_latex = ", ".join([name_to_latex(seq_param) for seq_param in seq_params])
-            util.save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={B}$ {duration_in_title}"), get_fig_path("sequence", ",".join(seq_params).replace(":", ""), case), close=True)
+            util.save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={params_record.B0}$ {duration_in_title}"), get_fig_path("sequence", ",".join(seq_params).replace(":", ""), case), close=True)
 
     if "save" in flags:
         history.save()
