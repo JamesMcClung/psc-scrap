@@ -7,4 +7,5 @@ figs*/
 TODO.md
 *autofigs*.yml
 !autofigs_template.yml
+!autofigs_validation.yml
 figdata.yml
