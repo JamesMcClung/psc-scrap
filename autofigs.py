@@ -105,8 +105,9 @@ for item in config["instructions"]:
     path = item["path"]
     print(f"Entering {path}")
 
-    params_to_load = get_params_in_order(item)
-    if not params_to_load:
+    params_to_load_standard = get_params_in_order(item)
+    params_to_load_special = list({seq_param for seq_params in item["sequences"] for seq_param in seq_params})
+    if not params_to_load_standard and not params_to_load_special:
         print(f"No figures requested. Skipping.")
         continue
 
@@ -157,7 +158,7 @@ for item in config["instructions"]:
         time_cutoff_idx = videoMaker.getIdxPeriod()
         duration_in_title = "Over First Oscillation"
     else:
-        first_param_str = params_to_load[0]
+        first_param_str = (params_to_load_standard or ["ne"])[0]
         print(f"  Loading {first_param_str} for determining run duration...")
         videoMaker.loadData(bgk.run_params.__dict__[first_param_str])
         videoMaker.setSlice(which_slice)
@@ -165,7 +166,7 @@ for item in config["instructions"]:
         duration_in_title = "Over Run"
 
     ##########################
-    for param_str in params_to_load:
+    for param_str in params_to_load_standard:
         print(f"  Loading {param_str}...")
 
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
@@ -248,6 +249,8 @@ for item in config["instructions"]:
                     seq.plot_row_pfd(i, videoMaker)
 
             def name_to_latex(name: str) -> str:
+                if name.startswith(tuple("ebj")):
+                    name = name.capitalize()
                 name = name.replace("rho", "\\rho").replace("phi", "\\phi")
                 if "_" not in name:
                     name = name[0] + "_" + name[1:]
