@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import bgk
 import bgk.autofigs as autofigs
 import bgk.autofigs.util as util
-from bgk.backend import ParamsRecord
 from bgk.autofigs.history import History
 from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
@@ -121,7 +120,8 @@ for item in config["instructions"]:
     if prefix.endswith("/"):
         os.makedirs(os.path.join(outdir, item["prefix"]), exist_ok=True)
 
-    params_record = ParamsRecord(path)
+    run_manager = bgk.RunManager(path)
+    params_record = run_manager.params_record
 
     case = item.get("case", "auto")
     if case == "auto":
@@ -131,10 +131,10 @@ for item in config["instructions"]:
     if item["slice"] == "whole":
         which_slice = bgk.DataSlice(slice(None, None), "")
     elif item["slice"] == "center":
-        struct_radius = bgk.Input(params_record.path_input).get_radius_of_structure()
+        struct_radius = run_manager.run_diagnostics.hole_radius
         which_slice = bgk.DataSlice(slice(-struct_radius, struct_radius), "Central ")
 
-    size = bgk.backend.load_bp(params_record.path_run, "pfd", 0).lengths[1]  # get the y-length (= z-length)
+    size = run_manager.run_diagnostics.domain_size
 
     ##########################
 
@@ -148,7 +148,7 @@ for item in config["instructions"]:
     ##########################
 
     nframes = item.get("nframes", 100)
-    videoMaker = bgk.VideoMaker(nframes, bgk.RunManager(path))
+    videoMaker = bgk.VideoMaker(nframes, run_manager)
 
     if item["periodic"]:
         print(f"  Loading ne for determining period...")

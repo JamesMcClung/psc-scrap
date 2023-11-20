@@ -18,7 +18,6 @@ class ParamsRecord:
     nmax: int
     nicell: int
 
-    path_run: str
     path_input: str
     path_checkpoint: str | None
 
@@ -28,7 +27,6 @@ class ParamsRecord:
     interval_particles: int | None
 
     def __init__(self, path_run: str, params_record_name: str = "params_record.txt") -> None:
-        self.path_run = path_run
         self._raw_params: dict[str, str] = {}
         with open(os.path.join(path_run, params_record_name)) as records:
             for line in records:
