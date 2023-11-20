@@ -1,15 +1,15 @@
 #!/mnt/lustre/IAM851/jm1667/psc-scrap/env/bin/python3
+
 import sys
 import os
 import yaml
-import bgk
 import matplotlib.pyplot as plt
-import matplotlib.figure as mplf
-from sequence import Sequence
-from autofigs_history import History
+
+import bgk
 import bgk.autofigs as autofigs
 import bgk.autofigs.util as util
 from bgk.backend import ParamsRecord
+from bgk.autofigs.history import History
 from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
 
@@ -236,7 +236,7 @@ for item in config["instructions"]:
 
         for seq_params in item["sequences"]:
             print(f"    Generating sequence [{', '.join(seq_params)}]...")
-            seq = Sequence(len(seq_params), step_idxs, times)
+            seq = autofigs.Sequence(len(seq_params), step_idxs, times)
             for i, seq_param in enumerate(seq_params):
                 seq_param = str(seq_param)  # just for the linter; doesn't do anything
                 print(f"      Loading {seq_param}...")

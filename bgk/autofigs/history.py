@@ -1,6 +1,8 @@
+__all__ = ["History"]
+
 import yaml
 import os
-from bgk.autofigs.options import SETTINGS, FIGURE_TYPES, METASETTINGS
+from .options import SETTINGS, FIGURE_TYPES, METASETTINGS
 
 
 def _without_metasettings(item: dict) -> dict:
