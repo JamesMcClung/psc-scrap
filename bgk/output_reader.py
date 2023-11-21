@@ -113,6 +113,15 @@ class VideoMaker:
             self._vmax = max(self._vmax, -self._vmin)
             self._vmin = -self._vmax
 
+    @cached_property
+    def _val_bounds(self) -> tuple[float, float]:
+        vmax = self._currentParam.vmax if self._currentParam.vmax is not None else max(np.nanquantile(data.values, 1) for data in self.slicedDatas)
+        vmin = self._currentParam.vmin if self._currentParam.vmin is not None else min(np.nanquantile(data.values, 0) for data in self.slicedDatas)
+        if self._currentParam.vmax is self._currentParam.vmin is None:
+            vmax = max(vmax, -vmin)
+            vmin = -vmax
+        return vmin, vmax
+
     # Methods that use the data
 
     def viewFrame(self, frame: int, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> tuple[mplf.Figure, plt.Axes, mpli.AxesImage]:
