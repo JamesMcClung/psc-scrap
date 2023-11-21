@@ -11,6 +11,7 @@ from functools import cached_property
 
 from .run_params import ParamMetadata, ne
 from .backend import RunManager, load_bp, FrameManagerLinear
+from .util.safe_cache_invalidation import safe_cached_property_invalidation
 
 
 __all__ = ["ParamMetadata", "DataSlice", "VideoMaker"]
@@ -22,6 +23,7 @@ class DataSlice:
         self.viewAdjective = viewAdjective
 
 
+@safe_cached_property_invalidation
 class VideoMaker:
     def __init__(self, nframes: int, run_manager: RunManager) -> None:
         self.run_manager = run_manager
@@ -106,12 +108,7 @@ class VideoMaker:
         self._currentSlice = _slice
         self.slicedDatas = [data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for data in self.datas]
 
-        # update min and max values to show on color scale
-        self._vmax = self._currentParam.vmax if not self._currentParam.vmax is None else max(np.nanquantile(data.values, 1) for data in self.slicedDatas)
-        self._vmin = self._currentParam.vmin if not self._currentParam.vmin is None else min(np.nanquantile(data.values, 0) for data in self.slicedDatas)
-        if self._currentParam.vmax is self._currentParam.vmin is None:
-            self._vmax = max(self._vmax, -self._vmin)
-            self._vmin = -self._vmax
+        del self._val_bounds
 
     @cached_property
     def _val_bounds(self) -> tuple[float, float]:
@@ -131,8 +128,8 @@ class VideoMaker:
         im = ax.imshow(
             self.slicedDatas[frame],
             cmap=self._currentParam.colors,
-            vmin=self._vmin,
-            vmax=self._vmax,
+            vmin=self._val_bounds[0],
+            vmax=self._val_bounds[1],
             origin="lower",
             extent=(
                 self._currentSlice.slice.start,
