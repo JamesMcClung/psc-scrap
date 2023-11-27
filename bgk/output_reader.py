@@ -108,18 +108,22 @@ class VideoMaker:
         if _slice.slice.stop is None:
             _slice.slice = slice(_slice.slice.start, self.lengths[1] / 2)
         self._currentSlice = _slice
-        self.slicedDatas = [raw_data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for raw_data in self._raw_datas]
 
         del self._val_bounds
+        del self.datas
 
     @cached_property
     def _val_bounds(self) -> tuple[float, float]:
-        vmax = self._currentParam.vmax if self._currentParam.vmax is not None else max(np.nanquantile(data.values, 1) for data in self.slicedDatas)
-        vmin = self._currentParam.vmin if self._currentParam.vmin is not None else min(np.nanquantile(data.values, 0) for data in self.slicedDatas)
+        vmax = self._currentParam.vmax if self._currentParam.vmax is not None else max(np.nanquantile(data.values, 1) for data in self.datas)
+        vmin = self._currentParam.vmin if self._currentParam.vmin is not None else min(np.nanquantile(data.values, 0) for data in self.datas)
         if self._currentParam.vmax is self._currentParam.vmin is None:
             vmax = max(vmax, -vmin)
             vmin = -vmax
         return vmin, vmax
+
+    @cached_property
+    def datas(self) -> list[xr.DataArray]:
+        return [raw_data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for raw_data in self._raw_datas]
 
     # Methods that use the data
 
@@ -128,7 +132,7 @@ class VideoMaker:
             fig, ax = plt.subplots()
 
         im = ax.imshow(
-            self.slicedDatas[frame],
+            self.datas[frame],
             cmap=self._currentParam.colors,
             vmin=self._val_bounds[0],
             vmax=self._val_bounds[1],
@@ -152,7 +156,7 @@ class VideoMaker:
 
     def viewMovie(self, fig: mplf.Figure, ax: plt.Axes, im: mpli.AxesImage) -> animation.FuncAnimation:
         def updateIm(frame: int):
-            im.set_array(self.slicedDatas[frame])
+            im.set_array(self.datas[frame])
             self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frame])
             return [im]
 
@@ -162,7 +166,7 @@ class VideoMaker:
         def norm(x: xr.DataArray) -> float:
             return xr.apply_ufunc(np.linalg.norm, x, input_core_dims=[["y", "z"]])
 
-        return np.array([norm(data - self.slicedDatas[0]) for data in self.slicedDatas])
+        return np.array([norm(data - self.datas[0]) for data in self.datas])
 
     def viewStability(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
         if not (fig or ax):
