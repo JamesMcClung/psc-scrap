@@ -25,6 +25,8 @@ class DataSlice:
 
 @safe_cached_property_invalidation
 class VideoMaker:
+    _raw_datas: list[xr.DataArray]
+
     def __init__(self, nframes: int, run_manager: RunManager) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
@@ -97,7 +99,7 @@ class VideoMaker:
         self.frame_manager = self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [param])
         self._currentParam = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
-        self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
+        self._raw_datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
         self.times = np.array(self.times)
 
     def setSlice(self, _slice: DataSlice) -> None:
@@ -106,7 +108,7 @@ class VideoMaker:
         if _slice.slice.stop is None:
             _slice.slice = slice(_slice.slice.start, self.lengths[1] / 2)
         self._currentSlice = _slice
-        self.slicedDatas = [data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for data in self.datas]
+        self.slicedDatas = [raw_data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for raw_data in self._raw_datas]
 
         del self._val_bounds
 
@@ -174,13 +176,13 @@ class VideoMaker:
         return fig, ax
 
     def _getMeansAtOrigin(self, sample_size: int = 2) -> npt.NDArray[np.float64]:
-        orig_idx = len(self.datas[0]) // 2
+        orig_idx = len(self._raw_datas[0]) // 2
         if self._centering == "nc":
             sample_size -= (sample_size + 1) % 2
             orig_slice = slice(orig_idx - sample_size // 2, orig_idx + 1 + sample_size // 2)
         elif self._centering == "cc":
             orig_slice = slice(orig_idx - sample_size // 2, orig_idx + sample_size // 2)
-        return np.array([data.isel(y=orig_slice, z=orig_slice).values.mean() for data in self.datas])
+        return np.array([raw_data.isel(y=orig_slice, z=orig_slice).values.mean() for raw_data in self._raw_datas])
 
     def viewMeansAtOrigin(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
         if not (fig or ax):
