@@ -11,6 +11,7 @@ from functools import cached_property
 
 from .run_params import ParamMetadata, ne
 from .backend import RunManager, load_bp, FrameManagerLinear
+from .util.safe_cache_invalidation import safe_cached_property_invalidation
 
 
 __all__ = ["ParamMetadata", "DataSlice", "VideoMaker"]
@@ -22,7 +23,10 @@ class DataSlice:
         self.viewAdjective = viewAdjective
 
 
+@safe_cached_property_invalidation
 class VideoMaker:
+    _raw_datas: list[xr.DataArray]
+
     def __init__(self, nframes: int, run_manager: RunManager) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
@@ -95,7 +99,7 @@ class VideoMaker:
         self.frame_manager = self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [param])
         self._currentParam = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
-        self.datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
+        self._raw_datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
         self.times = np.array(self.times)
 
     def setSlice(self, _slice: DataSlice) -> None:
@@ -104,14 +108,22 @@ class VideoMaker:
         if _slice.slice.stop is None:
             _slice.slice = slice(_slice.slice.start, self.lengths[1] / 2)
         self._currentSlice = _slice
-        self.slicedDatas = [data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for data in self.datas]
 
-        # update min and max values to show on color scale
-        self._vmax = self._currentParam.vmax if not self._currentParam.vmax is None else max(np.nanquantile(data.values, 1) for data in self.slicedDatas)
-        self._vmin = self._currentParam.vmin if not self._currentParam.vmin is None else min(np.nanquantile(data.values, 0) for data in self.slicedDatas)
+        del self._val_bounds
+        del self.datas
+
+    @cached_property
+    def _val_bounds(self) -> tuple[float, float]:
+        vmax = self._currentParam.vmax if self._currentParam.vmax is not None else max(np.nanquantile(data.values, 1) for data in self.datas)
+        vmin = self._currentParam.vmin if self._currentParam.vmin is not None else min(np.nanquantile(data.values, 0) for data in self.datas)
         if self._currentParam.vmax is self._currentParam.vmin is None:
-            self._vmax = max(self._vmax, -self._vmin)
-            self._vmin = -self._vmax
+            vmax = max(vmax, -vmin)
+            vmin = -vmax
+        return vmin, vmax
+
+    @cached_property
+    def datas(self) -> list[xr.DataArray]:
+        return [raw_data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for raw_data in self._raw_datas]
 
     # Methods that use the data
 
@@ -120,10 +132,10 @@ class VideoMaker:
             fig, ax = plt.subplots()
 
         im = ax.imshow(
-            self.slicedDatas[frame],
+            self.datas[frame],
             cmap=self._currentParam.colors,
-            vmin=self._vmin,
-            vmax=self._vmax,
+            vmin=self._val_bounds[0],
+            vmax=self._val_bounds[1],
             origin="lower",
             extent=(
                 self._currentSlice.slice.start,
@@ -144,7 +156,7 @@ class VideoMaker:
 
     def viewMovie(self, fig: mplf.Figure, ax: plt.Axes, im: mpli.AxesImage) -> animation.FuncAnimation:
         def updateIm(frame: int):
-            im.set_array(self.slicedDatas[frame])
+            im.set_array(self.datas[frame])
             self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frame])
             return [im]
 
@@ -154,7 +166,7 @@ class VideoMaker:
         def norm(x: xr.DataArray) -> float:
             return xr.apply_ufunc(np.linalg.norm, x, input_core_dims=[["y", "z"]])
 
-        return np.array([norm(data - self.slicedDatas[0]) for data in self.slicedDatas])
+        return np.array([norm(data - self.datas[0]) for data in self.datas])
 
     def viewStability(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
         if not (fig or ax):
@@ -168,13 +180,13 @@ class VideoMaker:
         return fig, ax
 
     def _getMeansAtOrigin(self, sample_size: int = 2) -> npt.NDArray[np.float64]:
-        orig_idx = len(self.datas[0]) // 2
+        orig_idx = len(self._raw_datas[0]) // 2
         if self._centering == "nc":
             sample_size -= (sample_size + 1) % 2
             orig_slice = slice(orig_idx - sample_size // 2, orig_idx + 1 + sample_size // 2)
         elif self._centering == "cc":
             orig_slice = slice(orig_idx - sample_size // 2, orig_idx + sample_size // 2)
-        return np.array([data.isel(y=orig_slice, z=orig_slice).values.mean() for data in self.datas])
+        return np.array([raw_data.isel(y=orig_slice, z=orig_slice).values.mean() for raw_data in self._raw_datas])
 
     def viewMeansAtOrigin(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
         if not (fig or ax):

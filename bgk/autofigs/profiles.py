@@ -35,7 +35,7 @@ def plot_profiles(
 
     rs = np.arange(0, maxR, rStep)
 
-    allMeans = np.array([[util.get_mean(videoMaker.slicedDatas[idx], r, rStep, videoMaker) for r in rs] for idx in range(videoMaker.nframes)])
+    allMeans = np.array([[util.get_mean(videoMaker.datas[idx], r, rStep, videoMaker) for r in rs] for idx in range(videoMaker.nframes)])
 
     n_plots = min(13, time_cutoff_idx + 1)
     n_labels = min(5, time_cutoff_idx + 1)
@@ -68,7 +68,7 @@ def plot_extrema(
 
     rs = np.arange(0, maxR, rStep)
 
-    allMeans = np.array([[util.get_mean(videoMaker.slicedDatas[idx], r, rStep, videoMaker) for r in rs] for idx in range(videoMaker.nframes)])
+    allMeans = np.array([[util.get_mean(videoMaker.datas[idx], r, rStep, videoMaker) for r in rs] for idx in range(videoMaker.nframes)])
 
     indices_maxs = videoMaker.getLocalExtremaIndices(np.greater_equal) or [videoMaker.nframes - 1]
     indices_mins = videoMaker.getLocalExtremaIndices(np.less_equal) or [0]
