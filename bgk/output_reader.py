@@ -15,7 +15,7 @@ from .backend import RunManager, load_bp, FrameManagerLinear
 from .util.safe_cache_invalidation import safe_cached_property_invalidation
 
 
-__all__ = ["ParamMetadata", "VideoMaker"]
+__all__ = ["VideoMaker"]
 
 
 @safe_cached_property_invalidation
