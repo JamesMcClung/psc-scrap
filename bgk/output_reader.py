@@ -15,13 +15,7 @@ from .backend import RunManager, load_bp, FrameManagerLinear
 from .util.safe_cache_invalidation import safe_cached_property_invalidation
 
 
-__all__ = ["ParamMetadata", "DataSlice", "VideoMaker"]
-
-
-class DataSlice:
-    def __init__(self, slice: slice, viewAdjective: str) -> None:
-        self.slice = slice
-        self.viewAdjective = viewAdjective
+__all__ = ["ParamMetadata", "VideoMaker"]
 
 
 @safe_cached_property_invalidation
@@ -102,16 +96,6 @@ class VideoMaker:
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
         self._raw_datas, self.times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
         self.times = np.array(self.times)
-
-    def setSlice(self, _slice: DataSlice) -> None:
-        if _slice.slice.start is None:
-            _slice.slice = slice(-self.lengths[1] / 2, _slice.slice.stop)
-        if _slice.slice.stop is None:
-            _slice.slice = slice(_slice.slice.start, self.lengths[1] / 2)
-        self._currentSlice = _slice
-
-        del self._val_bounds
-        del self.datas
 
     def set_view_bounds(self, bounds: Bounds3D):
         self.view_bounds = bounds.concretize(self.lengths)
