@@ -10,6 +10,7 @@ from scipy.optimize import fmin
 from functools import cached_property
 
 from .run_params import ParamMetadata, ne
+from .bounds import Bounds3D
 from .backend import RunManager, load_bp, FrameManagerLinear
 from .util.safe_cache_invalidation import safe_cached_property_invalidation
 
@@ -112,6 +113,11 @@ class VideoMaker:
         del self._val_bounds
         del self.datas
 
+    def set_view_bounds(self, bounds: Bounds3D):
+        self.view_bounds = bounds.concretize(self.lengths)
+        del self._val_bounds
+        del self.datas
+
     @cached_property
     def _val_bounds(self) -> tuple[float, float]:
         vmax = self._currentParam.vmax if self._currentParam.vmax is not None else max(np.nanquantile(data.values, 1) for data in self.datas)
@@ -123,7 +129,7 @@ class VideoMaker:
 
     @cached_property
     def datas(self) -> list[xr.DataArray]:
-        return [raw_data.sel(y=self._currentSlice.slice, z=self._currentSlice.slice) for raw_data in self._raw_datas]
+        return [raw_data.sel(y=self.view_bounds.yslice, z=self.view_bounds.zslice) for raw_data in self._raw_datas]
 
     # Methods that use the data
 
@@ -137,18 +143,13 @@ class VideoMaker:
             vmin=self._val_bounds[0],
             vmax=self._val_bounds[1],
             origin="lower",
-            extent=(
-                self._currentSlice.slice.start,
-                self._currentSlice.slice.stop,
-                self._currentSlice.slice.start,
-                self._currentSlice.slice.stop,
-            ),
+            extent=self.view_bounds.get_extent(),
         )
 
         if not minimal:
             ax.set_xlabel("y")
             ax.set_ylabel("z")
-            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frame])
+            self._setTitle(ax, self.view_bounds.adjective, self._currentParam.title, self.times[frame])
             plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
             fig.colorbar(im, ax=ax)
 
@@ -157,7 +158,7 @@ class VideoMaker:
     def viewMovie(self, fig: mplf.Figure, ax: plt.Axes, im: mpli.AxesImage) -> animation.FuncAnimation:
         def updateIm(frame: int):
             im.set_array(self.datas[frame])
-            self._setTitle(ax, self._currentSlice.viewAdjective, self._currentParam.title, self.times[frame])
+            self._setTitle(ax, self.view_bounds.adjective, self._currentParam.title, self.times[frame])
             return [im]
 
         return animation.FuncAnimation(fig, updateIm, interval=30, frames=self.nframes, repeat=False, blit=True)
@@ -174,7 +175,7 @@ class VideoMaker:
 
         ax.set_xlabel("Time")
         ax.set_ylabel("2-Norm of Difference")
-        ax.set_title(f"Deviation from ICs of {self._currentSlice.viewAdjective}{self._currentParam.title} ($B_0={self.params_record.B0}$, {self._case_name})")
+        ax.set_title(f"Deviation from ICs of {self.view_bounds.adjective}{self._currentParam.title} ($B_0={self.params_record.B0}$, {self._case_name})")
 
         ax.plot(self.times, self._getNormsOfDiffs())
         return fig, ax

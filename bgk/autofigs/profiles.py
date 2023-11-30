@@ -30,7 +30,7 @@ def plot_profiles(
 ):
     fig, ax = util.ensure_fig_ax(fig, ax)
 
-    maxR = videoMaker._currentSlice.slice.stop
+    maxR = videoMaker.view_bounds.bounds[1].upper
     rStep = videoMaker.lengths[1] / 100
 
     rs = np.arange(0, maxR, rStep)
@@ -63,7 +63,7 @@ def plot_extrema(
 ) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
-    maxR = videoMaker._currentSlice.slice.stop
+    maxR = videoMaker.view_bounds.bounds[1].upper
     rStep = videoMaker.lengths[1] / 100
 
     rs = np.arange(0, maxR, rStep)
