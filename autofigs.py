@@ -130,10 +130,10 @@ for item in config["instructions"]:
 
     print(f"  (slice={item['slice']})")
     if item["slice"] == "whole":
-        which_slice = bgk.DataSlice(slice(None, None), "")
+        view_bounds = bgk.Bounds3D.whole()
     elif item["slice"] == "center":
         struct_radius = run_manager.run_diagnostics.hole_radius
-        which_slice = bgk.DataSlice(slice(-struct_radius, struct_radius), "Central ")
+        view_bounds = bgk.Bounds3D.center_yz(struct_radius)
 
     size = run_manager.run_diagnostics.domain_size
 
@@ -154,14 +154,14 @@ for item in config["instructions"]:
     if item["periodic"]:
         print(f"  Loading ne for determining period...")
         videoMaker.loadData(bgk.run_params.ne)
-        videoMaker.setSlice(which_slice)
+        videoMaker.set_view_bounds(view_bounds)
         time_cutoff_idx = videoMaker.getIdxPeriod()
         duration_in_title = "Over First Oscillation"
     else:
         first_param_str = (params_to_load_standard or ["ne"])[0]
         print(f"  Loading {first_param_str} for determining run duration...")
         videoMaker.loadData(bgk.run_params.__dict__[first_param_str])
-        videoMaker.setSlice(which_slice)
+        videoMaker.set_view_bounds(view_bounds)
         time_cutoff_idx = len(videoMaker.times) - 1
         duration_in_title = "Over Run"
 
@@ -171,7 +171,7 @@ for item in config["instructions"]:
 
         param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
         videoMaker.loadData(param)
-        videoMaker.setSlice(which_slice)
+        videoMaker.set_view_bounds(view_bounds)
 
         ##########################
 
@@ -226,7 +226,7 @@ for item in config["instructions"]:
         # get times and step indices
         print(f"  Loading ne for sequences...")
         videoMaker.loadData(bgk.run_params.ne)
-        videoMaker.setSlice(which_slice)
+        videoMaker.set_view_bounds(view_bounds)
 
         n_frames = min(5, time_cutoff_idx + 1)
         frames = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
@@ -245,7 +245,7 @@ for item in config["instructions"]:
                     seq.plot_row_prt(i, particles, seq_param.removeprefix("prt:"))
                 else:
                     videoMaker.loadData(bgk.run_params.__dict__[seq_param])
-                    videoMaker.setSlice(which_slice)
+                    videoMaker.set_view_bounds(view_bounds)
                     seq.plot_row_pfd(i, videoMaker)
 
             def name_to_latex(name: str) -> str:
