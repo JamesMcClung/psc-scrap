@@ -45,7 +45,7 @@ def plot_profiles(
 
     cmap = util.get_cmap("Reds", min=0.3)
 
-    _plot_lines(ax, cmap, indices, label_indices, xdata=rs, ydatas=allMeans, tdata=videoMaker.times)
+    _plot_lines(ax, cmap, indices, label_indices, xdata=rs, ydatas=allMeans, tdata=videoMaker.axis_t)
 
     ax.set_xlabel("$\\rho$")
     ax.set_ylabel(videoMaker._currentParam.title)
@@ -76,8 +76,8 @@ def plot_extrema(
     cmap_mins = util.get_cmap("Blues", min=0.3, max=0.9)
     cmap_maxs = util.get_cmap("Reds", min=0.3, max=0.9)
 
-    _plot_lines(ax, cmap_mins, indices_mins, [indices_mins[0], indices_mins[-1]], xdata=rs, ydatas=allMeans, tdata=videoMaker.times)
-    _plot_lines(ax, cmap_maxs, indices_maxs, [indices_maxs[0], indices_maxs[-1]], xdata=rs, ydatas=allMeans, tdata=videoMaker.times)
+    _plot_lines(ax, cmap_mins, indices_mins, [indices_mins[0], indices_mins[-1]], xdata=rs, ydatas=allMeans, tdata=videoMaker.axis_t)
+    _plot_lines(ax, cmap_maxs, indices_maxs, [indices_maxs[0], indices_maxs[-1]], xdata=rs, ydatas=allMeans, tdata=videoMaker.axis_t)
 
     ax.set_xlabel("$\\rho$")
     ax.set_ylabel(videoMaker._currentParam.title)
