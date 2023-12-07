@@ -6,12 +6,6 @@ import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 from xarray import DataArray
-from ..output_reader import VideoMaker
-
-
-def get_mean(data: DataArray, r: float, dr: float, videoMaker: VideoMaker) -> float:
-    rslice = data.where((r <= videoMaker.grid_rho) & (videoMaker.grid_rho < r + dr))
-    return rslice.mean().item()
 
 
 def binned_mean(data: DataArray, coord: str, nbins: int, lower: float | None = None, upper: float | None = None) -> DataArray:
