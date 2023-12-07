@@ -1,16 +1,20 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
 
 # imports used for linting
 from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 from xarray import DataArray
-from ..output_reader import VideoMaker
 
 
-def get_mean(data: DataArray, r: float, dr: float, videoMaker: VideoMaker) -> float:
-    rslice = data.where((r <= videoMaker.grid_rho) & (videoMaker.grid_rho < r + dr))
-    return rslice.mean().item()
+def binned_mean(data: DataArray, coord: str, nbins: int, lower: float | None = None, upper: float | None = None) -> DataArray:
+    if lower is None:
+        lower = float(data.coords[coord].min())
+    if upper is None:
+        upper = float(data.coords[coord].max())
+
+    return data.groupby_bins(coord, np.linspace(lower, upper, nbins + 1, endpoint=True), right=False).mean()
 
 
 def save_fig(fig: Figure, path: str, close: bool = False):

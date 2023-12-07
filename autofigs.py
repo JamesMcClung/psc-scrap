@@ -162,7 +162,7 @@ for item in config["instructions"]:
         print(f"  Loading {first_param_str} for determining run duration...")
         videoMaker.loadData(bgk.run_params.__dict__[first_param_str])
         videoMaker.set_view_bounds(view_bounds)
-        time_cutoff_idx = len(videoMaker.times) - 1
+        time_cutoff_idx = nframes - 1
         duration_in_title = "Over Run"
 
     ##########################
@@ -231,7 +231,7 @@ for item in config["instructions"]:
         n_frames = min(5, time_cutoff_idx + 1)
         frames = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
 
-        times = [videoMaker.times[frame] for frame in frames]
+        times = videoMaker.axis_t[frames]
         steps = [videoMaker.frame_manager.steps[frame] for frame in frames]
         particles = bgk.ParticleReader(path)
 

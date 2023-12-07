@@ -34,8 +34,7 @@ def plot_profiles(
     rStep = videoMaker.lengths[1] / 100
 
     rs = np.arange(0, maxR, rStep)
-
-    allMeans = np.array([[util.get_mean(videoMaker.datas[idx], r, rStep, videoMaker) for r in rs] for idx in range(videoMaker.nframes)])
+    meanss = util.binned_mean(videoMaker.datas, "rho", nbins=len(rs), lower=0, upper=maxR)
 
     n_plots = min(13, time_cutoff_idx + 1)
     n_labels = min(5, time_cutoff_idx + 1)
@@ -45,7 +44,7 @@ def plot_profiles(
 
     cmap = util.get_cmap("Reds", min=0.3)
 
-    _plot_lines(ax, cmap, indices, label_indices, xdata=rs, ydatas=allMeans, tdata=videoMaker.times)
+    _plot_lines(ax, cmap, indices, label_indices, xdata=rs, ydatas=meanss, tdata=videoMaker.axis_t)
 
     ax.set_xlabel("$\\rho$")
     ax.set_ylabel(videoMaker._currentParam.title)
@@ -67,8 +66,7 @@ def plot_extrema(
     rStep = videoMaker.lengths[1] / 100
 
     rs = np.arange(0, maxR, rStep)
-
-    allMeans = np.array([[util.get_mean(videoMaker.datas[idx], r, rStep, videoMaker) for r in rs] for idx in range(videoMaker.nframes)])
+    meanss = util.binned_mean(videoMaker.datas, "rho", nbins=len(rs), lower=0, upper=maxR)
 
     indices_maxs = videoMaker.getLocalExtremaIndices(np.greater_equal) or [videoMaker.nframes - 1]
     indices_mins = videoMaker.getLocalExtremaIndices(np.less_equal) or [0]
@@ -76,8 +74,8 @@ def plot_extrema(
     cmap_mins = util.get_cmap("Blues", min=0.3, max=0.9)
     cmap_maxs = util.get_cmap("Reds", min=0.3, max=0.9)
 
-    _plot_lines(ax, cmap_mins, indices_mins, [indices_mins[0], indices_mins[-1]], xdata=rs, ydatas=allMeans, tdata=videoMaker.times)
-    _plot_lines(ax, cmap_maxs, indices_maxs, [indices_maxs[0], indices_maxs[-1]], xdata=rs, ydatas=allMeans, tdata=videoMaker.times)
+    _plot_lines(ax, cmap_mins, indices_mins, [indices_mins[0], indices_mins[-1]], xdata=rs, ydatas=meanss, tdata=videoMaker.axis_t)
+    _plot_lines(ax, cmap_maxs, indices_maxs, [indices_maxs[0], indices_maxs[-1]], xdata=rs, ydatas=meanss, tdata=videoMaker.axis_t)
 
     ax.set_xlabel("$\\rho$")
     ax.set_ylabel(videoMaker._currentParam.title)
