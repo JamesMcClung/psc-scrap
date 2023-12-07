@@ -27,7 +27,6 @@ class VideoMaker:
         self.params_record = run_manager.params_record
         self.frame_manager = run_manager.get_frame_manager(FrameManagerLinear, nframes, [ne])  # never used except for diagnostics
         self.nframes = nframes
-        self.grid_rho = None
         self._currentParam = None
         self._last_lmin = 0, 0
         self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
@@ -37,9 +36,6 @@ class VideoMaker:
 
     def _getDataAndTime(self, param: ParamMetadata, frame: int) -> tuple[xr.DataArray, float]:
         dataset = load_bp(self.run_manager.path_run, param.prefix_bp, self.frame_manager.steps[frame])
-
-        if self.grid_rho is None:
-            self.grid_rho = dataset.grid_rho
 
         c = self._centering
 
@@ -98,14 +94,20 @@ class VideoMaker:
     def axis_t(self) -> xr.DataArray:
         return self.datas.t
 
+    @property
+    def grid_rho(self) -> xr.DataArray:
+        return self.datas.rho
+
     def loadData(self, param: ParamMetadata) -> None:
         if param == self._currentParam:
             return
         self.frame_manager = self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [param])
         self._currentParam = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
-        _raw_datas, times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
-        self._raw_datas: xr.DataArray = xr.concat(_raw_datas, pd.Index(times, name="t"))
+        raw_datas, times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
+        raw_datas: xr.DataArray = xr.concat(raw_datas, pd.Index(times, name="t"))
+        raw_datas.coords["rho"] = (raw_datas.coords["y"] ** 2 + raw_datas.coords["z"] ** 2) ** 0.5
+        self._raw_datas = raw_datas
 
     def set_view_bounds(self, bounds: Bounds3D):
         self.view_bounds = bounds.concretize(self.lengths)
