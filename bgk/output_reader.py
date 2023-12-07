@@ -39,8 +39,6 @@ class VideoMaker:
         dataset = load_bp(self.run_manager.path_run, param.prefix_bp, self.frame_manager.steps[frame])
 
         if self.grid_rho is None:
-            self.axis_y = dataset.axis_y
-            self.axis_z = dataset.axis_z
             self.grid_rho = dataset.grid_rho
 
         c = self._centering
@@ -58,8 +56,8 @@ class VideoMaker:
 
                 # recenter structure
                 def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
-                    adjusted_axis_y = self.axis_y - p[0]
-                    adjusted_axis_z = self.axis_z - p[1]
+                    adjusted_axis_y = dataset.axis_y - p[0]
+                    adjusted_axis_z = dataset.axis_z - p[1]
                     adjusted_grid_rho = (adjusted_axis_y**2 + adjusted_axis_z**2) ** 0.5
 
                     if param.combine == "radial":
@@ -87,6 +85,14 @@ class VideoMaker:
     @cached_property
     def lengths(self) -> tuple[float, float, float]:
         return load_bp(self.run_manager.path_run, "pfd", 0).lengths
+
+    @property
+    def axis_y(self) -> xr.DataArray:
+        return self.datas.y
+
+    @property
+    def axis_z(self) -> xr.DataArray:
+        return self.datas.z
 
     @property
     def axis_t(self) -> xr.DataArray:
