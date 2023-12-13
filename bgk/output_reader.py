@@ -22,12 +22,12 @@ __all__ = ["VideoMaker"]
 class VideoMaker:
     _raw_datas: xr.DataArray
 
-    def __init__(self, nframes: int, run_manager: RunManager) -> None:
+    def __init__(self, nframes: int, run_manager: RunManager, initial_param: ParamMetadata = ne) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
-        self.frame_manager = run_manager.get_frame_manager(FrameManagerLinear, nframes, [ne])  # never used except for diagnostics
+        self.frame_manager = run_manager.get_frame_manager(FrameManagerLinear, nframes, [initial_param])  # never used except for diagnostics
         self.nframes = nframes
-        self._currentParam = None
+        self._currentParam = initial_param
         self._last_lmin = 0, 0
         self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
@@ -99,7 +99,7 @@ class VideoMaker:
         return self.datas.rho
 
     def loadData(self, param: ParamMetadata) -> None:
-        if param == self._currentParam:
+        if param == self._currentParam and hasattr(self, "_raw_datas"):
             return
         self.frame_manager = self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [param])
         self._currentParam = param
