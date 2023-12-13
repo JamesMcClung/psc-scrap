@@ -103,15 +103,19 @@ class VideoMaker:
         self._currentParam = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
         del self.frame_manager
-        raw_datas, times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
-        raw_datas: xr.DataArray = xr.concat(raw_datas, pd.Index(times, name="t"))
-        raw_datas.coords["rho"] = (raw_datas.coords["y"] ** 2 + raw_datas.coords["z"] ** 2) ** 0.5
-        self._raw_datas = raw_datas
+        del self._raw_datas
 
     def set_view_bounds(self, bounds: Bounds3D):
         self.view_bounds = bounds.concretize(self.lengths)
         del self._val_bounds
         del self.datas
+
+    @cached_property
+    def _raw_datas(self) -> xr.DataArray:
+        raw_datas, times = [list(x) for x in zip(*[self._getDataAndTime(self._currentParam, frame) for frame in range(self.nframes)])]
+        raw_datas: xr.DataArray = xr.concat(raw_datas, pd.Index(times, name="t"))
+        raw_datas.coords["rho"] = (raw_datas.coords["y"] ** 2 + raw_datas.coords["z"] ** 2) ** 0.5
+        return raw_datas
 
     @cached_property
     def frame_manager(self) -> FrameManager:
