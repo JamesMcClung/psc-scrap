@@ -2,6 +2,9 @@
 
 path_to_test=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 
+# remove previously generated figures
+rm $path_to_test/figs-output/*
+
 # generate figures
 $path_to_test/../../autofigs.py "$path_to_test/autofigs_validation.yml" || exit
 
