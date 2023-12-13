@@ -2,7 +2,6 @@ suites:
   validation:
     # output_directory: /mnt/lustre/IAM851/jm1667/psc-scrap/bgk/test/figs-reference
     output_directory: /mnt/lustre/IAM851/jm1667/psc-scrap/bgk/test/figs-output
-    slice: whole
     nframes: 11
     videos: [e_phi]
     profiles: [e_rho]
@@ -15,6 +14,8 @@ instructions:
   - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B00.25-n128
     suite: validation
     periodic: false
+    slice: whole
   - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/max/B04.00-n256
     suite: validation
     periodic: true
+    slice: center
