@@ -97,7 +97,7 @@ class VideoMaker:
     def grid_rho(self) -> xr.DataArray:
         return self.datas.rho
 
-    def loadData(self, param: ParamMetadata) -> None:
+    def set_param(self, param: ParamMetadata) -> None:
         if param == self._currentParam and hasattr(self, "_raw_datas"):
             return
         self._currentParam = param
