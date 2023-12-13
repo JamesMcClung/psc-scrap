@@ -10,6 +10,7 @@ for ref_fig_path in $path_to_test/figs-reference/*; do
     sum_ref=$(sha1sum "$path_to_test/figs-reference/$fig_name" | sed -e 's/\s.*$//')
     if [[ $sum_output != $sum_ref ]]; then
         echo "MISMATCH: $ref_fig_path"
+        echo "      vs. $path_to_test/figs-output/$fig_name"
     else
         echo "match:    $ref_fig_path"
     fi
