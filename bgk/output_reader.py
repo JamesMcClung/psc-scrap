@@ -11,7 +11,7 @@ from functools import cached_property
 
 from .run_params import ParamMetadata, ne
 from .bounds import Bounds3D
-from .backend import RunManager, load_bp, FrameManagerLinear
+from .backend import RunManager, load_bp, FrameManagerLinear, FrameManager
 from .util.safe_cache_invalidation import safe_cached_property_invalidation
 
 
@@ -25,7 +25,6 @@ class VideoMaker:
     def __init__(self, nframes: int, run_manager: RunManager, initial_param: ParamMetadata = ne) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
-        self.frame_manager = run_manager.get_frame_manager(FrameManagerLinear, nframes, [initial_param])  # never used except for diagnostics
         self.nframes = nframes
         self._currentParam = initial_param
         self._last_lmin = 0, 0
@@ -101,9 +100,9 @@ class VideoMaker:
     def loadData(self, param: ParamMetadata) -> None:
         if param == self._currentParam and hasattr(self, "_raw_datas"):
             return
-        self.frame_manager = self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [param])
         self._currentParam = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
+        del self.frame_manager
         raw_datas, times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
         raw_datas: xr.DataArray = xr.concat(raw_datas, pd.Index(times, name="t"))
         raw_datas.coords["rho"] = (raw_datas.coords["y"] ** 2 + raw_datas.coords["z"] ** 2) ** 0.5
@@ -113,6 +112,10 @@ class VideoMaker:
         self.view_bounds = bounds.concretize(self.lengths)
         del self._val_bounds
         del self.datas
+
+    @cached_property
+    def frame_manager(self) -> FrameManager:
+        return self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [self._currentParam])
 
     @cached_property
     def _val_bounds(self) -> tuple[float, float]:
