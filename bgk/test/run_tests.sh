@@ -2,7 +2,7 @@
 
 path_to_test=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 
-$path_to_test/../../autofigs.py "$path_to_test/autofigs_validation.yml"
+$path_to_test/../../autofigs.py "$path_to_test/autofigs_validation.yml" || exit
 
 for ref_fig_path in $path_to_test/figs-reference/*; do
     fig_name="$(basename "$ref_fig_path")"
