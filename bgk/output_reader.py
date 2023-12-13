@@ -26,7 +26,7 @@ class VideoMaker:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
         self.nframes = nframes
-        self.param = initial_param
+        self.set_param(initial_param)
         self._last_lmin = 0, 0
         self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
@@ -98,7 +98,7 @@ class VideoMaker:
         return self.datas.rho
 
     def set_param(self, param: ParamMetadata) -> None:
-        if param == self.param and hasattr(self, "_raw_datas"):
+        if hasattr(self, "param") and param == self.param:
             return
         self.param = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
