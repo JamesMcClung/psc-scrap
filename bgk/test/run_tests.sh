@@ -2,8 +2,10 @@
 
 path_to_test=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 
+# generate figures
 $path_to_test/../../autofigs.py "$path_to_test/autofigs_validation.yml" || exit
 
+# compare generated figures to reference figures
 for ref_fig_path in $path_to_test/figs-reference/*; do
     fig_name="$(basename "$ref_fig_path")"
     sum_output=$(sha1sum "$path_to_test/figs-output/$fig_name" | sed -e 's/\s.*$//')
