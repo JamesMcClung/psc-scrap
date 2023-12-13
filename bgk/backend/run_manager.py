@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ["RunManager", "FrameManagerLinear"]
+__all__ = ["RunManager", "FrameManagerLinear", "FrameManager"]
 
 import os
 from typing import Callable, Type
