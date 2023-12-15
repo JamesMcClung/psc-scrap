@@ -123,8 +123,8 @@ class VideoMaker:
 
     @cached_property
     def _val_bounds(self) -> tuple[float, float]:
-        vmax = self.param.vmax if self.param.vmax is not None else max(np.nanquantile(data.values, 1) for data in self.datas)
-        vmin = self.param.vmin if self.param.vmin is not None else min(np.nanquantile(data.values, 0) for data in self.datas)
+        vmax = self.param.vmax if self.param.vmax is not None else self.datas.quantile(1, ["y", "z"]).max("t")
+        vmin = self.param.vmin if self.param.vmin is not None else self.datas.quantile(0, ["y", "z"]).min("t")
         if self.param.vmax is self.param.vmin is None:
             vmax = max(vmax, -vmin)
             vmin = -vmax
