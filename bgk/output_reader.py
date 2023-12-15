@@ -12,6 +12,7 @@ from .run_params import ParamMetadata, ne
 from .bounds import Bounds3D
 from .backend import RunManager, load_bp, FrameManagerLinear, FrameManager
 from .util.safe_cache_invalidation import safe_cached_property_invalidation
+from .util.stream import Stream
 
 
 __all__ = ["VideoMaker"]
@@ -113,8 +114,7 @@ class VideoMaker:
 
     @cached_property
     def _raw_datas(self) -> xr.DataArray:
-        raw_datas = [self._get_data(frame) for frame in range(self.nframes)]
-        raw_datas: xr.DataArray = xr.concat(raw_datas, "t")
+        raw_datas = Stream(range(self.nframes)).map(self._get_data).collect(lambda raw_datas: xr.concat(raw_datas, "t"))
         raw_datas.coords["rho"] = (raw_datas.coords["y"] ** 2 + raw_datas.coords["z"] ** 2) ** 0.5
         return raw_datas
 
