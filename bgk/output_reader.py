@@ -32,7 +32,7 @@ class VideoMaker:
     def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
         ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self._case_name})")
 
-    def _getDataAndTime(self, param: ParamMetadata, frame: int) -> tuple[xr.DataArray, float]:
+    def _get_data(self, param: ParamMetadata, frame: int) -> xr.DataArray:
         dataset = load_bp(self.run_manager.path_run, param.prefix_bp, self.frame_manager.steps[frame])
 
         c = self._centering
@@ -76,7 +76,7 @@ class VideoMaker:
 
         raw_data = raw_data.expand_dims({"t": [dataset.time]})
         self.lengths = dataset.lengths
-        return param.coef * raw_data, dataset.time
+        return param.coef * raw_data
 
     @cached_property
     def lengths(self) -> tuple[float, float, float]:
@@ -113,7 +113,7 @@ class VideoMaker:
 
     @cached_property
     def _raw_datas(self) -> xr.DataArray:
-        raw_datas, _ = [list(x) for x in zip(*[self._getDataAndTime(self.param, frame) for frame in range(self.nframes)])]
+        raw_datas = [self._get_data(self.param, frame) for frame in range(self.nframes)]
         raw_datas: xr.DataArray = xr.concat(raw_datas, "t")
         raw_datas.coords["rho"] = (raw_datas.coords["y"] ** 2 + raw_datas.coords["z"] ** 2) ** 0.5
         return raw_datas
