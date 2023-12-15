@@ -74,6 +74,8 @@ class VideoMaker:
                 raw_data = sumsq(self._last_lmin, True)
         else:
             raw_data = dataset.get(param.varName, c)
+
+        raw_data = raw_data.expand_dims({"t": [dataset.time]})
         self.lengths = dataset.lengths
         return param.coef * raw_data, dataset.time
 
