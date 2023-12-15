@@ -134,6 +134,9 @@ for item in config["instructions"]:
     elif item["slice"] == "center":
         struct_radius = run_manager.run_diagnostics.hole_radius
         view_bounds = bgk.Bounds3D.center_yz(struct_radius)
+    else:
+        print(f"Invalid slice: '{item['slice']}'. Valid slices are 'whole' and 'center'.", file=sys.stderr)
+        sys.exit(1)
 
     size = run_manager.run_diagnostics.domain_size
 
