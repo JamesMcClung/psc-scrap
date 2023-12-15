@@ -3,7 +3,6 @@ import xarray as xr
 import matplotlib.animation as animation
 import matplotlib.image as mpli
 import matplotlib.figure as mplf
-import pandas as pd
 import numpy as np
 import scipy.signal as sig
 from scipy.optimize import fmin
@@ -114,8 +113,8 @@ class VideoMaker:
 
     @cached_property
     def _raw_datas(self) -> xr.DataArray:
-        raw_datas, times = [list(x) for x in zip(*[self._getDataAndTime(self.param, frame) for frame in range(self.nframes)])]
-        raw_datas: xr.DataArray = xr.concat(raw_datas, pd.Index(times, name="t"))
+        raw_datas, _ = [list(x) for x in zip(*[self._getDataAndTime(self.param, frame) for frame in range(self.nframes)])]
+        raw_datas: xr.DataArray = xr.concat(raw_datas, "t")
         raw_datas.coords["rho"] = (raw_datas.coords["y"] ** 2 + raw_datas.coords["z"] ** 2) ** 0.5
         return raw_datas
 
