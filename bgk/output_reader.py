@@ -40,14 +40,14 @@ class VideoMaker:
 
         if isinstance(param.varName, list):
             if param.combine == "magnitude":
-                rawData = (sum(dataset.get(var, c) ** 2 for var in param.varName)) ** 0.5
+                raw_data = (sum(dataset.get(var, c) ** 2 for var in param.varName)) ** 0.5
             elif param.combine == "sum":
-                rawData = sum(dataset.get(var, c) for var in param.varName)
+                raw_data = sum(dataset.get(var, c) for var in param.varName)
             elif param.combine == "difference":
-                rawData = dataset.get(param.varName[0], c) - dataset.get(param.varName[1], c)
+                raw_data = dataset.get(param.varName[0], c) - dataset.get(param.varName[1], c)
             else:
-                rawData_x = dataset.get(param.varName[0], c)
-                rawData_y = dataset.get(param.varName[1], c)
+                raw_data_y = dataset.get(param.varName[0], c)
+                raw_data_z = dataset.get(param.varName[1], c)
 
                 # recenter structure
                 def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
@@ -56,26 +56,26 @@ class VideoMaker:
                     adjusted_grid_rho = (adjusted_axis_y**2 + adjusted_axis_z**2) ** 0.5
 
                     if param.combine == "radial":
-                        rawData = (rawData_x * adjusted_axis_y + rawData_y * adjusted_axis_z) / adjusted_grid_rho
+                        raw_data = (raw_data_y * adjusted_axis_y + raw_data_z * adjusted_axis_z) / adjusted_grid_rho
                     elif param.combine == "azimuthal":
-                        rawData = (-rawData_x * adjusted_axis_z + rawData_y * adjusted_axis_y) / adjusted_grid_rho
+                        raw_data = (-raw_data_y * adjusted_axis_z + raw_data_z * adjusted_axis_y) / adjusted_grid_rho
                     else:
                         raise Exception(f"Invalid combine method: {param.combine}")
-                    rawData = rawData.fillna(0)
+                    raw_data = raw_data.fillna(0)
 
                     if ret_rawdata:
-                        return rawData
+                        return raw_data
 
-                    return np.sum(rawData**2)
+                    return np.sum(raw_data**2)
 
                 if param.recenter:
                     self._last_lmin = fmin(sumsq, self._last_lmin, disp=False)
 
-                rawData = sumsq(self._last_lmin, True)
+                raw_data = sumsq(self._last_lmin, True)
         else:
-            rawData = dataset.get(param.varName, c)
+            raw_data = dataset.get(param.varName, c)
         self.lengths = dataset.lengths
-        return param.coef * rawData, dataset.time
+        return param.coef * raw_data, dataset.time
 
     @cached_property
     def lengths(self) -> tuple[float, float, float]:
