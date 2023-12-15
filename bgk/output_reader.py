@@ -11,7 +11,7 @@ from functools import cached_property
 
 from .run_params import ParamMetadata, ne
 from .bounds import Bounds3D
-from .backend import RunManager, load_bp, FrameManagerLinear
+from .backend import RunManager, load_bp, FrameManagerLinear, FrameManager
 from .util.safe_cache_invalidation import safe_cached_property_invalidation
 
 
@@ -20,14 +20,13 @@ __all__ = ["VideoMaker"]
 
 @safe_cached_property_invalidation
 class VideoMaker:
-    _raw_datas: list[xr.DataArray]
+    _raw_datas: xr.DataArray
 
-    def __init__(self, nframes: int, run_manager: RunManager) -> None:
+    def __init__(self, nframes: int, run_manager: RunManager, initial_param: ParamMetadata = ne) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
-        self.frame_manager = run_manager.get_frame_manager(FrameManagerLinear, nframes, [ne])  # never used except for diagnostics
         self.nframes = nframes
-        self._currentParam = None
+        self.set_param(initial_param)
         self._last_lmin = 0, 0
         self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
@@ -98,16 +97,13 @@ class VideoMaker:
     def grid_rho(self) -> xr.DataArray:
         return self.datas.rho
 
-    def loadData(self, param: ParamMetadata) -> None:
-        if param == self._currentParam:
+    def set_param(self, param: ParamMetadata) -> None:
+        if hasattr(self, "param") and param == self.param:
             return
-        self.frame_manager = self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [param])
-        self._currentParam = param
+        self.param = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
-        raw_datas, times = [list(x) for x in zip(*[self._getDataAndTime(param, frame) for frame in range(self.nframes)])]
-        raw_datas: xr.DataArray = xr.concat(raw_datas, pd.Index(times, name="t"))
-        raw_datas.coords["rho"] = (raw_datas.coords["y"] ** 2 + raw_datas.coords["z"] ** 2) ** 0.5
-        self._raw_datas = raw_datas
+        del self.frame_manager
+        del self._raw_datas
 
     def set_view_bounds(self, bounds: Bounds3D):
         self.view_bounds = bounds.concretize(self.lengths)
@@ -115,10 +111,21 @@ class VideoMaker:
         del self.datas
 
     @cached_property
+    def _raw_datas(self) -> xr.DataArray:
+        raw_datas, times = [list(x) for x in zip(*[self._getDataAndTime(self.param, frame) for frame in range(self.nframes)])]
+        raw_datas: xr.DataArray = xr.concat(raw_datas, pd.Index(times, name="t"))
+        raw_datas.coords["rho"] = (raw_datas.coords["y"] ** 2 + raw_datas.coords["z"] ** 2) ** 0.5
+        return raw_datas
+
+    @cached_property
+    def frame_manager(self) -> FrameManager:
+        return self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [self.param])
+
+    @cached_property
     def _val_bounds(self) -> tuple[float, float]:
-        vmax = self._currentParam.vmax if self._currentParam.vmax is not None else max(np.nanquantile(data.values, 1) for data in self.datas)
-        vmin = self._currentParam.vmin if self._currentParam.vmin is not None else min(np.nanquantile(data.values, 0) for data in self.datas)
-        if self._currentParam.vmax is self._currentParam.vmin is None:
+        vmax = self.param.vmax if self.param.vmax is not None else max(np.nanquantile(data.values, 1) for data in self.datas)
+        vmin = self.param.vmin if self.param.vmin is not None else min(np.nanquantile(data.values, 0) for data in self.datas)
+        if self.param.vmax is self.param.vmin is None:
             vmax = max(vmax, -vmin)
             vmin = -vmax
         return vmin, vmax
@@ -135,7 +142,7 @@ class VideoMaker:
 
         im = ax.imshow(
             self.datas[frame],
-            cmap=self._currentParam.colors,
+            cmap=self.param.colors,
             vmin=self._val_bounds[0],
             vmax=self._val_bounds[1],
             origin="lower",
@@ -145,7 +152,7 @@ class VideoMaker:
         if not minimal:
             ax.set_xlabel("y")
             ax.set_ylabel("z")
-            self._setTitle(ax, self.view_bounds.adjective, self._currentParam.title, self.axis_t[frame])
+            self._setTitle(ax, self.view_bounds.adjective, self.param.title, self.axis_t[frame])
             plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
             fig.colorbar(im, ax=ax)
 
@@ -154,7 +161,7 @@ class VideoMaker:
     def viewMovie(self, fig: mplf.Figure, ax: plt.Axes, im: mpli.AxesImage) -> animation.FuncAnimation:
         def updateIm(frame: int):
             im.set_array(self.datas[frame])
-            self._setTitle(ax, self.view_bounds.adjective, self._currentParam.title, self.axis_t[frame])
+            self._setTitle(ax, self.view_bounds.adjective, self.param.title, self.axis_t[frame])
             return [im]
 
         return animation.FuncAnimation(fig, updateIm, interval=30, frames=self.nframes, repeat=False, blit=True)
@@ -169,7 +176,7 @@ class VideoMaker:
 
         ax.set_xlabel("Time")
         ax.set_ylabel("2-Norm of Difference")
-        ax.set_title(f"Deviation from ICs of {self.view_bounds.adjective}{self._currentParam.title} ($B_0={self.params_record.B0}$, {self._case_name})")
+        ax.set_title(f"Deviation from ICs of {self.view_bounds.adjective}{self.param.title} ($B_0={self.params_record.B0}$, {self._case_name})")
 
         ax.plot(self.axis_t, self._getNormsOfDiffs())
         return fig, ax
@@ -188,8 +195,8 @@ class VideoMaker:
             fig, ax = plt.subplots()
 
         ax.set_xlabel("Time")
-        ax.set_ylabel(f"Mean {self._currentParam.title}")
-        ax.set_title(f"Mean {self._currentParam.title} Near Origin for $B_0={self.params_record.B0}$")
+        ax.set_ylabel(f"Mean {self.param.title}")
+        ax.set_title(f"Mean {self.param.title} Near Origin for $B_0={self.params_record.B0}$")
 
         ax.plot(self.axis_t, self._getMeansAtOrigin())
         return fig, ax
