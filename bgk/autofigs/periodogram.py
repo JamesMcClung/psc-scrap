@@ -14,7 +14,7 @@ __all__ = ["plot_periodogram"]
 def plot_periodogram(videoMaker: VideoMaker, fig: Figure = None, ax: Axes = None, annotate: bool = True) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
-    data = videoMaker._getMeansAtOrigin()
+    data = videoMaker.get_means_at_origin()
     idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
     freq = idx_freq * len(videoMaker.axis_t) / videoMaker.axis_t.values[-1]
 

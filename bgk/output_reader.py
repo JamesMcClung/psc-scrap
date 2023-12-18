@@ -147,7 +147,7 @@ class VideoMaker:
         ax.plot(self.axis_t, self._getNormsOfDiffs())
         return fig, ax
 
-    def _getMeansAtOrigin(self, sample_size: int = 2) -> xr.DataArray:
+    def get_means_at_origin(self, sample_size: int = 2) -> xr.DataArray:
         orig_idx = len(self._raw_datas.y) // 2
         if self._centering == "nc":
             sample_size -= (sample_size + 1) % 2
@@ -164,14 +164,14 @@ class VideoMaker:
         ax.set_ylabel(f"Mean {self.param.title}")
         ax.set_title(f"Mean {self.param.title} Near Origin for $B_0={self.params_record.B0}$")
 
-        ax.plot(self.axis_t, self._getMeansAtOrigin())
+        ax.plot(self.axis_t, self.get_means_at_origin())
         return fig, ax
 
     def getIdxPeriod(self) -> int:
-        data = self._getMeansAtOrigin()
+        data = self.get_means_at_origin()
         idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
         return round(1 / idx_freq[sig.find_peaks(power, prominence=power.max() / 10)[0][0]])
 
     def getLocalExtremaIndices(self, comparator=np.greater_equal) -> list[int]:
         expected_idx_period = self.getIdxPeriod()
-        return list(sig.argrelextrema(self._getMeansAtOrigin().values, comparator, order=expected_idx_period // 2)[0])
+        return list(sig.argrelextrema(self.get_means_at_origin().values, comparator, order=expected_idx_period // 2)[0])
