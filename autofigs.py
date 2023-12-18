@@ -195,11 +195,8 @@ for item in config["instructions"]:
         if param_str in item["videos"]:
             print(f"    Generating movie...")
 
-            fig, ax, im = videoMaker.viewFrame(0)
-            fig.tight_layout(pad=0)
-            anim = videoMaker.viewMovie(fig, ax, im)
-
-            anim.save(get_fig_path("movie", param_str, case), dpi=450)
+            fig, movie = autofigs.make_movie(videoMaker)
+            movie.save(get_fig_path("movie", param_str, case), dpi=450)
             plt.close(fig)
 
         ##########################
