@@ -172,27 +172,6 @@ class VideoMaker:
         idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
         return round(1 / idx_freq[sig.find_peaks(power, prominence=power.max() / 10)[0][0]])
 
-    def viewPeriodogram(self, fig: mplf.Figure = None, ax: plt.Axes = None, annotate: bool = True) -> tuple[mplf.Figure, plt.Axes]:
-        if not (fig or ax):
-            fig, ax = plt.subplots()
-
-        data = self._getMeansAtOrigin()
-        idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
-        freq = idx_freq * len(self.axis_t) / self.axis_t.values[-1]
-
-        if annotate:
-            for peak_idx in sig.find_peaks(power, prominence=power.max() / 10)[0]:
-                peak_freq = freq[peak_idx]
-                peak_power = power[peak_idx]
-                ax.annotate(f"{peak_freq:.3f}", xy=(peak_freq, peak_power))
-
-        ax.set_xlabel("Frequency")
-        ax.set_ylabel("Amplitude")
-        ax.set_title(f"Periodogram of $n_e(0,0)$ ($B_0={self.params_record.B0}$, {self._case_name})")
-
-        ax.plot(freq, power)
-        return fig, ax
-
     def getLocalExtremaIndices(self, comparator=np.greater_equal) -> list[int]:
         expected_idx_period = self.getIdxPeriod()
         return list(sig.argrelextrema(self._getMeansAtOrigin().values, comparator, order=expected_idx_period // 2)[0])
