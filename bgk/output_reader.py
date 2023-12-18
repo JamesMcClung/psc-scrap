@@ -148,6 +148,6 @@ class VideoMaker:
         idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
         return round(1 / idx_freq[sig.find_peaks(power, prominence=power.max() / 10)[0][0]])
 
-    def getLocalExtremaIndices(self, comparator=np.greater_equal) -> list[int]:
+    def get_local_extrema_idxs(self, comparator=np.greater_equal) -> list[int]:
         expected_idx_period = self.get_idx_period()
         return list(sig.argrelextrema(self.get_means_at_origin().values, comparator, order=expected_idx_period // 2)[0])
