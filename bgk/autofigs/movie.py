@@ -14,7 +14,14 @@ __all__ = ["make_movie", "view_frame"]
 def make_movie(videoMaker: VideoMaker, fig: Figure = None, ax: Axes = None) -> tuple[Figure, FuncAnimation]:
     fig, ax = view_frame(videoMaker, 0, fig, ax)
     fig.tight_layout(pad=0)
-    return fig, view_movie(videoMaker, fig, ax)
+    im = ax.get_images()[0]
+
+    def update_im(frame: int):
+        im.set_array(videoMaker.datas[frame])
+        _update_title(ax, videoMaker, frame)
+        return [im]
+
+    return fig, FuncAnimation(fig, update_im, interval=30, frames=videoMaker.nframes, repeat=False, blit=True)
 
 
 def _update_title(ax: Axes, videoMaker: VideoMaker, frame: int) -> None:
@@ -41,14 +48,3 @@ def view_frame(videoMaker: VideoMaker, frame: int, fig: Figure = None, ax: Axes 
         fig.colorbar(im, ax=ax)
 
     return fig, ax
-
-
-def view_movie(videoMaker: VideoMaker, fig: Figure, ax: Axes) -> FuncAnimation:
-    im = ax.get_images()[0]
-
-    def updateIm(frame: int):
-        im.set_array(videoMaker.datas[frame])
-        _update_title(ax, videoMaker, frame)
-        return [im]
-
-    return FuncAnimation(fig, updateIm, interval=30, frames=videoMaker.nframes, repeat=False, blit=True)
