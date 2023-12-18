@@ -158,7 +158,7 @@ for item in config["instructions"]:
         print(f"  Loading ne for determining period...")
         videoMaker.set_param(bgk.run_params.ne)
         videoMaker.set_view_bounds(view_bounds)
-        time_cutoff_idx = videoMaker.getIdxPeriod()
+        time_cutoff_idx = videoMaker.get_idx_period()
         duration_in_title = "Over First Oscillation"
     else:
         first_param_str = (params_to_load_standard or ["ne"])[0]
