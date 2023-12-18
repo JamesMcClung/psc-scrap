@@ -16,8 +16,6 @@ __all__ = ["VideoMaker"]
 
 @safe_cached_property_invalidation
 class VideoMaker:
-    _raw_datas: xr.DataArray
-
     def __init__(self, nframes: int, run_manager: RunManager, initial_param: ParamMetadata = ne) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
