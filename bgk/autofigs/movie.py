@@ -15,7 +15,7 @@ __all__ = ["make_movie", "view_frame"]
 def make_movie(videoMaker: VideoMaker, fig: Figure = None, ax: Axes = None) -> tuple[Figure, FuncAnimation]:
     fig, ax, im = view_frame(videoMaker, 0, fig, ax)
     fig.tight_layout(pad=0)
-    return fig, view_movie(videoMaker, fig, ax, im)
+    return fig, view_movie(videoMaker, fig, ax)
 
 
 def _update_title(ax: Axes, videoMaker: VideoMaker, frame: int) -> None:
@@ -44,7 +44,9 @@ def view_frame(videoMaker: VideoMaker, frame: int, fig: Figure = None, ax: Axes 
     return fig, ax, im
 
 
-def view_movie(videoMaker: VideoMaker, fig: Figure, ax: Axes, im: AxesImage) -> FuncAnimation:
+def view_movie(videoMaker: VideoMaker, fig: Figure, ax: Axes) -> FuncAnimation:
+    im = ax.get_images()[0]
+
     def updateIm(frame: int):
         im.set_array(videoMaker.datas[frame])
         _update_title(ax, videoMaker, frame)
