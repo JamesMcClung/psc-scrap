@@ -1,3 +1,4 @@
+from .origin_means import *
 from .profiles import plot_profiles, plot_extrema
 from .periodogram import *
 from .sequence import *
