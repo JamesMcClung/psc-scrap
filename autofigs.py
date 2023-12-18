@@ -217,7 +217,7 @@ for item in config["instructions"]:
 
         if param_str in item["periodograms"]:
             print(f"    Generating periodogram...")
-            fig, _ = videoMaker.viewPeriodogram()
+            fig, _ = autofigs.plot_periodogram(videoMaker)
             util.save_fig(fig, get_fig_path("periodogram", param_str, case), close=True)
 
     ##########################
