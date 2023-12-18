@@ -132,7 +132,7 @@ class VideoMaker:
 
     # Methods that use the data
 
-    def _getNormsOfDiffs(self) -> xr.DataArray:
+    def get_norms_of_diffs(self) -> xr.DataArray:
         diffs = self.datas - self.datas.isel(t=0)
         return xr.apply_ufunc(np.linalg.norm, diffs, input_core_dims=[["y", "z"]], vectorize=True)
 
