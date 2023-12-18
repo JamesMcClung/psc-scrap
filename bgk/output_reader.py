@@ -3,7 +3,6 @@ import xarray as xr
 import matplotlib.animation as animation
 import matplotlib.image as mpli
 import matplotlib.figure as mplf
-import pandas as pd
 import numpy as np
 import scipy.signal as sig
 from scipy.optimize import fmin
@@ -13,6 +12,7 @@ from .run_params import ParamMetadata, ne
 from .bounds import Bounds3D
 from .backend import RunManager, load_bp, FrameManagerLinear, FrameManager
 from .util.safe_cache_invalidation import safe_cached_property_invalidation
+from .util.stream import Stream
 
 
 __all__ = ["VideoMaker"]
@@ -33,21 +33,21 @@ class VideoMaker:
     def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
         ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self._case_name})")
 
-    def _getDataAndTime(self, param: ParamMetadata, frame: int) -> tuple[xr.DataArray, float]:
+    def _get_data(self, frame: int) -> xr.DataArray:
+        param = self.param
         dataset = load_bp(self.run_manager.path_run, param.prefix_bp, self.frame_manager.steps[frame])
-
         c = self._centering
 
         if isinstance(param.varName, list):
             if param.combine == "magnitude":
-                rawData = (sum(dataset.get(var, c) ** 2 for var in param.varName)) ** 0.5
+                raw_data = (sum(dataset.get(var, c) ** 2 for var in param.varName)) ** 0.5
             elif param.combine == "sum":
-                rawData = sum(dataset.get(var, c) for var in param.varName)
+                raw_data = sum(dataset.get(var, c) for var in param.varName)
             elif param.combine == "difference":
-                rawData = dataset.get(param.varName[0], c) - dataset.get(param.varName[1], c)
+                raw_data = dataset.get(param.varName[0], c) - dataset.get(param.varName[1], c)
             else:
-                rawData_x = dataset.get(param.varName[0], c)
-                rawData_y = dataset.get(param.varName[1], c)
+                raw_data_y = dataset.get(param.varName[0], c)
+                raw_data_z = dataset.get(param.varName[1], c)
 
                 # recenter structure
                 def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
@@ -56,26 +56,28 @@ class VideoMaker:
                     adjusted_grid_rho = (adjusted_axis_y**2 + adjusted_axis_z**2) ** 0.5
 
                     if param.combine == "radial":
-                        rawData = (rawData_x * adjusted_axis_y + rawData_y * adjusted_axis_z) / adjusted_grid_rho
+                        raw_data = (raw_data_y * adjusted_axis_y + raw_data_z * adjusted_axis_z) / adjusted_grid_rho
                     elif param.combine == "azimuthal":
-                        rawData = (-rawData_x * adjusted_axis_z + rawData_y * adjusted_axis_y) / adjusted_grid_rho
+                        raw_data = (-raw_data_y * adjusted_axis_z + raw_data_z * adjusted_axis_y) / adjusted_grid_rho
                     else:
                         raise Exception(f"Invalid combine method: {param.combine}")
-                    rawData = rawData.fillna(0)
+                    raw_data = raw_data.fillna(0)
 
                     if ret_rawdata:
-                        return rawData
+                        return raw_data
 
-                    return np.sum(rawData**2)
+                    return np.sum(raw_data**2)
 
                 if param.recenter:
                     self._last_lmin = fmin(sumsq, self._last_lmin, disp=False)
 
-                rawData = sumsq(self._last_lmin, True)
+                raw_data = sumsq(self._last_lmin, True)
         else:
-            rawData = dataset.get(param.varName, c)
+            raw_data = dataset.get(param.varName, c)
+
+        raw_data = raw_data.expand_dims({"t": [dataset.time]})
         self.lengths = dataset.lengths
-        return param.coef * rawData, dataset.time
+        return param.coef * raw_data
 
     @cached_property
     def lengths(self) -> tuple[float, float, float]:
@@ -112,8 +114,7 @@ class VideoMaker:
 
     @cached_property
     def _raw_datas(self) -> xr.DataArray:
-        raw_datas, times = [list(x) for x in zip(*[self._getDataAndTime(self.param, frame) for frame in range(self.nframes)])]
-        raw_datas: xr.DataArray = xr.concat(raw_datas, pd.Index(times, name="t"))
+        raw_datas = Stream(range(self.nframes)).map(self._get_data).collect(lambda raw_datas: xr.concat(raw_datas, "t"))
         raw_datas.coords["rho"] = (raw_datas.coords["y"] ** 2 + raw_datas.coords["z"] ** 2) ** 0.5
         return raw_datas
 
@@ -123,8 +124,8 @@ class VideoMaker:
 
     @cached_property
     def _val_bounds(self) -> tuple[float, float]:
-        vmax = self.param.vmax if self.param.vmax is not None else max(np.nanquantile(data.values, 1) for data in self.datas)
-        vmin = self.param.vmin if self.param.vmin is not None else min(np.nanquantile(data.values, 0) for data in self.datas)
+        vmax = self.param.vmax if self.param.vmax is not None else self.datas.quantile(1, ["y", "z"]).max("t")
+        vmin = self.param.vmin if self.param.vmin is not None else self.datas.quantile(0, ["y", "z"]).min("t")
         if self.param.vmax is self.param.vmin is None:
             vmax = max(vmax, -vmin)
             vmin = -vmax
