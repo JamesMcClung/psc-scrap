@@ -1,9 +1,11 @@
-__all__ = ["Sequence"]
-
 from matplotlib import pyplot as plt
 import matplotlib.figure as mplf
 import matplotlib.ticker as ticker
+
 import bgk
+from .movie import view_frame
+
+__all__ = ["Sequence"]
 
 
 class Sequence:
@@ -27,7 +29,7 @@ class Sequence:
 
         for ax, step, time in zip(ax_row, self.steps, self.times):
             frame = 0 if step == 0 else videoMaker.frame_manager.steps.index(step)  # sometimes step 0 is skipped
-            _, _, im = videoMaker.viewFrame(frame, self.fig, ax, minimal=True)
+            _, _, im = view_frame(videoMaker, frame, self.fig, ax, minimal=True)
             ax.set_title(f"$t={time:.2f}$" if row_idx == 0 else "")
             ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
             ax.set_aspect("auto")
