@@ -22,7 +22,7 @@ class VideoMaker:
         self.nframes = nframes
         self.set_param(initial_param)
         self._last_lmin = 0, 0
-        self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
+        self.case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
     def _get_data(self, frame: int) -> xr.DataArray:
         param = self.param
