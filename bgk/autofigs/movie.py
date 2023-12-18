@@ -18,8 +18,8 @@ def make_movie(videoMaker: VideoMaker, fig: Figure = None, ax: Axes = None) -> t
     return fig, view_movie(videoMaker, fig, ax, im)
 
 
-def _set_title(videoMaker: VideoMaker, ax: Axes, viewAdj: str, paramName: str, time: float) -> None:
-    ax.set_title(f"{viewAdj}{paramName}, t={time:.3f} ($B_0={videoMaker.params_record.B0}$, {videoMaker._case_name})")
+def _update_title(ax: Axes, videoMaker: VideoMaker, frame: int) -> None:
+    ax.set_title(f"{videoMaker.view_bounds.adjective}{videoMaker.param.title}, t={videoMaker.axis_t[frame]:.3f} ($B_0={videoMaker.params_record.B0}$, {videoMaker._case_name})")
 
 
 def view_frame(videoMaker: VideoMaker, frame: int, fig: Figure = None, ax: Axes = None, minimal: bool = False) -> tuple[Figure, Axes, AxesImage]:
@@ -37,7 +37,7 @@ def view_frame(videoMaker: VideoMaker, frame: int, fig: Figure = None, ax: Axes 
     if not minimal:
         ax.set_xlabel("y")
         ax.set_ylabel("z")
-        _set_title(videoMaker, ax, videoMaker.view_bounds.adjective, videoMaker.param.title, videoMaker.axis_t[frame])
+        _update_title(ax, videoMaker, frame)
         plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
         fig.colorbar(im, ax=ax)
 
@@ -47,7 +47,7 @@ def view_frame(videoMaker: VideoMaker, frame: int, fig: Figure = None, ax: Axes 
 def view_movie(videoMaker: VideoMaker, fig: Figure, ax: Axes, im: AxesImage) -> FuncAnimation:
     def updateIm(frame: int):
         im.set_array(videoMaker.datas[frame])
-        _set_title(videoMaker, ax, videoMaker.view_bounds.adjective, videoMaker.param.title, videoMaker.axis_t[frame])
+        _update_title(ax, videoMaker, frame)
         return [im]
 
     return FuncAnimation(fig, updateIm, interval=30, frames=videoMaker.nframes, repeat=False, blit=True)
