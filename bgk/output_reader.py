@@ -136,17 +136,6 @@ class VideoMaker:
         diffs = self.datas - self.datas.isel(t=0)
         return xr.apply_ufunc(np.linalg.norm, diffs, input_core_dims=[["y", "z"]], vectorize=True)
 
-    def viewStability(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
-        if not (fig or ax):
-            fig, ax = plt.subplots()
-
-        ax.set_xlabel("Time")
-        ax.set_ylabel("2-Norm of Difference")
-        ax.set_title(f"Deviation from ICs of {self.view_bounds.adjective}{self.param.title} ($B_0={self.params_record.B0}$, {self._case_name})")
-
-        ax.plot(self.axis_t, self._getNormsOfDiffs())
-        return fig, ax
-
     def get_means_at_origin(self, sample_size: int = 2) -> xr.DataArray:
         orig_idx = len(self._raw_datas.y) // 2
         if self._centering == "nc":
