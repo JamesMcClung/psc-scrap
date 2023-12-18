@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 import xarray as xr
-import matplotlib.animation as animation
-import matplotlib.image as mpli
 import matplotlib.figure as mplf
 import numpy as np
 import scipy.signal as sig
@@ -29,9 +27,6 @@ class VideoMaker:
         self.set_param(initial_param)
         self._last_lmin = 0, 0
         self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
-
-    def _setTitle(self, ax: plt.Axes, viewAdj: str, paramName: str, time: float) -> None:
-        ax.set_title(f"{viewAdj} {paramName}, t={time:.3f} ($B_0={self.params_record.B0}$, {self._case_name})")
 
     def _get_data(self, frame: int) -> xr.DataArray:
         param = self.param
@@ -136,36 +131,6 @@ class VideoMaker:
         return self._raw_datas.sel(y=self.view_bounds.yslice, z=self.view_bounds.zslice)
 
     # Methods that use the data
-
-    def viewFrame(self, frame: int, fig: mplf.Figure = None, ax: plt.Axes = None, minimal: bool = False) -> tuple[mplf.Figure, plt.Axes, mpli.AxesImage]:
-        if not (fig or ax):
-            fig, ax = plt.subplots()
-
-        im = ax.imshow(
-            self.datas[frame],
-            cmap=self.param.colors,
-            vmin=self._val_bounds[0],
-            vmax=self._val_bounds[1],
-            origin="lower",
-            extent=self.view_bounds.get_extent(),
-        )
-
-        if not minimal:
-            ax.set_xlabel("y")
-            ax.set_ylabel("z")
-            self._setTitle(ax, self.view_bounds.adjective, self.param.title, self.axis_t[frame])
-            plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
-            fig.colorbar(im, ax=ax)
-
-        return fig, ax, im
-
-    def viewMovie(self, fig: mplf.Figure, ax: plt.Axes, im: mpli.AxesImage) -> animation.FuncAnimation:
-        def updateIm(frame: int):
-            im.set_array(self.datas[frame])
-            self._setTitle(ax, self.view_bounds.adjective, self.param.title, self.axis_t[frame])
-            return [im]
-
-        return animation.FuncAnimation(fig, updateIm, interval=30, frames=self.nframes, repeat=False, blit=True)
 
     def _getNormsOfDiffs(self) -> xr.DataArray:
         diffs = self.datas - self.datas.isel(t=0)
