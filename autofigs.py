@@ -203,7 +203,7 @@ for item in config["instructions"]:
 
         if param_str in item["stabilities"]:
             print(f"    Generating stability plot...")
-            fig, _ = videoMaker.viewStability()
+            fig, _ = autofigs.plot_stability(videoMaker)
             util.save_fig(fig, get_fig_path("stability", param_str, case), close=True)
 
         ##########################
