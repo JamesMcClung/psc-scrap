@@ -68,8 +68,8 @@ def plot_extrema(
     rs = np.arange(0, maxR, rStep)
     meanss = util.binned_mean(videoMaker.datas, "rho", nbins=len(rs), lower=0, upper=maxR)
 
-    indices_maxs = videoMaker.getLocalExtremaIndices(np.greater_equal) or [videoMaker.nframes - 1]
-    indices_mins = videoMaker.getLocalExtremaIndices(np.less_equal) or [0]
+    indices_maxs = videoMaker.get_local_extrema_idxs(np.greater_equal) or [videoMaker.nframes - 1]
+    indices_mins = videoMaker.get_local_extrema_idxs(np.less_equal) or [0]
 
     cmap_mins = util.get_cmap("Blues", min=0.3, max=0.9)
     cmap_maxs = util.get_cmap("Reds", min=0.3, max=0.9)

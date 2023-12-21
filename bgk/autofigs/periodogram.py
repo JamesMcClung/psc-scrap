@@ -26,7 +26,7 @@ def plot_periodogram(videoMaker: VideoMaker, fig: Figure = None, ax: Axes = None
 
     ax.set_xlabel("Frequency")
     ax.set_ylabel("Amplitude")
-    ax.set_title(f"Periodogram of $n_e(0,0)$ ($B_0={videoMaker.params_record.B0}$, {videoMaker._case_name})")
+    ax.set_title(f"Periodogram of $n_e(0,0)$ ($B_0={videoMaker.params_record.B0}$, {videoMaker.case_name})")
 
     ax.plot(freq, power)
     return fig, ax

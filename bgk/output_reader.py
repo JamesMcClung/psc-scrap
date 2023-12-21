@@ -16,15 +16,13 @@ __all__ = ["VideoMaker"]
 
 @safe_cached_property_invalidation
 class VideoMaker:
-    _raw_datas: xr.DataArray
-
     def __init__(self, nframes: int, run_manager: RunManager, initial_param: ParamMetadata = ne) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
         self.nframes = nframes
         self.set_param(initial_param)
         self._last_lmin = 0, 0
-        self._case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
+        self.case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
     def _get_data(self, frame: int) -> xr.DataArray:
         param = self.param
@@ -143,11 +141,11 @@ class VideoMaker:
             orig_slice = slice(orig_idx - sample_size // 2, orig_idx + sample_size // 2)
         return self._raw_datas.isel(y=orig_slice, z=orig_slice).mean(["y", "z"])
 
-    def getIdxPeriod(self) -> int:
+    def get_idx_period(self) -> int:
         data = self.get_means_at_origin()
         idx_freq, power = sig.periodogram(data, nfft=len(data) * 4)
         return round(1 / idx_freq[sig.find_peaks(power, prominence=power.max() / 10)[0][0]])
 
-    def getLocalExtremaIndices(self, comparator=np.greater_equal) -> list[int]:
-        expected_idx_period = self.getIdxPeriod()
+    def get_local_extrema_idxs(self, comparator=np.greater_equal) -> list[int]:
+        expected_idx_period = self.get_idx_period()
         return list(sig.argrelextrema(self.get_means_at_origin().values, comparator, order=expected_idx_period // 2)[0])
