@@ -73,10 +73,6 @@ class WrapperBP:
         data = self._ds_raw[var_name]
         for dim in _get_recenter_dims(self._prefix_bp, var_name, to_centering):
             data = _recenter(data, dim, to_centering)
-        if len(self.axis_x) == 1:
-            # TODO use data.squeeze("x")
-            data = data[0, :, :].transpose()  # still not happy about this, but also not sure what it does exactly
-            # data = data.squeeze("x")
         return data
 
 

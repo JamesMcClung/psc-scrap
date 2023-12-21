@@ -34,7 +34,7 @@ def plot_profiles(
     rStep = videoMaker.lengths[1] / 100
 
     rs = np.arange(0, maxR, rStep)
-    meanss = util.binned_mean(videoMaker.datas, "rho", nbins=len(rs), lower=0, upper=maxR)
+    meanss = util.binned_mean(videoMaker.datas, "rho", nbins=len(rs), lower=0, upper=maxR).mean(dim=["x"])
 
     n_plots = min(13, time_cutoff_idx + 1)
     n_labels = min(5, time_cutoff_idx + 1)
@@ -66,7 +66,7 @@ def plot_extrema(
     rStep = videoMaker.lengths[1] / 100
 
     rs = np.arange(0, maxR, rStep)
-    meanss = util.binned_mean(videoMaker.datas, "rho", nbins=len(rs), lower=0, upper=maxR)
+    meanss = util.binned_mean(videoMaker.datas, "rho", nbins=len(rs), lower=0, upper=maxR).mean(dim=["x"])
 
     indices_maxs = videoMaker.get_local_extrema_idxs(np.greater_equal) or [videoMaker.nframes - 1]
     indices_mins = videoMaker.get_local_extrema_idxs(np.less_equal) or [0]

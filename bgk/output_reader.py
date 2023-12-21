@@ -130,7 +130,7 @@ class VideoMaker:
 
     def get_norms_of_diffs(self) -> xr.DataArray:
         diffs = self.datas - self.datas.isel(t=0)
-        return xr.apply_ufunc(np.linalg.norm, diffs, input_core_dims=[["y", "z"]], vectorize=True)
+        return xr.apply_ufunc(np.linalg.norm, diffs, input_core_dims=[["x", "y", "z"]], vectorize=True)
 
     def get_means_at_origin(self, sample_size: int = 2) -> xr.DataArray:
         orig_idx = len(self._raw_datas.y) // 2
@@ -139,7 +139,7 @@ class VideoMaker:
             orig_slice = slice(orig_idx - sample_size // 2, orig_idx + 1 + sample_size // 2)
         elif self._centering == "cc":
             orig_slice = slice(orig_idx - sample_size // 2, orig_idx + sample_size // 2)
-        return self._raw_datas.isel(y=orig_slice, z=orig_slice).mean(["y", "z"])
+        return self._raw_datas.isel(y=orig_slice, z=orig_slice).mean(["x", "y", "z"])
 
     def get_idx_period(self) -> int:
         data = self.get_means_at_origin()
