@@ -1,6 +1,4 @@
-import matplotlib.pyplot as plt
 import xarray as xr
-import matplotlib.figure as mplf
 import numpy as np
 import scipy.signal as sig
 from scipy.optimize import fmin
@@ -144,17 +142,6 @@ class VideoMaker:
         elif self._centering == "cc":
             orig_slice = slice(orig_idx - sample_size // 2, orig_idx + sample_size // 2)
         return self._raw_datas.isel(y=orig_slice, z=orig_slice).mean(["y", "z"])
-
-    def viewMeansAtOrigin(self, fig: mplf.Figure = None, ax: plt.Axes = None) -> tuple[mplf.Figure, plt.Axes]:
-        if not (fig or ax):
-            fig, ax = plt.subplots()
-
-        ax.set_xlabel("Time")
-        ax.set_ylabel(f"Mean {self.param.title}")
-        ax.set_title(f"Mean {self.param.title} Near Origin for $B_0={self.params_record.B0}$")
-
-        ax.plot(self.axis_t, self.get_means_at_origin())
-        return fig, ax
 
     def getIdxPeriod(self) -> int:
         data = self.get_means_at_origin()

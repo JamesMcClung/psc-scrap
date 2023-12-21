@@ -210,7 +210,7 @@ for item in config["instructions"]:
 
         if param_str in item["origin_means"]:
             print(f"    Generating origin mean plot...")
-            fig, _ = videoMaker.viewMeansAtOrigin()
+            fig, _ = autofigs.plot_origin_means(videoMaker)
             util.save_fig(fig, get_fig_path("originmean", param_str, case), close=True)
 
         ##########################
