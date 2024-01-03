@@ -48,7 +48,7 @@ if "save" not in flags:
 ########################################################
 
 
-def get_autofigs_config() -> str:
+def get_autofigs_config() -> dict:
     file = "autofigs.yml" if not args else args[0]
     with open(file, "r") as stream:
         try:
