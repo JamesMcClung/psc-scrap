@@ -118,8 +118,8 @@ for item in config["instructions"]:
     history.log_item(item, warn="warn" in flags)
 
     prefix: str = item.get("prefix", "")
-    if prefix.endswith("/"):
-        os.makedirs(os.path.join(outdir, item["prefix"]), exist_ok=True)
+    if "/" in prefix:
+        os.makedirs(os.path.join(outdir, prefix[: prefix.rindex("/")]), exist_ok=True)
 
     run_manager = bgk.RunManager(path)
     params_record = run_manager.params_record
