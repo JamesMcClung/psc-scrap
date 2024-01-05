@@ -96,6 +96,7 @@ class VideoMaker:
         self.param = param
         self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
         del self.frame_manager
+        del self.datas
         del self._raw_datas
 
     def set_view_bounds(self, bounds: Bounds3D):
