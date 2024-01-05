@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 import os
 
-from .backend import ParamsRecord, load_bp
+from .backend import load_bp
+from .params_record import ParamsRecord
 from .input_reader import Input
 
 __all__ = ["ParticleReader"]
