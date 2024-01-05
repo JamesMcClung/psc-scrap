@@ -6,7 +6,8 @@ from functools import cached_property
 
 from .run_params import ParamMetadata, ne
 from .bounds import Bounds3D
-from .backend import RunManager, load_bp, FrameManagerLinear, FrameManager
+from .backend import load_bp
+from .run_manager import RunManager, FrameManagerLinear, FrameManager
 from .util.safe_cache_invalidation import safe_cached_property_invalidation
 from .util.stream import Stream
 

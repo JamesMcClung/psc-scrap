@@ -11,5 +11,7 @@ from .backend import *
 from .bounds import *
 from . import run_params
 from .run_params import ParamMetadata
+from .params_record import *
+from .run_manager import *
 
 from . import autofigs
