@@ -56,10 +56,12 @@ class WrapperH5:
                 self._df["phi"] = np.arctan2(self.col("z"), self.col("y"))
             case "prho":
                 self._df["prho"] = (self.col("py") * self.col("y") + self.col("pz") * self.col("z")) / self.col("rho")
-                # self._df["prho"].fillna(0, inplace=True)
+                # TODO don't do this unless requested; better thing to request is remove na rows entirely
+                self._df["prho"].fillna(0, inplace=True)
             case "pphi":
                 self._df["pphi"] = (self.col("pz") * self.col("y") - self.col("py") * self.col("z")) / self.col("rho")
-                # self._df["pphi"].fillna(0, inplace=True)
+                # TODO don't do this unless requested; better thing to request is remove na rows entirely
+                self._df["pphi"].fillna(0, inplace=True)
             case "vx" | "vy" | "vz" | "vrho" | "vphi":
                 self._df[column_name] = self._velocity_from_momentum(self.col("p" + column_name[1:]))
 
