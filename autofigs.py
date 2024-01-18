@@ -237,31 +237,21 @@ for item in config["instructions"]:
 
         for var_names in item["sequences"]:
             print(f"    Generating sequence [{', '.join(var_names)}]...")
+
+            vars: list[bgk.ParamMetadata | bgk.ParticleVariable] = [bgk.particle_variables.__dict__[var_name.removeprefix("prt:")] if var_name.startswith("prt:") else bgk.run_params.__dict__[var_name] for var_name in map(str, var_names)]
+
             seq = autofigs.Sequence(len(var_names), steps, times)
-            for i, seq_param in enumerate(var_names):
-                seq_param = str(seq_param)  # just for the linter; doesn't do anything
-                print(f"      Loading {seq_param}...")
-                if seq_param.startswith("prt:"):
-                    seq.plot_row_prt(i, particles, seq_param.removeprefix("prt:"))
+            for i, var in enumerate(vars):
+                print(f"      Loading {var.name}...")
+                if isinstance(var, bgk.ParticleVariable):
+                    seq.plot_row_prt(i, particles, var)
                 else:
-                    videoMaker.set_param(bgk.run_params.__dict__[seq_param])
+                    videoMaker.set_param(var)
                     videoMaker.set_view_bounds(view_bounds)
                     seq.plot_row_pfd(i, videoMaker)
 
-            def name_to_latex(name: str) -> str:
-                if name.startswith(tuple("ebj")):
-                    name = name.capitalize()
-                name = name.replace("rho", "\\rho").replace("phi", "\\phi")
-                if "_" not in name:
-                    name = name[0] + "_" + name[1:]
-                if name.startswith("prt:"):
-                    name = f"f(\\rho, {name.removeprefix('prt:')})"
-                else:
-                    name += "(y, z)"
-                return name
-
-            params_latex = ", ".join([name_to_latex(seq_param) for seq_param in var_names])
-            util.save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={params_record.B0}$ {duration_in_title}"), get_fig_path("sequence", ",".join(var_names).replace(":", ""), case), close=True)
+            names_latex = ", ".join(f"f({bgk.particle_variables.rho.latex[1:-1]}, {var.latex[1:-1]})" if isinstance(var, bgk.ParticleVariable) else f"{var.title[1:-1]}(y, z)" for var in vars)
+            util.save_fig(seq.get_fig(f"Snapshots of ${names_latex}$ for $B_0={params_record.B0}$ {duration_in_title}"), get_fig_path("sequence", ",".join(var_names).replace(":", ""), case), close=True)
 
     if "save" in flags:
         history.save()
