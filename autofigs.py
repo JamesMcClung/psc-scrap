@@ -235,10 +235,10 @@ for item in config["instructions"]:
         steps = [videoMaker.frame_manager.steps[frame] for frame in frames]
         particles = bgk.ParticleReader(path)
 
-        for seq_params in item["sequences"]:
-            print(f"    Generating sequence [{', '.join(seq_params)}]...")
-            seq = autofigs.Sequence(len(seq_params), steps, times)
-            for i, seq_param in enumerate(seq_params):
+        for var_names in item["sequences"]:
+            print(f"    Generating sequence [{', '.join(var_names)}]...")
+            seq = autofigs.Sequence(len(var_names), steps, times)
+            for i, seq_param in enumerate(var_names):
                 seq_param = str(seq_param)  # just for the linter; doesn't do anything
                 print(f"      Loading {seq_param}...")
                 if seq_param.startswith("prt:"):
@@ -260,8 +260,8 @@ for item in config["instructions"]:
                     name += "(y, z)"
                 return name
 
-            params_latex = ", ".join([name_to_latex(seq_param) for seq_param in seq_params])
-            util.save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={params_record.B0}$ {duration_in_title}"), get_fig_path("sequence", ",".join(seq_params).replace(":", ""), case), close=True)
+            params_latex = ", ".join([name_to_latex(seq_param) for seq_param in var_names])
+            util.save_fig(seq.get_fig(f"Snapshots of ${params_latex}$ for $B_0={params_record.B0}$ {duration_in_title}"), get_fig_path("sequence", ",".join(var_names).replace(":", ""), case), close=True)
 
     if "save" in flags:
         history.save()
