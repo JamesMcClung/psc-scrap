@@ -26,7 +26,7 @@ class VideoMaker:
         self.case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
     def _get_data(self, frame: int) -> xr.DataArray:
-        var = self.param
+        var = self.variable
         dataset = load_bp(self.run_manager.path_run, var.prefix_bp, self.frame_manager.steps[frame])
         c = self._centering
 
@@ -92,9 +92,9 @@ class VideoMaker:
         return self.datas.rho
 
     def set_variable(self, variable: FieldVariable) -> None:
-        if hasattr(self, "param") and variable == self.param:
+        if hasattr(self, "param") and variable == self.variable:
             return
-        self.param = variable
+        self.variable = variable
         self._centering = "nc" if variable.prefix_bp == "pfd" else "cc"
         del self.frame_manager
         del self.datas
@@ -113,13 +113,13 @@ class VideoMaker:
 
     @cached_property
     def frame_manager(self) -> FrameManager:
-        return self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [self.param])
+        return self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [self.variable])
 
     @cached_property
     def _val_bounds(self) -> tuple[float, float]:
-        vmax = self.param.vmax if self.param.vmax is not None else self.datas.quantile(1, ["y", "z"]).max("t")
-        vmin = self.param.vmin if self.param.vmin is not None else self.datas.quantile(0, ["y", "z"]).min("t")
-        if self.param.vmax is self.param.vmin is None:
+        vmax = self.variable.vmax if self.variable.vmax is not None else self.datas.quantile(1, ["y", "z"]).max("t")
+        vmin = self.variable.vmin if self.variable.vmin is not None else self.datas.quantile(0, ["y", "z"]).min("t")
+        if self.variable.vmax is self.variable.vmin is None:
             vmax = max(vmax, -vmin)
             vmin = -vmax
         return vmin, vmax
