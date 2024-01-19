@@ -117,9 +117,9 @@ class VideoMaker:
 
     @cached_property
     def _val_bounds(self) -> tuple[float, float]:
-        vmax = self.variable.vmax if self.variable.vmax is not None else self.datas.quantile(1, ["y", "z"]).max("t")
-        vmin = self.variable.vmin if self.variable.vmin is not None else self.datas.quantile(0, ["y", "z"]).min("t")
-        if self.variable.vmax is self.variable.vmin is None:
+        vmax = self.variable.val_bounds[1] if self.variable.val_bounds[1] is not None else self.datas.quantile(1, ["y", "z"]).max("t")
+        vmin = self.variable.val_bounds[0] if self.variable.val_bounds[0] is not None else self.datas.quantile(0, ["y", "z"]).min("t")
+        if self.variable.val_bounds[1] is self.variable.val_bounds[0] is None:
             vmax = max(vmax, -vmin)
             vmin = -vmax
         return vmin, vmax
