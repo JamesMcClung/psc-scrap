@@ -151,7 +151,7 @@ class FrameManager(metaclass=ABCMeta):
         self.steps = self._get_steps()
         assert nframes == len(self.steps)
 
-        if Stream(params).map(lambda param: param.skipFirst).any():
+        if Stream(params).map(lambda param: param.skip_first).any():
             self.steps[0] = self._interval_all
 
     @abstractmethod
