@@ -17,29 +17,29 @@ __all__ = ["VideoMaker"]
 
 @safe_cached_property_invalidation
 class VideoMaker:
-    def __init__(self, nframes: int, run_manager: RunManager, initial_param: FieldVariable = ne) -> None:
+    def __init__(self, nframes: int, run_manager: RunManager, initial_variable: FieldVariable = ne) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
         self.nframes = nframes
-        self.set_param(initial_param)
+        self.set_param(initial_variable)
         self._last_lmin = 0, 0
         self.case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
     def _get_data(self, frame: int) -> xr.DataArray:
-        param = self.param
-        dataset = load_bp(self.run_manager.path_run, param.prefix_bp, self.frame_manager.steps[frame])
+        var = self.param
+        dataset = load_bp(self.run_manager.path_run, var.prefix_bp, self.frame_manager.steps[frame])
         c = self._centering
 
-        if isinstance(param.varName, list):
-            if param.combine == "magnitude":
-                raw_data = (sum(dataset.get(var, c) ** 2 for var in param.varName)) ** 0.5
-            elif param.combine == "sum":
-                raw_data = sum(dataset.get(var, c) for var in param.varName)
-            elif param.combine == "difference":
-                raw_data = dataset.get(param.varName[0], c) - dataset.get(param.varName[1], c)
+        if isinstance(var.varName, list):
+            if var.combine == "magnitude":
+                raw_data = (sum(dataset.get(var, c) ** 2 for var in var.varName)) ** 0.5
+            elif var.combine == "sum":
+                raw_data = sum(dataset.get(var, c) for var in var.varName)
+            elif var.combine == "difference":
+                raw_data = dataset.get(var.varName[0], c) - dataset.get(var.varName[1], c)
             else:
-                raw_data_y = dataset.get(param.varName[0], c)
-                raw_data_z = dataset.get(param.varName[1], c)
+                raw_data_y = dataset.get(var.varName[0], c)
+                raw_data_z = dataset.get(var.varName[1], c)
 
                 # recenter structure
                 def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
@@ -47,12 +47,12 @@ class VideoMaker:
                     adjusted_axis_z = dataset.axis_z - p[1]
                     adjusted_grid_rho = (adjusted_axis_y**2 + adjusted_axis_z**2) ** 0.5
 
-                    if param.combine == "radial":
+                    if var.combine == "radial":
                         raw_data = (raw_data_y * adjusted_axis_y + raw_data_z * adjusted_axis_z) / adjusted_grid_rho
-                    elif param.combine == "azimuthal":
+                    elif var.combine == "azimuthal":
                         raw_data = (-raw_data_y * adjusted_axis_z + raw_data_z * adjusted_axis_y) / adjusted_grid_rho
                     else:
-                        raise Exception(f"Invalid combine method: {param.combine}")
+                        raise Exception(f"Invalid combine method: {var.combine}")
                     raw_data = raw_data.fillna(0)
 
                     if ret_rawdata:
@@ -60,16 +60,16 @@ class VideoMaker:
 
                     return np.sum(raw_data**2)
 
-                if param.recenter:
+                if var.recenter:
                     self._last_lmin = fmin(sumsq, self._last_lmin, disp=False)
 
                 raw_data = sumsq(self._last_lmin, True)
         else:
-            raw_data = dataset.get(param.varName, c)
+            raw_data = dataset.get(var.varName, c)
 
         raw_data = raw_data.expand_dims({"t": [dataset.time]})
         self.lengths = dataset.lengths
-        return param.coef * raw_data
+        return var.coef * raw_data
 
     @cached_property
     def lengths(self) -> tuple[float, float, float]:
@@ -91,11 +91,11 @@ class VideoMaker:
     def grid_rho(self) -> xr.DataArray:
         return self.datas.rho
 
-    def set_param(self, param: FieldVariable) -> None:
-        if hasattr(self, "param") and param == self.param:
+    def set_param(self, variable: FieldVariable) -> None:
+        if hasattr(self, "param") and variable == self.param:
             return
-        self.param = param
-        self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
+        self.param = variable
+        self._centering = "nc" if variable.prefix_bp == "pfd" else "cc"
         del self.frame_manager
         del self.datas
         del self._raw_datas
