@@ -91,9 +91,9 @@ class RunManager:
         self,
         frame_manager_type: Type[FrameManager],
         nframes: int,
-        params: list[FieldVariable],
+        variables: list[FieldVariable],
     ) -> FrameManager:
-        return frame_manager_type(self, nframes, params)
+        return frame_manager_type(self, nframes, variables)
 
     def get_steps_per_frame(self, nframes: int, prefix: PrefixBp | PrefixH5) -> int | None:
         return FrameManagerLinear.get_steps_per_frame(nframes, self.get_max_step(prefix), self.get_interval(prefix))
@@ -141,9 +141,9 @@ class RunDiagnostics:
 
 
 class FrameManager(metaclass=ABCMeta):
-    def __init__(self, run_manager: RunManager, nframes: int, params: list[FieldVariable]) -> None:
+    def __init__(self, run_manager: RunManager, nframes: int, variables: list[FieldVariable]) -> None:
         self._run_manager = run_manager
-        self._prefixes = {param.prefix_bp for param in params}
+        self._prefixes = {var.prefix_bp for var in variables}
         self._interval_all = Stream(self._prefixes).map(run_manager.get_interval).reduce(lcm)
         self._last_step = Stream(self._prefixes).map(run_manager.get_max_step).reduce(min)
 
@@ -151,7 +151,7 @@ class FrameManager(metaclass=ABCMeta):
         self.steps = self._get_steps()
         assert nframes == len(self.steps)
 
-        if Stream(params).map(lambda param: param.skip_first).any():
+        if Stream(variables).map(lambda var: var.skip_first).any():
             self.steps[0] = self._interval_all
 
     @abstractmethod
@@ -172,8 +172,8 @@ class FrameManager(metaclass=ABCMeta):
 
 
 class FrameManagerLinear(FrameManager):
-    def __init__(self, run_manager: RunManager, nframes: int, params: list[FieldVariable]) -> None:
-        super().__init__(run_manager, nframes, params)
+    def __init__(self, run_manager: RunManager, nframes: int, variables: list[FieldVariable]) -> None:
+        super().__init__(run_manager, nframes, variables)
 
     def _get_steps(self) -> list[int]:
         steps_per_frame = FrameManagerLinear.get_steps_per_frame(self.nframes, self._last_step, self._interval_all)
@@ -207,8 +207,8 @@ def _remove_duplicates(steps: list[int]) -> list[int]:
 
 
 class FrameManagerNearest(FrameManager):
-    def __init__(self, run_manager: RunManager, nframes: int, params: list[FieldVariable]) -> None:
-        super().__init__(run_manager, nframes, params)
+    def __init__(self, run_manager: RunManager, nframes: int, variables: list[FieldVariable]) -> None:
+        super().__init__(run_manager, nframes, variables)
 
     def _get_steps(self) -> list[int]:
         steps = [FrameManagerNearest.get_step(frame, self.nframes, self._last_step, self._interval_all) for frame in range(self.nframes)]
