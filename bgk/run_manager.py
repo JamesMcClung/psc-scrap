@@ -10,7 +10,7 @@ from abc import ABCMeta, abstractmethod
 
 from .params_record import ParamsRecord
 from .util.stream import Stream
-from .typing import PrefixBP, PrefixH5
+from .typing import PrefixBp, PrefixH5
 from .backend.wrapper_bp import load_bp
 from .input_reader import Input, get_B0
 from .field_variables import FieldVariable
@@ -66,7 +66,7 @@ class RunManager:
     def run_input(self) -> Input:
         return Input(self.params_record.path_input)
 
-    def get_max_step(self, prefix: PrefixBP | PrefixH5 | None = None) -> int | None:
+    def get_max_step(self, prefix: PrefixBp | PrefixH5 | None = None) -> int | None:
         if prefix is None:
             return max([step for step in [self.max_pfd, self.max_pfd_moments, self.max_gauss, self.max_prt] if step is not None] or [None])
         return {
@@ -76,7 +76,7 @@ class RunManager:
             "prt": self.max_prt,
         }[prefix]
 
-    def get_interval(self, prefix: PrefixBP | PrefixH5) -> int | None:
+    def get_interval(self, prefix: PrefixBp | PrefixH5) -> int | None:
         return {
             "pfd": self.interval_pfd,
             "pfd_moments": self.interval_pfd_moments,
@@ -84,7 +84,7 @@ class RunManager:
             "prt": self.interval_prt,
         }[prefix]
 
-    def get_suggested_nframes(self, nframes_min: int, prefix: PrefixBP | PrefixH5) -> int | None:
+    def get_suggested_nframes(self, nframes_min: int, prefix: PrefixBp | PrefixH5) -> int | None:
         return FrameManagerLinear.get_suggested_nframes(nframes_min, self.get_max_step(prefix), self.get_interval(prefix))
 
     def get_frame_manager(
@@ -95,7 +95,7 @@ class RunManager:
     ) -> FrameManager:
         return frame_manager_type(self, nframes, params)
 
-    def get_steps_per_frame(self, nframes: int, prefix: PrefixBP | PrefixH5) -> int | None:
+    def get_steps_per_frame(self, nframes: int, prefix: PrefixBp | PrefixH5) -> int | None:
         return FrameManagerLinear.get_steps_per_frame(nframes, self.get_max_step(prefix), self.get_interval(prefix))
 
 

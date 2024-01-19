@@ -1,9 +1,9 @@
-__all__ = ["PrefixBP", "PrefixH5", "Centering", "Dim", "H5PrtVariableName", "H5WrapperVariableName"]
+__all__ = ["PrefixBp", "PrefixH5", "Centering", "Dim", "H5PrtVariableName", "H5WrapperVariableName"]
 
 from typing import Literal
 
 
-PrefixBP = Literal["pfd", "pfd_moments", "gauss"]
+PrefixBp = Literal["pfd", "pfd_moments", "gauss"]
 
 PrefixH5 = Literal["prt"]
 H5PrtVariableName = Literal["x", "y", "z", "px", "py", "pz", "q", "m", "w", "tag", "id"]

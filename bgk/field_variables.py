@@ -1,6 +1,6 @@
 from dataclasses import dataclass as _dataclass
 
-from .typing import PrefixBP as _PrefixBP
+from .typing import PrefixBp as _PrefixBp
 
 
 @_dataclass
@@ -8,7 +8,7 @@ class FieldVariable:
     name: str
     latex: str
     colors: str
-    prefix_bp: _PrefixBP
+    prefix_bp: _PrefixBp
     varName: str
     val_bounds: tuple[float | None, float | None] = (None, None)
     coef: float = 1.0
