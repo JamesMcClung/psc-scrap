@@ -16,7 +16,7 @@ def plot_stability(videoMaker: VideoMaker, fig: Figure = None, ax: Axes = None) 
 
     ax.set_xlabel("Time")
     ax.set_ylabel("2-Norm of Difference")
-    ax.set_title(f"Deviation from ICs of {videoMaker.view_bounds.adjective}{videoMaker.variable.title} ($B_0={videoMaker.params_record.B0}$, {videoMaker.case_name})")
+    ax.set_title(f"Deviation from ICs of {videoMaker.view_bounds.adjective}{videoMaker.variable.latex} ($B_0={videoMaker.params_record.B0}$, {videoMaker.case_name})")
 
     ax.plot(videoMaker.axis_t, videoMaker.get_norms_of_diffs())
     return fig, ax

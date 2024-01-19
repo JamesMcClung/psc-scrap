@@ -47,8 +47,8 @@ def plot_profiles(
     _plot_lines(ax, cmap, indices, label_indices, xdata=rs, ydatas=meanss, tdata=videoMaker.axis_t)
 
     ax.set_xlabel("$\\rho$")
-    ax.set_ylabel(videoMaker.variable.title)
-    ax.set_title(f"Changing Profile of {videoMaker.variable.title} for $B_0={videoMaker.params_record.B0}$ {duration_in_title}")
+    ax.set_ylabel(videoMaker.variable.latex)
+    ax.set_title(f"Changing Profile of {videoMaker.variable.latex} for $B_0={videoMaker.params_record.B0}$ {duration_in_title}")
     ax.legend()
     fig.tight_layout()
 
@@ -78,8 +78,8 @@ def plot_extrema(
     _plot_lines(ax, cmap_maxs, indices_maxs, [indices_maxs[0], indices_maxs[-1]], xdata=rs, ydatas=meanss, tdata=videoMaker.axis_t)
 
     ax.set_xlabel("$\\rho$")
-    ax.set_ylabel(videoMaker.variable.title)
-    ax.set_title(f"Extremal Profiles of {videoMaker.variable.title} for $B_0={videoMaker.params_record.B0}$")
+    ax.set_ylabel(videoMaker.variable.latex)
+    ax.set_title(f"Extremal Profiles of {videoMaker.variable.latex} for $B_0={videoMaker.params_record.B0}$")
     ax.legend()
     fig.tight_layout()
 

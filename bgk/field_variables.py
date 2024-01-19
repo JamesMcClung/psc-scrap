@@ -6,7 +6,7 @@ from .typing import PrefixBP as _PrefixBP
 @_dataclass
 class FieldVariable:
     name: str
-    title: str
+    latex: str
     vmin: float | None
     vmax: float | None
     colors: str
