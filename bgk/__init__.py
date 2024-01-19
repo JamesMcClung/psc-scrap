@@ -10,7 +10,7 @@ from .particle_reader import *
 from .backend import *
 from .bounds import *
 from . import field_variables
-from .field_variables import ParamMetadata
+from .field_variables import FieldVariable
 from . import particle_variables
 from .particle_variables import ParticleVariable
 from .params_record import *

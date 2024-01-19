@@ -13,7 +13,7 @@ from .util.stream import Stream
 from .typing import PrefixBP, PrefixH5
 from .backend.wrapper_bp import load_bp
 from .input_reader import Input, get_B0
-from .field_variables import ParamMetadata
+from .field_variables import FieldVariable
 
 
 def _get_files_by_extension(path: str, extension: str) -> list[str]:
@@ -91,7 +91,7 @@ class RunManager:
         self,
         frame_manager_type: Type[FrameManager],
         nframes: int,
-        params: list[ParamMetadata],
+        params: list[FieldVariable],
     ) -> FrameManager:
         return frame_manager_type(self, nframes, params)
 
@@ -141,7 +141,7 @@ class RunDiagnostics:
 
 
 class FrameManager(metaclass=ABCMeta):
-    def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
+    def __init__(self, run_manager: RunManager, nframes: int, params: list[FieldVariable]) -> None:
         self._run_manager = run_manager
         self._prefixes = {param.prefix_bp for param in params}
         self._interval_all = Stream(self._prefixes).map(run_manager.get_interval).reduce(lcm)
@@ -172,7 +172,7 @@ class FrameManager(metaclass=ABCMeta):
 
 
 class FrameManagerLinear(FrameManager):
-    def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
+    def __init__(self, run_manager: RunManager, nframes: int, params: list[FieldVariable]) -> None:
         super().__init__(run_manager, nframes, params)
 
     def _get_steps(self) -> list[int]:
@@ -207,7 +207,7 @@ def _remove_duplicates(steps: list[int]) -> list[int]:
 
 
 class FrameManagerNearest(FrameManager):
-    def __init__(self, run_manager: RunManager, nframes: int, params: list[ParamMetadata]) -> None:
+    def __init__(self, run_manager: RunManager, nframes: int, params: list[FieldVariable]) -> None:
         super().__init__(run_manager, nframes, params)
 
     def _get_steps(self) -> list[int]:

@@ -172,7 +172,7 @@ for item in config["instructions"]:
     for param_str in params_to_load_standard:
         print(f"  Loading {param_str}...")
 
-        param: bgk.ParamMetadata = bgk.field_variables.__dict__[param_str]
+        param: bgk.FieldVariable = bgk.field_variables.__dict__[param_str]
         videoMaker.set_param(param)
         videoMaker.set_view_bounds(view_bounds)
 
@@ -238,7 +238,7 @@ for item in config["instructions"]:
         for var_names in item["sequences"]:
             print(f"    Generating sequence [{', '.join(var_names)}]...")
 
-            vars: list[bgk.ParamMetadata | bgk.ParticleVariable] = [bgk.particle_variables.__dict__[var_name.removeprefix("prt:")] if var_name.startswith("prt:") else bgk.field_variables.__dict__[var_name] for var_name in map(str, var_names)]
+            vars: list[bgk.FieldVariable | bgk.ParticleVariable] = [bgk.particle_variables.__dict__[var_name.removeprefix("prt:")] if var_name.startswith("prt:") else bgk.field_variables.__dict__[var_name] for var_name in map(str, var_names)]
 
             seq = autofigs.Sequence(len(var_names), steps, times)
             for i, var in enumerate(vars):

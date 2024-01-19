@@ -4,7 +4,7 @@ import scipy.signal as sig
 from scipy.optimize import fmin
 from functools import cached_property
 
-from .field_variables import ParamMetadata, ne
+from .field_variables import FieldVariable, ne
 from .bounds import Bounds3D
 from .backend import load_bp
 from .run_manager import RunManager, FrameManagerLinear, FrameManager
@@ -17,7 +17,7 @@ __all__ = ["VideoMaker"]
 
 @safe_cached_property_invalidation
 class VideoMaker:
-    def __init__(self, nframes: int, run_manager: RunManager, initial_param: ParamMetadata = ne) -> None:
+    def __init__(self, nframes: int, run_manager: RunManager, initial_param: FieldVariable = ne) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
         self.nframes = nframes
@@ -91,7 +91,7 @@ class VideoMaker:
     def grid_rho(self) -> xr.DataArray:
         return self.datas.rho
 
-    def set_param(self, param: ParamMetadata) -> None:
+    def set_param(self, param: FieldVariable) -> None:
         if hasattr(self, "param") and param == self.param:
             return
         self.param = param
