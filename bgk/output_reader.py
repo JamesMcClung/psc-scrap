@@ -30,16 +30,16 @@ class VideoMaker:
         dataset = load_bp(self.run_manager.path_run, var.prefix_bp, self.frame_manager.steps[frame])
         c = self._centering
 
-        if isinstance(var.varName, list):
+        if isinstance(var.variable_name, list):
             if var.combine == "magnitude":
-                raw_data = (sum(dataset.get(var, c) ** 2 for var in var.varName)) ** 0.5
+                raw_data = (sum(dataset.get(var, c) ** 2 for var in var.variable_name)) ** 0.5
             elif var.combine == "sum":
-                raw_data = sum(dataset.get(var, c) for var in var.varName)
+                raw_data = sum(dataset.get(var, c) for var in var.variable_name)
             elif var.combine == "difference":
-                raw_data = dataset.get(var.varName[0], c) - dataset.get(var.varName[1], c)
+                raw_data = dataset.get(var.variable_name[0], c) - dataset.get(var.variable_name[1], c)
             else:
-                raw_data_y = dataset.get(var.varName[0], c)
-                raw_data_z = dataset.get(var.varName[1], c)
+                raw_data_y = dataset.get(var.variable_name[0], c)
+                raw_data_z = dataset.get(var.variable_name[1], c)
 
                 # recenter structure
                 def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
@@ -65,7 +65,7 @@ class VideoMaker:
 
                 raw_data = sumsq(self._last_lmin, True)
         else:
-            raw_data = dataset.get(var.varName, c)
+            raw_data = dataset.get(var.variable_name, c)
 
         raw_data = raw_data.expand_dims({"t": [dataset.time]})
         self.lengths = dataset.lengths
