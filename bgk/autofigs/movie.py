@@ -25,7 +25,7 @@ def view_frame(videoMaker: VideoMaker, frame: int, fig: Figure = None, ax: Axes 
 
     im = ax.imshow(
         _get_image_data(videoMaker, frame, x_pos),
-        cmap=videoMaker.variable.colors,
+        cmap=videoMaker.variable.cmap_name,
         vmin=videoMaker._val_bounds[0],
         vmax=videoMaker._val_bounds[1],
         origin="lower",
