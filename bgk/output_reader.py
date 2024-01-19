@@ -21,7 +21,7 @@ class VideoMaker:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
         self.nframes = nframes
-        self.set_param(initial_variable)
+        self.set_variable(initial_variable)
         self._last_lmin = 0, 0
         self.case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
@@ -91,7 +91,7 @@ class VideoMaker:
     def grid_rho(self) -> xr.DataArray:
         return self.datas.rho
 
-    def set_param(self, variable: FieldVariable) -> None:
+    def set_variable(self, variable: FieldVariable) -> None:
         if hasattr(self, "param") and variable == self.param:
             return
         self.param = variable

@@ -156,14 +156,14 @@ for item in config["instructions"]:
 
     if item["periodic"]:
         print(f"  Loading ne for determining period...")
-        videoMaker.set_param(bgk.field_variables.ne)
+        videoMaker.set_variable(bgk.field_variables.ne)
         videoMaker.set_view_bounds(view_bounds)
         time_cutoff_idx = videoMaker.get_idx_period()
         duration_in_title = "Over First Oscillation"
     else:
         first_param_str = (params_to_load_standard or ["ne"])[0]
         print(f"  Loading {first_param_str} for determining run duration...")
-        videoMaker.set_param(bgk.field_variables.__dict__[first_param_str])
+        videoMaker.set_variable(bgk.field_variables.__dict__[first_param_str])
         videoMaker.set_view_bounds(view_bounds)
         time_cutoff_idx = nframes - 1
         duration_in_title = "Over Run"
@@ -173,7 +173,7 @@ for item in config["instructions"]:
         print(f"  Loading {param_str}...")
 
         param: bgk.FieldVariable = bgk.field_variables.__dict__[param_str]
-        videoMaker.set_param(param)
+        videoMaker.set_variable(param)
         videoMaker.set_view_bounds(view_bounds)
 
         ##########################
@@ -225,7 +225,7 @@ for item in config["instructions"]:
     if item["sequences"]:
         # get times and step indices
         print(f"  Loading ne for sequences...")
-        videoMaker.set_param(bgk.field_variables.ne)
+        videoMaker.set_variable(bgk.field_variables.ne)
         videoMaker.set_view_bounds(view_bounds)
 
         n_frames = min(5, time_cutoff_idx + 1)
@@ -246,7 +246,7 @@ for item in config["instructions"]:
                 if isinstance(var, bgk.ParticleVariable):
                     seq.plot_row_prt(i, particles, var)
                 else:
-                    videoMaker.set_param(var)
+                    videoMaker.set_variable(var)
                     videoMaker.set_view_bounds(view_bounds)
                     seq.plot_row_pfd(i, videoMaker)
 
