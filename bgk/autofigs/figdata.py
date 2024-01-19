@@ -16,7 +16,7 @@ def _get_yml(yml_path: str) -> dict[str, dict]:
 
 
 class OriginMeans:
-    times: list[float]
+    axis_t: list[float]
     means: list[float]
 
     def __init__(self, case: str, variable_name: BpVariableName, yml_path: str = "figdata.yml") -> None:
@@ -25,5 +25,5 @@ class OriginMeans:
         self.variable_name = variable_name
 
         data = _get_yml(yml_path)[case]
-        self.times = data["times"]
+        self.axis_t = data["times"]
         self.means = data["origin_means"][variable_name]
