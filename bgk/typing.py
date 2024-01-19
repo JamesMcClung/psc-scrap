@@ -4,7 +4,6 @@ from typing import Literal
 
 
 PrefixBP = Literal["pfd", "pfd_moments", "gauss"]
-# todo: BP{Pfd,PfdMoments,Gauss}VariableName, FieldVariableName
 
 PrefixH5 = Literal["prt"]
 H5PrtVariableName = Literal["x", "y", "z", "px", "py", "pz", "q", "m", "w", "tag", "id"]
