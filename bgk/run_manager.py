@@ -13,7 +13,7 @@ from .util.stream import Stream
 from .typing import PrefixBP, PrefixH5
 from .backend.wrapper_bp import load_bp
 from .input_reader import Input, get_B0
-from .run_params import ParamMetadata
+from .field_variables import ParamMetadata
 
 
 def _get_files_by_extension(path: str, extension: str) -> list[str]:

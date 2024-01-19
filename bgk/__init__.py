@@ -9,8 +9,8 @@ from .input_reader import *
 from .particle_reader import *
 from .backend import *
 from .bounds import *
-from . import run_params
-from .run_params import ParamMetadata
+from . import field_variables
+from .field_variables import ParamMetadata
 from . import particle_variables
 from .particle_variables import ParticleVariable
 from .params_record import *

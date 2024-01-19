@@ -156,14 +156,14 @@ for item in config["instructions"]:
 
     if item["periodic"]:
         print(f"  Loading ne for determining period...")
-        videoMaker.set_param(bgk.run_params.ne)
+        videoMaker.set_param(bgk.field_variables.ne)
         videoMaker.set_view_bounds(view_bounds)
         time_cutoff_idx = videoMaker.get_idx_period()
         duration_in_title = "Over First Oscillation"
     else:
         first_param_str = (params_to_load_standard or ["ne"])[0]
         print(f"  Loading {first_param_str} for determining run duration...")
-        videoMaker.set_param(bgk.run_params.__dict__[first_param_str])
+        videoMaker.set_param(bgk.field_variables.__dict__[first_param_str])
         videoMaker.set_view_bounds(view_bounds)
         time_cutoff_idx = nframes - 1
         duration_in_title = "Over Run"
@@ -172,7 +172,7 @@ for item in config["instructions"]:
     for param_str in params_to_load_standard:
         print(f"  Loading {param_str}...")
 
-        param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
+        param: bgk.ParamMetadata = bgk.field_variables.__dict__[param_str]
         videoMaker.set_param(param)
         videoMaker.set_view_bounds(view_bounds)
 
@@ -225,7 +225,7 @@ for item in config["instructions"]:
     if item["sequences"]:
         # get times and step indices
         print(f"  Loading ne for sequences...")
-        videoMaker.set_param(bgk.run_params.ne)
+        videoMaker.set_param(bgk.field_variables.ne)
         videoMaker.set_view_bounds(view_bounds)
 
         n_frames = min(5, time_cutoff_idx + 1)
@@ -238,7 +238,7 @@ for item in config["instructions"]:
         for var_names in item["sequences"]:
             print(f"    Generating sequence [{', '.join(var_names)}]...")
 
-            vars: list[bgk.ParamMetadata | bgk.ParticleVariable] = [bgk.particle_variables.__dict__[var_name.removeprefix("prt:")] if var_name.startswith("prt:") else bgk.run_params.__dict__[var_name] for var_name in map(str, var_names)]
+            vars: list[bgk.ParamMetadata | bgk.ParticleVariable] = [bgk.particle_variables.__dict__[var_name.removeprefix("prt:")] if var_name.startswith("prt:") else bgk.field_variables.__dict__[var_name] for var_name in map(str, var_names)]
 
             seq = autofigs.Sequence(len(var_names), steps, times)
             for i, var in enumerate(vars):

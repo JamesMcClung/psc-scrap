@@ -4,7 +4,7 @@ import scipy.signal as sig
 from scipy.optimize import fmin
 from functools import cached_property
 
-from .run_params import ParamMetadata, ne
+from .field_variables import ParamMetadata, ne
 from .bounds import Bounds3D
 from .backend import load_bp
 from .run_manager import RunManager, FrameManagerLinear, FrameManager
