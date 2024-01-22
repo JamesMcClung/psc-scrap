@@ -22,7 +22,6 @@ class VideoMaker:
         self.params_record = run_manager.params_record
         self.nframes = nframes
         self.set_variable(initial_variable)
-        self._last_lmin = 0, 0
         self.case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
     def _get_data(self, frame: int) -> xr.DataArray:
@@ -96,6 +95,7 @@ class VideoMaker:
             return
         self.variable = variable
         self._centering = "nc" if variable.prefix_bp == "pfd" else "cc"
+        self._last_lmin = 0, 0
         del self.frame_manager
         del self.datas
         del self._raw_datas
