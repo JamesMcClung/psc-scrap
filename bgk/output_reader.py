@@ -29,25 +29,22 @@ class VideoMaker:
         dataset = load_bp(self.run_manager.path_run, var.prefix_bp, self.frame_manager.steps[frame])
         c = self._centering
 
-        if isinstance(var.variable_name, list):
-            if not var.shift_hole_center:
-                raw_data = var.data_mapper([dataset.get(var_name, c) for var_name in var.variable_name])
-            else:
-                raw_raw_datas = [dataset.get(var_name, c) for var_name in var.variable_name]
-
-                def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
-                    raw_data = var.data_mapper(raw_raw_datas, p)
-
-                    if ret_rawdata:
-                        return raw_data
-
-                    return np.sum(raw_data**2)
-
-                self._last_lmin = fmin(sumsq, self._last_lmin, disp=False)
-
-                raw_data = sumsq(self._last_lmin, True)
+        if not var.shift_hole_center:
+            raw_data = var.data_mapper([dataset.get(var_name, c) for var_name in var.bp_variable_names])
         else:
-            raw_data = var.data_mapper(dataset.get(var.variable_name, c))
+            raw_raw_datas = [dataset.get(var_name, c) for var_name in var.bp_variable_names]
+
+            def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
+                raw_data = var.data_mapper(raw_raw_datas, p)
+
+                if ret_rawdata:
+                    return raw_data
+
+                return np.sum(raw_data**2)
+
+            self._last_lmin = fmin(sumsq, self._last_lmin, disp=False)
+
+            raw_data = sumsq(self._last_lmin, True)
 
         raw_data = raw_data.expand_dims({"t": [dataset.time]})
         self.lengths = dataset.lengths
