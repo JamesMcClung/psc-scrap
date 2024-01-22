@@ -67,7 +67,6 @@ class FieldVariable:
     prefix_bp: _PrefixBp
     bp_variable_names: list[_BpVariableName]
     val_bounds: tuple[float | None, float | None] = (None, None)
-    cmap_name: str = "RdBu_r"
     recenter: bool = False
     data_mapper: _MultiVarMapper | _ShiftedMultiVarMapper = _identity
     shift_hole_center: bool = False
@@ -77,6 +76,10 @@ class FieldVariable:
         # "pfd.*.bp" files are technically written at t=0, but they're all 0s because PSC doesn't calculate them until it does a time step
         return self.prefix_bp == "pfd"
 
+    @property
+    def cmap_name(self) -> str:
+        return "inferno" if 0 in self.val_bounds else "RdBu_r"
+
 
 # pfd
 e_x = FieldVariable("e_x", "$E_x$", "pfd", ["ex_ec"])
@@ -84,27 +87,27 @@ e_y = FieldVariable("e_y", "$E_y$", "pfd", ["ey_ec"])
 e_z = FieldVariable("e_z", "$E_z$", "pfd", ["ez_ec"])
 e_rho = FieldVariable("e_rho", "$E_\\rho$", "pfd", ["ey_ec", "ez_ec"], data_mapper=_radial_component)
 e_phi = FieldVariable("e_phi", "$E_\\phi$", "pfd", ["ey_ec", "ez_ec"], data_mapper=_azimuthal_component, shift_hole_center=True)
-e = FieldVariable("e", "$|E|$", "pfd", ["ey_ec", "ez_ec"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_magnitude)
+e = FieldVariable("e", "$|E|$", "pfd", ["ey_ec", "ez_ec"], val_bounds=(0, None), data_mapper=_magnitude)
 b_x = FieldVariable("b_x", "$B_x$", "pfd", ["hx_fc"])
 b_y = FieldVariable("b_y", "$B_y$", "pfd", ["hy_fc"])
 b_z = FieldVariable("b_z", "$B_z$", "pfd", ["hz_fc"])
 b_rho = FieldVariable("b_rho", "$B_\\rho$", "pfd", ["hy_fc", "hz_fc"], data_mapper=_radial_component)
 b_phi = FieldVariable("b_phi", "$B_\\phi$", "pfd", ["hy_fc", "hz_fc"], data_mapper=_azimuthal_component)
-b = FieldVariable("b", "$|B|$", "pfd", ["hy_fc", "hz_fc"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_magnitude)
+b = FieldVariable("b", "$|B|$", "pfd", ["hy_fc", "hz_fc"], val_bounds=(0, None), data_mapper=_magnitude)
 j_x = FieldVariable("j_x", "$J_x$", "pfd", ["jx_ec"])
 j_y = FieldVariable("j_y", "$J_y$", "pfd", ["jy_ec"])
 j_z = FieldVariable("j_z", "$J_z$", "pfd", ["jz_ec"])
 j_rho = FieldVariable("j_rho", "$J_\\rho$", "pfd", ["jy_ec", "jz_ec"], data_mapper=_radial_component)
 j_phi = FieldVariable("j_phi", "$J_\\phi$", "pfd", ["jy_ec", "jz_ec"], data_mapper=_azimuthal_component)
-j = FieldVariable("j", "$|J|$", "pfd", ["jy_ec", "jz_ec"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_magnitude)
+j = FieldVariable("j", "$|J|$", "pfd", ["jy_ec", "jz_ec"], val_bounds=(0, None), data_mapper=_magnitude)
 
 # pfd_moments
-ne = FieldVariable("ne", "$n_e$", "pfd_moments", ["rho_e"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_negated(_identity))
-ni = FieldVariable("ni", "$n_i$", "pfd_moments", ["rho_i"], val_bounds=(0, None), cmap_name="inferno")
-te = FieldVariable("te", "$T_e$", "pfd_moments", ["tyy_e", "tzz_e"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_sum)
-te_x = FieldVariable("te_x", "$T_{e,x}$", "pfd_moments", "txx_e", val_bounds=(0, None), cmap_name="inferno")
-ti = FieldVariable("ti", "$T_i$", "pfd_moments", ["tyy_i", "tzz_i"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_sum)
-ti_x = FieldVariable("ti_x", "$T_{i,x}$", "pfd_moments", ["txx_i"], val_bounds=(0, None), cmap_name="inferno")
+ne = FieldVariable("ne", "$n_e$", "pfd_moments", ["rho_e"], val_bounds=(0, None), data_mapper=_negated(_identity))
+ni = FieldVariable("ni", "$n_i$", "pfd_moments", ["rho_i"], val_bounds=(0, None))
+te = FieldVariable("te", "$T_e$", "pfd_moments", ["tyy_e", "tzz_e"], val_bounds=(0, None), data_mapper=_sum)
+te_x = FieldVariable("te_x", "$T_{e,x}$", "pfd_moments", "txx_e", val_bounds=(0, None))
+ti = FieldVariable("ti", "$T_i$", "pfd_moments", ["tyy_i", "tzz_i"], val_bounds=(0, None), data_mapper=_sum)
+ti_x = FieldVariable("ti_x", "$T_{i,x}$", "pfd_moments", ["txx_i"], val_bounds=(0, None))
 ve_x = FieldVariable("ve_x", "$v_{e,x}$", "pfd_moments", ["jx_e"], val_bounds=(-0.0005, 0.0005), data_mapper=_negated(_identity))
 ve_y = FieldVariable("ve_y", "$v_{e,y}$", "pfd_moments", ["jy_e"], val_bounds=(-0.0005, 0.0005), data_mapper=_negated(_identity))
 ve_z = FieldVariable("ve_z", "$v_{e,z}$", "pfd_moments", ["jz_e"], val_bounds=(-0.0005, 0.0005), data_mapper=_negated(_identity))
