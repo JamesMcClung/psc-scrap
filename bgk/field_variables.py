@@ -23,6 +23,14 @@ def _negated(data_mapper: _Callable[_P, _DataArray]) -> _Callable[_P, _DataArray
     return map_data
 
 
+def _get_shifted_coords(original_coords: dict[str, _DataArray], hole_center: _HoleCenter) -> tuple[_DataArray, _DataArray, _DataArray]:
+    """Returns `(shifted_axis_y, shifted_axis_z, shifted_grid_rho)`"""
+    shifted_axis_y = original_coords["y"] - hole_center[0]
+    shifted_axis_z = original_coords["z"] - hole_center[1]
+    shifted_grid_rho = (shifted_axis_y**2 + shifted_axis_z**2) ** 0.5
+    return shifted_axis_y, shifted_axis_z, shifted_grid_rho
+
+
 # data mappers
 
 
@@ -43,19 +51,13 @@ def _difference(datas: list[_DataArray]) -> _DataArray:
 
 
 def _radial_component(datas: list[_DataArray], hole_center: _HoleCenter = (0, 0)) -> _DataArray:
-    shifted_axis_y: _DataArray = datas[0].coords["y"] - hole_center[0]
-    shifted_axis_z: _DataArray = datas[0].coords["z"] - hole_center[1]
-    shifted_grid_rho: _DataArray = (shifted_axis_y**2 + shifted_axis_z**2) ** 0.5
-
+    shifted_axis_y, shifted_axis_z, shifted_grid_rho = _get_shifted_coords(datas[0].coords, hole_center)
     raw_data = (datas[0] * shifted_axis_y + datas[1] * shifted_axis_z) / shifted_grid_rho
     return raw_data.fillna(0)
 
 
 def _azimuthal_component(datas: list[_DataArray], hole_center: _HoleCenter = (0, 0)) -> _DataArray:
-    shifted_axis_y: _DataArray = datas[0].y - hole_center[0]
-    shifted_axis_z: _DataArray = datas[0].z - hole_center[1]
-    shifted_grid_rho: _DataArray = (shifted_axis_y**2 + shifted_axis_z**2) ** 0.5
-
+    shifted_axis_y, shifted_axis_z, shifted_grid_rho = _get_shifted_coords(datas[0].coords, hole_center)
     raw_data = (-datas[0] * shifted_axis_z + datas[1] * shifted_axis_y) / shifted_grid_rho
     return raw_data.fillna(0)
 
