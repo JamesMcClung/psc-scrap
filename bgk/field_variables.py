@@ -68,31 +68,35 @@ class FieldVariable:
     bp_variable_names: list[_BpVariableName]
     val_bounds: tuple[float | None, float | None] = (None, None)
     cmap_name: str = "RdBu_r"
-    skip_first: bool = False
     recenter: bool = False
     data_mapper: _MultiVarMapper | _ShiftedMultiVarMapper = _identity
     shift_hole_center: bool = False
 
+    @property
+    def skip_first(self) -> bool:
+        # "pfd.*.bp" files are technically written at t=0, but they're all 0s because PSC doesn't calculate them until it does a time step
+        return self.prefix_bp == "pfd"
+
 
 # pfd
-e_x = FieldVariable("e_x", "$E_x$", "pfd", ["ex_ec"], skip_first=True)
-e_y = FieldVariable("e_y", "$E_y$", "pfd", ["ey_ec"], skip_first=True)
-e_z = FieldVariable("e_z", "$E_z$", "pfd", ["ez_ec"], skip_first=True)
-e_rho = FieldVariable("e_rho", "$E_\\rho$", "pfd", ["ey_ec", "ez_ec"], data_mapper=_radial_component, skip_first=True)
-e_phi = FieldVariable("e_phi", "$E_\\phi$", "pfd", ["ey_ec", "ez_ec"], data_mapper=_azimuthal_component, skip_first=True, shift_hole_center=True)
-e = FieldVariable("e", "$|E|$", "pfd", ["ey_ec", "ez_ec"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_magnitude, skip_first=True)
-b_x = FieldVariable("b_x", "$B_x$", "pfd", ["hx_fc"], skip_first=True)
-b_y = FieldVariable("b_y", "$B_y$", "pfd", ["hy_fc"], skip_first=True)
-b_z = FieldVariable("b_z", "$B_z$", "pfd", ["hz_fc"], skip_first=True)
-b_rho = FieldVariable("b_rho", "$B_\\rho$", "pfd", ["hy_fc", "hz_fc"], data_mapper=_radial_component, skip_first=True)
-b_phi = FieldVariable("b_phi", "$B_\\phi$", "pfd", ["hy_fc", "hz_fc"], data_mapper=_azimuthal_component, skip_first=True)
-b = FieldVariable("b", "$|B|$", "pfd", ["hy_fc", "hz_fc"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_magnitude, skip_first=True)
-j_x = FieldVariable("j_x", "$J_x$", "pfd", ["jx_ec"], skip_first=True)
-j_y = FieldVariable("j_y", "$J_y$", "pfd", ["jy_ec"], skip_first=True)
-j_z = FieldVariable("j_z", "$J_z$", "pfd", ["jz_ec"], skip_first=True)
-j_rho = FieldVariable("j_rho", "$J_\\rho$", "pfd", ["jy_ec", "jz_ec"], data_mapper=_radial_component, skip_first=True)
-j_phi = FieldVariable("j_phi", "$J_\\phi$", "pfd", ["jy_ec", "jz_ec"], data_mapper=_azimuthal_component, skip_first=True)
-j = FieldVariable("j", "$|J|$", "pfd", ["jy_ec", "jz_ec"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_magnitude, skip_first=True)
+e_x = FieldVariable("e_x", "$E_x$", "pfd", ["ex_ec"])
+e_y = FieldVariable("e_y", "$E_y$", "pfd", ["ey_ec"])
+e_z = FieldVariable("e_z", "$E_z$", "pfd", ["ez_ec"])
+e_rho = FieldVariable("e_rho", "$E_\\rho$", "pfd", ["ey_ec", "ez_ec"], data_mapper=_radial_component)
+e_phi = FieldVariable("e_phi", "$E_\\phi$", "pfd", ["ey_ec", "ez_ec"], data_mapper=_azimuthal_component, shift_hole_center=True)
+e = FieldVariable("e", "$|E|$", "pfd", ["ey_ec", "ez_ec"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_magnitude)
+b_x = FieldVariable("b_x", "$B_x$", "pfd", ["hx_fc"])
+b_y = FieldVariable("b_y", "$B_y$", "pfd", ["hy_fc"])
+b_z = FieldVariable("b_z", "$B_z$", "pfd", ["hz_fc"])
+b_rho = FieldVariable("b_rho", "$B_\\rho$", "pfd", ["hy_fc", "hz_fc"], data_mapper=_radial_component)
+b_phi = FieldVariable("b_phi", "$B_\\phi$", "pfd", ["hy_fc", "hz_fc"], data_mapper=_azimuthal_component)
+b = FieldVariable("b", "$|B|$", "pfd", ["hy_fc", "hz_fc"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_magnitude)
+j_x = FieldVariable("j_x", "$J_x$", "pfd", ["jx_ec"])
+j_y = FieldVariable("j_y", "$J_y$", "pfd", ["jy_ec"])
+j_z = FieldVariable("j_z", "$J_z$", "pfd", ["jz_ec"])
+j_rho = FieldVariable("j_rho", "$J_\\rho$", "pfd", ["jy_ec", "jz_ec"], data_mapper=_radial_component)
+j_phi = FieldVariable("j_phi", "$J_\\phi$", "pfd", ["jy_ec", "jz_ec"], data_mapper=_azimuthal_component)
+j = FieldVariable("j", "$|J|$", "pfd", ["jy_ec", "jz_ec"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_magnitude)
 
 # pfd_moments
 ne = FieldVariable("ne", "$n_e$", "pfd_moments", ["rho_e"], val_bounds=(0, None), cmap_name="inferno", data_mapper=_negated(_identity))
