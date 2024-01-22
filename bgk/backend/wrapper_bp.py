@@ -4,7 +4,7 @@ import os
 from functools import cached_property
 import xarray as xr
 
-from ..typing import PrefixBp, Centering, Dim
+from ..typing import PrefixBp, Centering, Dim, BpVariableName
 
 # enables xarray to load bp files
 import psc
@@ -69,7 +69,7 @@ class WrapperBP:
     def grid_rho(self) -> xr.DataArray:
         return (self.axis_y**2 + self.axis_z**2) ** 0.5
 
-    def get(self, var_name: str, to_centering: Centering) -> xr.DataArray:
+    def get(self, var_name: BpVariableName, to_centering: Centering) -> xr.DataArray:
         data = self._ds_raw[var_name]
         for dim in _get_recenter_dims(self._prefix_bp, var_name, to_centering):
             data = _recenter(data, dim, to_centering)
