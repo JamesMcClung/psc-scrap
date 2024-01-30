@@ -8,7 +8,7 @@ from .typing import H5WrapperVariableName as _H5WrapperVariableName
 class ParticleVariable:
     name: str
     latex: str
-    variable_name: _H5WrapperVariableName
+    h5_variable_name: _H5WrapperVariableName
     val_bounds: tuple[float | None, float | None] = (None, None)
     cmap_name: str = "Reds"
 

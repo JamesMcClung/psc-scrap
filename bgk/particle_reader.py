@@ -41,7 +41,7 @@ class ParticleReader:
         if not (fig or ax):
             fig, ax = plt.subplots()
 
-        hist, rhos, vals = np.histogram2d(self._data.col("rho"), self._data.col(var.variable_name), bins=[60, 80])
+        hist, rhos, vals = np.histogram2d(self._data.col("rho"), self._data.col(var.h5_variable_name), bins=[60, 80])
         rhos_cc = (rhos[1:] + rhos[:-1]) / 2
         fs2d = hist.T / rhos_cc
 
