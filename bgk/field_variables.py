@@ -1,11 +1,9 @@
 from dataclasses import dataclass as _dataclass
-from typing import Callable as _Callable
-from typing import ParamSpec as _ParamSpec
+from typing import Callable as _Callable, ParamSpec as _ParamSpec
 
 from xarray import DataArray as _DataArray
 
-from .typing import PrefixBp as _PrefixBp
-from .typing import BpVariableName as _BpVariableName
+from .typing import PrefixBp as _PrefixBp, BpVariableName as _BpVariableName
 
 # stuff for data mappers
 
