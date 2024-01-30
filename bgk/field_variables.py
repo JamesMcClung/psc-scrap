@@ -69,7 +69,6 @@ class FieldVariable:
     prefix_bp: _PrefixBp
     bp_variable_names: list[_BpVariableName]
     val_bounds: tuple[float | None, float | None] = (None, None)
-    recenter: bool = False
     data_mapper: _MultiVarMapper | _ShiftedMultiVarMapper = _identity
     shift_hole_center: bool = False
 
