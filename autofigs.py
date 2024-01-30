@@ -250,7 +250,7 @@ for item in config["instructions"]:
                     videoMaker.set_view_bounds(view_bounds)
                     seq.plot_row_pfd(i, videoMaker)
 
-            names_latex = ", ".join(f"f({bgk.particle_variables.rho.latex[1:-1]}, {var.latex[1:-1]})" if isinstance(var, bgk.ParticleVariable) else f"{var.latex[1:-1]}(y, z)" for var in vars)
+            names_latex = ", ".join(f"f({bgk.particle_variables.rho.latex}, {var.latex})" if isinstance(var, bgk.ParticleVariable) else f"{var.latex}(y, z)" for var in vars)
             util.save_fig(seq.get_fig(f"Snapshots of ${names_latex}$ for $B_0={params_record.B0}$ {duration_in_title}"), get_fig_path("sequence", ",".join(var_names).replace(":", ""), case), close=True)
 
     if "save" in flags:

@@ -49,8 +49,8 @@ class ParticleReader:
 
         if not minimal:
             ax.set_xlabel("$\\rho$")
-            ax.set_ylabel(var.latex)
-            ax.set_title(f"f($\\rho$, {var.latex}) at t={self.t:.3f} for $B={self.B}$")
+            ax.set_ylabel(f"${var.latex}$")
+            ax.set_title(f"$f(\\rho, {var.latex})$ at t={self.t:.3f} for $B={self.B}$")
             fig.colorbar(mesh)
 
         ax.set_ylim(*var.val_bounds)
