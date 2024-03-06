@@ -152,7 +152,7 @@ for item in config["instructions"]:
     ##########################
 
     nframes = item.get("nframes", 100)
-    videoMaker = bgk.VideoMaker(nframes, run_manager)
+    videoMaker = bgk.FieldData(nframes, run_manager)
 
     if item["periodic"]:
         print(f"  Loading ne for determining period...")

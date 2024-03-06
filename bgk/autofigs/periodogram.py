@@ -1,7 +1,7 @@
 import scipy.signal as sig
 
 from . import util
-from bgk.output_reader import VideoMaker
+from bgk.output_reader import FieldData
 
 # imports used for linting
 from matplotlib.figure import Figure
@@ -11,7 +11,7 @@ from matplotlib.pyplot import Axes
 __all__ = ["plot_periodogram"]
 
 
-def plot_periodogram(videoMaker: VideoMaker, fig: Figure = None, ax: Axes = None, annotate: bool = True) -> tuple[Figure, Axes]:
+def plot_periodogram(videoMaker: FieldData, fig: Figure = None, ax: Axes = None, annotate: bool = True) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     data = videoMaker.get_means_at_origin()

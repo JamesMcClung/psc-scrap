@@ -22,7 +22,7 @@ def _plot_lines(
 
 
 def plot_profiles(
-    videoMaker: bgk.output_reader.VideoMaker,
+    videoMaker: bgk.output_reader.FieldData,
     time_cutoff_idx: int,
     duration_in_title: str,
     fig: Figure = None,
@@ -56,7 +56,7 @@ def plot_profiles(
 
 
 def plot_extrema(
-    videoMaker: bgk.output_reader.VideoMaker,
+    videoMaker: bgk.output_reader.FieldData,
     fig: Figure = None,
     ax: Axes = None,
 ) -> tuple[Figure, Axes]:
