@@ -1,6 +1,10 @@
 import yaml
 from functools import cache
 
+import xarray as xr
+
+from bgk.typing import BpVariableName
+
 __all__ = ["OriginMeans"]
 
 
@@ -14,14 +18,14 @@ def _get_yml(yml_path: str) -> dict[str, dict]:
 
 
 class OriginMeans:
-    times: list[float]
-    means: list[float]
+    axis_t: xr.DataArray
+    data: xr.DataArray
 
-    def __init__(self, case: str, param: str, yml_path: str = "figdata.yml") -> None:
+    def __init__(self, case: str, variable_name: BpVariableName, yml_path: str = "figdata.yml") -> None:
         """`case`: e.g. `"B00.10-n1024"`.\n\n `param`: e.g. `"ne"`"""
         self.case = case
-        self.param = param
+        self.variable_name = variable_name
 
-        data = _get_yml(yml_path)[case]
-        self.times = data["times"]
-        self.means = data["origin_means"][param]
+        item = _get_yml(yml_path)[case]
+        self.data = xr.DataArray(data=item["origin_means"][variable_name], coords=[("t", item["times"])])
+        self.axis_t = self.data.t

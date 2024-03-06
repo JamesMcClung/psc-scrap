@@ -41,7 +41,7 @@ class ParticleReader:
         if not (fig or ax):
             fig, ax = plt.subplots()
 
-        hist, rhos, vals = np.histogram2d(self._data.col("rho"), self._data.col(var.variable_name), bins=[60, 80])
+        hist, rhos, vals = np.histogram2d(self._data.col("rho"), self._data.col(var.h5_variable_name), bins=[60, 80])
         rhos_cc = (rhos[1:] + rhos[:-1]) / 2
         fs2d = hist.T / rhos_cc
 
@@ -49,8 +49,8 @@ class ParticleReader:
 
         if not minimal:
             ax.set_xlabel("$\\rho$")
-            ax.set_ylabel(var.latex)
-            ax.set_title(f"f($\\rho$, {var.latex}) at t={self.t:.3f} for $B={self.B}$")
+            ax.set_ylabel(f"${var.latex}$")
+            ax.set_title(f"$f(\\rho, {var.latex})$ at t={self.t:.3f} for $B={self.B}$")
             fig.colorbar(mesh)
 
         ax.set_ylim(*var.val_bounds)

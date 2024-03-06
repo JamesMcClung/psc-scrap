@@ -4,7 +4,7 @@ import scipy.signal as sig
 from scipy.optimize import fmin
 from functools import cached_property
 
-from .run_params import ParamMetadata, ne
+from .field_variables import FieldVariable, ne
 from .bounds import Bounds3D
 from .backend import load_bp
 from .run_manager import RunManager, FrameManagerLinear, FrameManager
@@ -17,59 +17,38 @@ __all__ = ["VideoMaker"]
 
 @safe_cached_property_invalidation
 class VideoMaker:
-    def __init__(self, nframes: int, run_manager: RunManager, initial_param: ParamMetadata = ne) -> None:
+    def __init__(self, nframes: int, run_manager: RunManager, initial_variable: FieldVariable = ne) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record
         self.nframes = nframes
-        self.set_param(initial_param)
-        self._last_lmin = 0, 0
+        self.set_variable(initial_variable)
         self.case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
 
     def _get_data(self, frame: int) -> xr.DataArray:
-        param = self.param
-        dataset = load_bp(self.run_manager.path_run, param.prefix_bp, self.frame_manager.steps[frame])
+        var = self.variable
+        dataset = load_bp(self.run_manager.path_run, var.prefix_bp, self.frame_manager.steps[frame])
         c = self._centering
 
-        if isinstance(param.varName, list):
-            if param.combine == "magnitude":
-                raw_data = (sum(dataset.get(var, c) ** 2 for var in param.varName)) ** 0.5
-            elif param.combine == "sum":
-                raw_data = sum(dataset.get(var, c) for var in param.varName)
-            elif param.combine == "difference":
-                raw_data = dataset.get(param.varName[0], c) - dataset.get(param.varName[1], c)
-            else:
-                raw_data_y = dataset.get(param.varName[0], c)
-                raw_data_z = dataset.get(param.varName[1], c)
-
-                # recenter structure
-                def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
-                    adjusted_axis_y = dataset.axis_y - p[0]
-                    adjusted_axis_z = dataset.axis_z - p[1]
-                    adjusted_grid_rho = (adjusted_axis_y**2 + adjusted_axis_z**2) ** 0.5
-
-                    if param.combine == "radial":
-                        raw_data = (raw_data_y * adjusted_axis_y + raw_data_z * adjusted_axis_z) / adjusted_grid_rho
-                    elif param.combine == "azimuthal":
-                        raw_data = (-raw_data_y * adjusted_axis_z + raw_data_z * adjusted_axis_y) / adjusted_grid_rho
-                    else:
-                        raise Exception(f"Invalid combine method: {param.combine}")
-                    raw_data = raw_data.fillna(0)
-
-                    if ret_rawdata:
-                        return raw_data
-
-                    return np.sum(raw_data**2)
-
-                if param.recenter:
-                    self._last_lmin = fmin(sumsq, self._last_lmin, disp=False)
-
-                raw_data = sumsq(self._last_lmin, True)
+        if not var.shift_hole_center:
+            raw_data = var.data_mapper([dataset.get(var_name, c) for var_name in var.bp_variable_names])
         else:
-            raw_data = dataset.get(param.varName, c)
+            raw_raw_datas = [dataset.get(var_name, c) for var_name in var.bp_variable_names]
+
+            def sumsq(p: tuple[float, float], ret_rawdata=False) -> float:
+                raw_data = var.data_mapper(raw_raw_datas, p)
+
+                if ret_rawdata:
+                    return raw_data
+
+                return np.sum(raw_data**2)
+
+            self._last_lmin = fmin(sumsq, self._last_lmin, disp=False)
+
+            raw_data = sumsq(self._last_lmin, True)
 
         raw_data = raw_data.expand_dims({"t": [dataset.time]})
         self.lengths = dataset.lengths
-        return param.coef * raw_data
+        return raw_data
 
     @cached_property
     def lengths(self) -> tuple[float, float, float]:
@@ -91,11 +70,12 @@ class VideoMaker:
     def grid_rho(self) -> xr.DataArray:
         return self.datas.rho
 
-    def set_param(self, param: ParamMetadata) -> None:
-        if hasattr(self, "param") and param == self.param:
+    def set_variable(self, variable: FieldVariable) -> None:
+        if hasattr(self, "param") and variable == self.variable:
             return
-        self.param = param
-        self._centering = "nc" if param.prefix_bp == "pfd" else "cc"
+        self.variable = variable
+        self._centering = "nc" if variable.prefix_bp == "pfd" else "cc"
+        self._last_lmin = 0, 0
         del self.frame_manager
         del self.datas
         del self._raw_datas
@@ -113,13 +93,13 @@ class VideoMaker:
 
     @cached_property
     def frame_manager(self) -> FrameManager:
-        return self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [self.param])
+        return self.run_manager.get_frame_manager(FrameManagerLinear, self.nframes, [self.variable])
 
     @cached_property
     def _val_bounds(self) -> tuple[float, float]:
-        vmax = self.param.vmax if self.param.vmax is not None else self.datas.quantile(1, ["y", "z"]).max("t")
-        vmin = self.param.vmin if self.param.vmin is not None else self.datas.quantile(0, ["y", "z"]).min("t")
-        if self.param.vmax is self.param.vmin is None:
+        vmax = self.variable.val_bounds[1] if self.variable.val_bounds[1] is not None else self.datas.quantile(1, ["y", "z"]).max("t")
+        vmin = self.variable.val_bounds[0] if self.variable.val_bounds[0] is not None else self.datas.quantile(0, ["y", "z"]).min("t")
+        if self.variable.val_bounds[1] is self.variable.val_bounds[0] is None:
             vmax = max(vmax, -vmin)
             vmin = -vmax
         return vmin, vmax

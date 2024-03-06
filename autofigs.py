@@ -86,12 +86,12 @@ def maybe_apply_only_flag(instruction_item: dict) -> dict:
 ########################################################
 
 
-def get_params_in_order(item: dict[str, list[str]]) -> list[str]:
-    params = set(sum((item[option] for option in TRIVIAL_FIGURE_TYPES), start=[]))
-    if "ne" in params:
-        params.remove("ne")
-        return ["ne"] + sorted(list(params))
-    return sorted(list(params))
+def get_variable_names_in_order(item: dict[str, list[str]]) -> list[str]:
+    variable_names = set(sum((item[option] for option in TRIVIAL_FIGURE_TYPES), start=[]))
+    if "ne" in variable_names:
+        variable_names.remove("ne")
+        return ["ne"] + sorted(list(variable_names))
+    return sorted(list(variable_names))
 
 
 ########################################################
@@ -105,9 +105,9 @@ for item in config["instructions"]:
     path = item["path"]
     print(f"Entering {path}")
 
-    params_to_load_standard = get_params_in_order(item)
-    params_to_load_special = list({seq_param for seq_params in item["sequences"] for seq_param in seq_params})
-    if not params_to_load_standard and not params_to_load_special:
+    variables_to_load_names_standard = get_variable_names_in_order(item)
+    variables_to_load_names_special = list({var_name for var_names in item["sequences"] for var_name in var_names})
+    if not variables_to_load_names_standard and not variables_to_load_names_special:
         print(f"No figures requested. Skipping.")
         continue
 
@@ -142,11 +142,11 @@ for item in config["instructions"]:
 
     ##########################
 
-    def get_fig_path(fig_type: str, param_str: str, case: str) -> str:
+    def get_fig_path(fig_type: str, variable_name: str, case: str) -> str:
         ext = "mp4" if fig_type == "movie" else "png"
-        param_str = param_str.replace("_", "")
+        variable_name = variable_name.replace("_", "")
         maybe_rev = "-rev" if params_record.reversed else ""
-        fig_name = f"{prefix}{fig_type}-{param_str}-{case}{maybe_rev}-B{params_record.B0:05.2f}-n{params_record.res}.{ext}"
+        fig_name = f"{prefix}{fig_type}-{variable_name}-{case}{maybe_rev}-B{params_record.B0:05.2f}-n{params_record.res}.{ext}"
         return os.path.join(outdir, fig_name)
 
     ##########################
@@ -156,76 +156,76 @@ for item in config["instructions"]:
 
     if item["periodic"]:
         print(f"  Loading ne for determining period...")
-        videoMaker.set_param(bgk.run_params.ne)
+        videoMaker.set_variable(bgk.field_variables.ne)
         videoMaker.set_view_bounds(view_bounds)
         time_cutoff_idx = videoMaker.get_idx_period()
         duration_in_title = "Over First Oscillation"
     else:
-        first_param_str = (params_to_load_standard or ["ne"])[0]
-        print(f"  Loading {first_param_str} for determining run duration...")
-        videoMaker.set_param(bgk.run_params.__dict__[first_param_str])
+        first_variable_name = (variables_to_load_names_standard or ["ne"])[0]
+        print(f"  Loading {first_variable_name} for determining run duration...")
+        videoMaker.set_variable(bgk.field_variables.__dict__[first_variable_name])
         videoMaker.set_view_bounds(view_bounds)
         time_cutoff_idx = nframes - 1
         duration_in_title = "Over Run"
 
     ##########################
-    for param_str in params_to_load_standard:
-        print(f"  Loading {param_str}...")
+    for variable_name in variables_to_load_names_standard:
+        print(f"  Loading {variable_name}...")
 
-        param: bgk.ParamMetadata = bgk.run_params.__dict__[param_str]
-        videoMaker.set_param(param)
+        variable: bgk.FieldVariable = bgk.field_variables.__dict__[variable_name]
+        videoMaker.set_variable(variable)
         videoMaker.set_view_bounds(view_bounds)
 
         ##########################
 
-        if param_str in item["extrema"]:
+        if variable_name in item["extrema"]:
             print(f"    Generating extrema profiles...")
             fig, _ = autofigs.plot_extrema(videoMaker)
-            util.save_fig(fig, get_fig_path("extrema", param_str, case), close=True)
+            util.save_fig(fig, get_fig_path("extrema", variable_name, case), close=True)
 
         ##########################
 
-        if param_str in item["profiles"]:
+        if variable_name in item["profiles"]:
             print(f"    Generating profile...")
             fig, _ = autofigs.plot_profiles(videoMaker, time_cutoff_idx, duration_in_title)
-            util.save_fig(fig, get_fig_path("profile", param_str, case), close=True)
+            util.save_fig(fig, get_fig_path("profile", variable_name, case), close=True)
 
         ##########################
 
-        if param_str in item["videos"]:
+        if variable_name in item["videos"]:
             print(f"    Generating movie...")
 
             fig, movie = autofigs.make_movie(videoMaker)
-            movie.save(get_fig_path("movie", param_str, case), dpi=450)
+            movie.save(get_fig_path("movie", variable_name, case), dpi=450)
             plt.close(fig)
 
         ##########################
 
-        if param_str in item["stabilities"]:
+        if variable_name in item["stabilities"]:
             print(f"    Generating stability plot...")
             fig, _ = autofigs.plot_stability(videoMaker)
-            util.save_fig(fig, get_fig_path("stability", param_str, case), close=True)
+            util.save_fig(fig, get_fig_path("stability", variable_name, case), close=True)
 
         ##########################
 
-        if param_str in item["origin_means"]:
+        if variable_name in item["origin_means"]:
             print(f"    Generating origin mean plot...")
             fig, _ = autofigs.plot_origin_means(videoMaker)
-            util.save_fig(fig, get_fig_path("originmean", param_str, case), close=True)
+            util.save_fig(fig, get_fig_path("originmean", variable_name, case), close=True)
 
         ##########################
 
-        if param_str in item["periodograms"]:
+        if variable_name in item["periodograms"]:
             print(f"    Generating periodogram...")
             fig, _ = autofigs.plot_periodogram(videoMaker)
-            util.save_fig(fig, get_fig_path("periodogram", param_str, case), close=True)
+            util.save_fig(fig, get_fig_path("periodogram", variable_name, case), close=True)
 
     ##########################
 
     if item["sequences"]:
         # get times and step indices
         print(f"  Loading ne for sequences...")
-        videoMaker.set_param(bgk.run_params.ne)
+        videoMaker.set_variable(bgk.field_variables.ne)
         videoMaker.set_view_bounds(view_bounds)
 
         n_frames = min(5, time_cutoff_idx + 1)
@@ -238,7 +238,7 @@ for item in config["instructions"]:
         for var_names in item["sequences"]:
             print(f"    Generating sequence [{', '.join(var_names)}]...")
 
-            vars: list[bgk.ParamMetadata | bgk.ParticleVariable] = [bgk.particle_variables.__dict__[var_name.removeprefix("prt:")] if var_name.startswith("prt:") else bgk.run_params.__dict__[var_name] for var_name in map(str, var_names)]
+            vars: list[bgk.FieldVariable | bgk.ParticleVariable] = [bgk.particle_variables.__dict__[var_name.removeprefix("prt:")] if var_name.startswith("prt:") else bgk.field_variables.__dict__[var_name] for var_name in map(str, var_names)]
 
             seq = autofigs.Sequence(len(var_names), steps, times)
             for i, var in enumerate(vars):
@@ -246,11 +246,11 @@ for item in config["instructions"]:
                 if isinstance(var, bgk.ParticleVariable):
                     seq.plot_row_prt(i, particles, var)
                 else:
-                    videoMaker.set_param(var)
+                    videoMaker.set_variable(var)
                     videoMaker.set_view_bounds(view_bounds)
                     seq.plot_row_pfd(i, videoMaker)
 
-            names_latex = ", ".join(f"f({bgk.particle_variables.rho.latex[1:-1]}, {var.latex[1:-1]})" if isinstance(var, bgk.ParticleVariable) else f"{var.title[1:-1]}(y, z)" for var in vars)
+            names_latex = ", ".join(f"f({bgk.particle_variables.rho.latex}, {var.latex})" if isinstance(var, bgk.ParticleVariable) else f"{var.latex}(y, z)" for var in vars)
             util.save_fig(seq.get_fig(f"Snapshots of ${names_latex}$ for $B_0={params_record.B0}$ {duration_in_title}"), get_fig_path("sequence", ",".join(var_names).replace(":", ""), case), close=True)
 
     if "save" in flags:

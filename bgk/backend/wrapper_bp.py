@@ -4,7 +4,7 @@ import os
 from functools import cached_property
 import xarray as xr
 
-from ..typing import PrefixBP, Centering, Dim
+from ..typing import PrefixBp, Centering, Dim, BpVariableName
 
 # enables xarray to load bp files
 import psc
@@ -14,7 +14,7 @@ _SPECIES_NAMES = ["e", "i"]
 _ENGINE = "pscadios2"
 
 
-def _get_recenter_dims(prefix_bp: PrefixBP, var_name: str, centering: Centering) -> list[str]:
+def _get_recenter_dims(prefix_bp: PrefixBp, var_name: str, centering: Centering) -> list[str]:
     if prefix_bp in ["pfd_moments", "gauss"]:
         return [] if centering == "cc" else ["x", "y", "z"]
 
@@ -43,7 +43,7 @@ def _recenter(data: xr.DataArray, dim: Dim, to_centering: Centering) -> xr.DataA
 
 
 class WrapperBP:
-    _prefix_bp: PrefixBP
+    _prefix_bp: PrefixBp
 
     lengths: tuple[float, float, float]
     time: float
@@ -53,7 +53,7 @@ class WrapperBP:
     axis_y: xr.DataArray
     axis_z: xr.DataArray
 
-    def __init__(self, ds_raw: xr.Dataset, prefix_bp: PrefixBP) -> None:
+    def __init__(self, ds_raw: xr.Dataset, prefix_bp: PrefixBp) -> None:
         self._ds_raw = ds_raw
         self._prefix_bp = prefix_bp
 
@@ -69,14 +69,14 @@ class WrapperBP:
     def grid_rho(self) -> xr.DataArray:
         return (self.axis_y**2 + self.axis_z**2) ** 0.5
 
-    def get(self, var_name: str, to_centering: Centering) -> xr.DataArray:
+    def get(self, var_name: BpVariableName, to_centering: Centering) -> xr.DataArray:
         data = self._ds_raw[var_name]
         for dim in _get_recenter_dims(self._prefix_bp, var_name, to_centering):
             data = _recenter(data, dim, to_centering)
         return data
 
 
-def load_bp(path_run: str, prefix_bp: PrefixBP, step: int) -> WrapperBP:
+def load_bp(path_run: str, prefix_bp: PrefixBp, step: int) -> WrapperBP:
     path = os.path.join(path_run, f"{prefix_bp}.{step:09d}.bp")
     ds_raw = xr.open_dataset(path, engine=_ENGINE, species_names=_SPECIES_NAMES)
     return WrapperBP(ds_raw, prefix_bp)

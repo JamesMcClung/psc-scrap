@@ -55,7 +55,7 @@ Autofig configuration files are written in yaml. At a minimum, the yaml object m
 | `extrema`          | list\[Param\]                     | `[]`          | List of extrema plots to generate for the run.                                               |
 | `sequences`        | list\[list\[Param or PrtParam\]\] | `[]`          | List of sequences to generate for the run.                                                   |
 
-In the table above, Param and PrtParam are strings that refer to data from `pfd`/`pfd_moment`/`gauss` and `prt` files, respectively. Values for Param correspond to the constants defined in `bgk/run_params.py`, e.g. `"ne"`. Values for PrtParam correspond to the valid parameters of `ParticleReader.plot_distribution` in `bgk/particle_reader.py`, but prepended with `"prt:"`, e.g. `"prt:v_phi"`.
+In the table above, Param and PrtParam are strings that refer to data from `pfd`/`pfd_moment`/`gauss` and `prt` files, respectively. Values for Param correspond to the constants defined in `bgk/field_variables.py`, e.g. `"ne"`. Values for PrtParam correspond to the valid parameters of `ParticleReader.plot_distribution` in `bgk/particle_reader.py`, but prepended with `"prt:"`, e.g. `"prt:v_phi"`.
 
 #### Suites
 

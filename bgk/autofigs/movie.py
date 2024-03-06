@@ -13,7 +13,7 @@ __all__ = ["make_movie", "view_frame"]
 
 
 def _update_title(ax: Axes, videoMaker: VideoMaker, frame: int) -> None:
-    ax.set_title(f"{videoMaker.view_bounds.adjective}{videoMaker.param.title}, t={videoMaker.axis_t[frame]:.3f} ($B_0={videoMaker.params_record.B0}$, {videoMaker.case_name})")
+    ax.set_title(f"{videoMaker.view_bounds.adjective}${videoMaker.variable.latex}$, t={videoMaker.axis_t[frame]:.3f} ($B_0={videoMaker.params_record.B0}$, {videoMaker.case_name})")
 
 
 def _get_image_data(videoMaker: VideoMaker, frame: int, x_pos: float) -> xr.DataArray:
@@ -25,7 +25,7 @@ def view_frame(videoMaker: VideoMaker, frame: int, fig: Figure = None, ax: Axes 
 
     im = ax.imshow(
         _get_image_data(videoMaker, frame, x_pos),
-        cmap=videoMaker.param.colors,
+        cmap=videoMaker.variable.cmap_name,
         vmin=videoMaker._val_bounds[0],
         vmax=videoMaker._val_bounds[1],
         origin="lower",

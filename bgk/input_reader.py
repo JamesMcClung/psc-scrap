@@ -1,7 +1,9 @@
-__all__ = ["Input"]
+__all__ = ["Input", "InputColumnName"]
+
+import os
+from typing import Literal
 
 import numpy as np
-import os
 
 
 def _line_to_list(row: str) -> list[float]:
@@ -14,6 +16,9 @@ def get_B0(path_input: str) -> float:
             return float(item.removeprefix("B="))
 
 
+InputColumnName = Literal["rho", "ne", "v_phi", "Te", "E_rho", "Psi"]
+
+
 class Input:
     def __init__(self, path_input: str) -> None:
         self.path_input = path_input
@@ -23,13 +28,13 @@ class Input:
         for i, label in enumerate(labels):
             self.__dict__[label] = data[:, i]
 
-    def __getitem__(self, key: str) -> np.ndarray:
+    def __getitem__(self, key: InputColumnName) -> np.ndarray:
         return self.__dict__[key]
 
-    def __setitem__(self, key: str, val: np.ndarray) -> None:
+    def __setitem__(self, key: InputColumnName, val: np.ndarray) -> None:
         self.__dict__[key] = val
 
-    def rescale(self, factors: dict[str, float]) -> None:
+    def rescale(self, factors: dict[InputColumnName, float]) -> None:
         for k, v in factors.items():
             self[k] *= v
 
@@ -51,7 +56,7 @@ class Input:
             }
         )
 
-    def interpolate_value(self, rho: float, val: str) -> float:
+    def interpolate_value(self, rho: float, val: InputColumnName) -> float:
         idx = int(rho / (self.rho[1] - self.rho[0]))
         while self.rho[idx] < rho:
             idx += 1
