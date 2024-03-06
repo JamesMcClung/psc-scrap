@@ -233,7 +233,7 @@ for item in config["instructions"]:
 
         times = videoMaker.axis_t[frames]
         steps = [videoMaker.frame_manager.steps[frame] for frame in frames]
-        particles = bgk.ParticleReader(path)
+        particles = bgk.ParticleData(path)
 
         for var_names in item["sequences"]:
             print(f"    Generating sequence [{', '.join(var_names)}]...")

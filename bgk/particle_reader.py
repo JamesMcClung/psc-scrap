@@ -8,13 +8,13 @@ from .params_record import ParamsRecord
 from .input_reader import Input
 from .particle_variables import ParticleVariable
 
-__all__ = ["ParticleReader"]
+__all__ = ["ParticleData"]
 
 
 ##########################
 
 
-class ParticleReader:
+class ParticleData:
     def __init__(self, path: str) -> None:
         self.path = path
         params_record = ParamsRecord(path)
