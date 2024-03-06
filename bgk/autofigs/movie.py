@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 from . import util
-from bgk.output_reader import FieldData
+from bgk.field_data import FieldData
 
 # imports used for linting
 from matplotlib.figure import Figure
