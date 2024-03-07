@@ -11,6 +11,7 @@ import bgk.autofigs.util as util
 from bgk.autofigs.history import History
 from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
+from bgk.autofigs.image import IMAGE_GENERATOR_REGISTRY
 
 ########################################################
 
@@ -87,7 +88,7 @@ def maybe_apply_only_flag(instruction_item: dict) -> dict:
 
 
 def get_variable_names_in_order(item: dict[str, list[str]]) -> list[str]:
-    variable_names = set(sum((item[option] for option in TRIVIAL_FIGURE_TYPES), start=[]))
+    variable_names = set(sum((item[option] for option in TRIVIAL_FIGURE_TYPES + list(IMAGE_GENERATOR_REGISTRY.keys())), start=[]))
     if "ne" in variable_names:
         variable_names.remove("ne")
         return ["ne"] + sorted(list(variable_names))
@@ -178,6 +179,14 @@ for item in config["instructions"]:
         variable: bgk.FieldVariable = bgk.field_variables.__dict__[variable_name]
         fields.set_variable(variable)
         fields.set_view_bounds(view_bounds)
+
+        ##########################
+
+        for image_fig_type in IMAGE_GENERATOR_REGISTRY:
+            if variable_name in item[image_fig_type]:
+                print(f"    Generating {image_fig_type}...")
+                fig, _ = IMAGE_GENERATOR_REGISTRY[image_fig_type].generate_image(image_params)
+                util.save_fig(fig, get_fig_path(image_fig_type, variable_name, case), close=True)
 
         ##########################
 
