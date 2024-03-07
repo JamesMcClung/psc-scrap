@@ -152,19 +152,19 @@ for item in config["instructions"]:
     ##########################
 
     nframes = item.get("nframes", 100)
-    videoMaker = bgk.FieldData(nframes, run_manager)
+    fields = bgk.FieldData(nframes, run_manager)
 
     if item["periodic"]:
         print(f"  Loading ne for determining period...")
-        videoMaker.set_variable(bgk.field_variables.ne)
-        videoMaker.set_view_bounds(view_bounds)
-        time_cutoff_idx = videoMaker.get_idx_period()
+        fields.set_variable(bgk.field_variables.ne)
+        fields.set_view_bounds(view_bounds)
+        time_cutoff_idx = fields.get_idx_period()
         duration_in_title = "Over First Oscillation"
     else:
         first_variable_name = (variables_to_load_names_standard or ["ne"])[0]
         print(f"  Loading {first_variable_name} for determining run duration...")
-        videoMaker.set_variable(bgk.field_variables.__dict__[first_variable_name])
-        videoMaker.set_view_bounds(view_bounds)
+        fields.set_variable(bgk.field_variables.__dict__[first_variable_name])
+        fields.set_view_bounds(view_bounds)
         time_cutoff_idx = nframes - 1
         duration_in_title = "Over Run"
 
@@ -173,21 +173,21 @@ for item in config["instructions"]:
         print(f"  Loading {variable_name}...")
 
         variable: bgk.FieldVariable = bgk.field_variables.__dict__[variable_name]
-        videoMaker.set_variable(variable)
-        videoMaker.set_view_bounds(view_bounds)
+        fields.set_variable(variable)
+        fields.set_view_bounds(view_bounds)
 
         ##########################
 
         if variable_name in item["extrema"]:
             print(f"    Generating extrema profiles...")
-            fig, _ = autofigs.plot_extrema(videoMaker)
+            fig, _ = autofigs.plot_extrema(fields)
             util.save_fig(fig, get_fig_path("extrema", variable_name, case), close=True)
 
         ##########################
 
         if variable_name in item["profiles"]:
             print(f"    Generating profile...")
-            fig, _ = autofigs.plot_profiles(videoMaker, time_cutoff_idx, duration_in_title)
+            fig, _ = autofigs.plot_profiles(fields, time_cutoff_idx, duration_in_title)
             util.save_fig(fig, get_fig_path("profile", variable_name, case), close=True)
 
         ##########################
@@ -195,7 +195,7 @@ for item in config["instructions"]:
         if variable_name in item["videos"]:
             print(f"    Generating movie...")
 
-            fig, movie = autofigs.make_movie(videoMaker)
+            fig, movie = autofigs.make_movie(fields)
             movie.save(get_fig_path("movie", variable_name, case), dpi=450)
             plt.close(fig)
 
@@ -203,21 +203,21 @@ for item in config["instructions"]:
 
         if variable_name in item["stabilities"]:
             print(f"    Generating stability plot...")
-            fig, _ = autofigs.plot_stability(videoMaker)
+            fig, _ = autofigs.plot_stability(fields)
             util.save_fig(fig, get_fig_path("stability", variable_name, case), close=True)
 
         ##########################
 
         if variable_name in item["origin_means"]:
             print(f"    Generating origin mean plot...")
-            fig, _ = autofigs.plot_origin_means(videoMaker)
+            fig, _ = autofigs.plot_origin_means(fields)
             util.save_fig(fig, get_fig_path("originmean", variable_name, case), close=True)
 
         ##########################
 
         if variable_name in item["periodograms"]:
             print(f"    Generating periodogram...")
-            fig, _ = autofigs.plot_periodogram(videoMaker)
+            fig, _ = autofigs.plot_periodogram(fields)
             util.save_fig(fig, get_fig_path("periodogram", variable_name, case), close=True)
 
     ##########################
@@ -225,14 +225,14 @@ for item in config["instructions"]:
     if item["sequences"]:
         # get times and step indices
         print(f"  Loading ne for sequences...")
-        videoMaker.set_variable(bgk.field_variables.ne)
-        videoMaker.set_view_bounds(view_bounds)
+        fields.set_variable(bgk.field_variables.ne)
+        fields.set_view_bounds(view_bounds)
 
         n_frames = min(5, time_cutoff_idx + 1)
         frames = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
 
-        times = videoMaker.axis_t[frames]
-        steps = [videoMaker.frame_manager.steps[frame] for frame in frames]
+        times = fields.axis_t[frames]
+        steps = [fields.frame_manager.steps[frame] for frame in frames]
         particles = bgk.ParticleData(path)
 
         for var_names in item["sequences"]:
@@ -246,9 +246,9 @@ for item in config["instructions"]:
                 if isinstance(var, bgk.ParticleVariable):
                     seq.plot_row_prt(i, particles, var)
                 else:
-                    videoMaker.set_variable(var)
-                    videoMaker.set_view_bounds(view_bounds)
-                    seq.plot_row_pfd(i, videoMaker)
+                    fields.set_variable(var)
+                    fields.set_view_bounds(view_bounds)
+                    seq.plot_row_pfd(i, fields)
 
             names_latex = ", ".join(f"f({bgk.particle_variables.rho.latex}, {var.latex})" if isinstance(var, bgk.ParticleVariable) else f"{var.latex}(y, z)" for var in vars)
             util.save_fig(seq.get_fig(f"Snapshots of ${names_latex}$ for $B_0={params_record.B0}$ {duration_in_title}"), get_fig_path("sequence", ",".join(var_names).replace(":", ""), case), close=True)
