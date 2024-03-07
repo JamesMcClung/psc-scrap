@@ -190,47 +190,12 @@ for item in config["instructions"]:
 
         ##########################
 
-        if variable_name in item["extrema"]:
-            print(f"    Generating extrema profiles...")
-            fig, _ = autofigs.plot_extrema(fields)
-            util.save_fig(fig, get_fig_path("extrema", variable_name, case), close=True)
-
-        ##########################
-
-        if variable_name in item["profiles"]:
-            print(f"    Generating profile...")
-            fig, _ = autofigs.plot_profiles(fields, image_params.time_cutoff_idx, image_params.duration_in_title)
-            util.save_fig(fig, get_fig_path("profile", variable_name, case), close=True)
-
-        ##########################
-
         if variable_name in item["videos"]:
             print(f"    Generating movie...")
 
             fig, movie = autofigs.make_movie(fields)
             movie.save(get_fig_path("movie", variable_name, case), dpi=450)
             plt.close(fig)
-
-        ##########################
-
-        if variable_name in item["stabilities"]:
-            print(f"    Generating stability plot...")
-            fig, _ = autofigs.plot_stability(fields)
-            util.save_fig(fig, get_fig_path("stability", variable_name, case), close=True)
-
-        ##########################
-
-        if variable_name in item["origin_means"]:
-            print(f"    Generating origin mean plot...")
-            fig, _ = autofigs.plot_origin_means(fields)
-            util.save_fig(fig, get_fig_path("originmean", variable_name, case), close=True)
-
-        ##########################
-
-        if variable_name in item["periodograms"]:
-            print(f"    Generating periodogram...")
-            fig, _ = autofigs.plot_periodogram(fields)
-            util.save_fig(fig, get_fig_path("periodogram", variable_name, case), close=True)
 
     ##########################
 
