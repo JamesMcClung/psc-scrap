@@ -6,9 +6,9 @@ suites:
     videos: [e_phi]
     profiles: [e_rho]
     sequences: [[ne, prt:v_phi]]
-    stabilities: [ne]
-    origin_means: [ne]
-    periodograms: [ne]
+    stability: [ne]
+    origin_mean: [ne]
+    periodogram: [ne]
     extrema: [ne]
 instructions:
   - path: /mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B00.25-n128
