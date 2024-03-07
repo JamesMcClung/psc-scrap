@@ -155,6 +155,7 @@ for item in config["instructions"]:
     fields = bgk.FieldData(nframes, run_manager)
 
     image_params = autofigs.ImageParams()
+    image_params.fields = fields
 
     if item["periodic"]:
         print(f"  Loading ne for determining period...")
