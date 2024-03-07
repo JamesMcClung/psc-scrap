@@ -6,11 +6,11 @@ from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 
 
-__all__ = ["plot_origin_means"]
+__all__ = ["plot_origin_mean"]
 
 
-@image_generator("origin_means")
-def plot_origin_means(image_params: ImageParams, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
+@image_generator("origin_mean")
+def plot_origin_mean(image_params: ImageParams, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     ax.set_xlabel("Time")
