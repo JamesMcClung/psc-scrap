@@ -13,6 +13,9 @@ from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
 from bgk.autofigs.image import IMAGE_GENERATOR_REGISTRY
 
+FIGURE_TYPES += list(IMAGE_GENERATOR_REGISTRY.keys())
+TRIVIAL_FIGURE_TYPES += list(IMAGE_GENERATOR_REGISTRY.keys())
+
 ########################################################
 
 _VALID_FLAGS = {"save", "only", "warn"}
@@ -88,7 +91,7 @@ def maybe_apply_only_flag(instruction_item: dict) -> dict:
 
 
 def get_variable_names_in_order(item: dict[str, list[str]]) -> list[str]:
-    variable_names = set(sum((item[option] for option in TRIVIAL_FIGURE_TYPES + list(IMAGE_GENERATOR_REGISTRY.keys())), start=[]))
+    variable_names = set(sum((item[option] for option in TRIVIAL_FIGURE_TYPES), start=[]))
     if "ne" in variable_names:
         variable_names.remove("ne")
         return ["ne"] + sorted(list(variable_names))
