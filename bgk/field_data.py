@@ -12,11 +12,11 @@ from .util.safe_cache_invalidation import safe_cached_property_invalidation
 from .util.stream import Stream
 
 
-__all__ = ["VideoMaker"]
+__all__ = ["FieldData"]
 
 
 @safe_cached_property_invalidation
-class VideoMaker:
+class FieldData:
     def __init__(self, nframes: int, run_manager: RunManager, initial_variable: FieldVariable = ne) -> None:
         self.run_manager = run_manager
         self.params_record = run_manager.params_record

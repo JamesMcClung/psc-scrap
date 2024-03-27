@@ -1,5 +1,5 @@
 from . import util
-from bgk.output_reader import VideoMaker
+from bgk.field_data import FieldData
 
 # imports used for linting
 from matplotlib.figure import Figure
@@ -9,7 +9,7 @@ from matplotlib.pyplot import Axes
 __all__ = ["plot_origin_means"]
 
 
-def plot_origin_means(videoMaker: VideoMaker, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
+def plot_origin_means(videoMaker: FieldData, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     ax.set_xlabel("Time")

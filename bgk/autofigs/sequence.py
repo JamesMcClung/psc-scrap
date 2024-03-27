@@ -23,7 +23,7 @@ class Sequence:
             width_ratios=[8] * len(times) + [1],
         )
 
-    def plot_row_pfd(self, row_idx: int, videoMaker: bgk.VideoMaker) -> None:
+    def plot_row_pfd(self, row_idx: int, videoMaker: bgk.FieldData) -> None:
         ax_row = self.ax_rows[row_idx]
         cmap_ax = ax_row[-1]
 
@@ -36,7 +36,7 @@ class Sequence:
         cmap_ax.set_aspect("auto")
         self.fig.colorbar(ax.get_images()[0], cax=cmap_ax)
 
-    def plot_row_prt(self, row_idx: int, particles: bgk.ParticleReader, var: bgk.ParticleVariable) -> None:
+    def plot_row_prt(self, row_idx: int, particles: bgk.ParticleData, var: bgk.ParticleVariable) -> None:
         ax_row = self.ax_rows[row_idx]
         cmap_ax = ax_row[-1]
         for step, ax, time in zip(self.steps, ax_row, self.times):

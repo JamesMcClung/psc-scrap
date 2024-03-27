@@ -20,7 +20,7 @@ if do_memory_tracking:
 
 
 run_manager = bgk.RunManager("/mnt/lustre/IAM851/jm1667/psc-runs/case1/trials/exact/B00.25-n128")
-vm = bgk.VideoMaker(11, run_manager)
+vm = bgk.FieldData(11, run_manager)
 
 vm.set_variable(bgk.field_variables.ne)
 vm.set_view_bounds(bgk.Bounds3D.whole())
