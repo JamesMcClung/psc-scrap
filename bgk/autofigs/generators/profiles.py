@@ -1,10 +1,12 @@
 import numpy as np
-from . import util
-from .image import image_generator, ImageParams
+from .. import util
+from ..image import image_generator, ImageParams
 
 # imports used for linting
 from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
+
+__all__ = ["plot_profiles", "plot_extrema"]
 
 
 def _plot_lines(
