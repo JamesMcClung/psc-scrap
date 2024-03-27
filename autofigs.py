@@ -11,6 +11,10 @@ import bgk.autofigs.util as util
 from bgk.autofigs.history import History
 from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
+from bgk.autofigs.figure_generator import FIGURE_GENERATOR_REGISTRY
+
+FIGURE_TYPES += list(FIGURE_GENERATOR_REGISTRY.keys())
+TRIVIAL_FIGURE_TYPES += list(FIGURE_GENERATOR_REGISTRY.keys())
 
 ########################################################
 
@@ -154,19 +158,22 @@ for item in config["instructions"]:
     nframes = item.get("nframes", 100)
     fields = bgk.FieldData(nframes, run_manager)
 
+    image_params = autofigs.FigureParams()
+    image_params.fields = fields
+
     if item["periodic"]:
         print(f"  Loading ne for determining period...")
         fields.set_variable(bgk.field_variables.ne)
         fields.set_view_bounds(view_bounds)
-        time_cutoff_idx = fields.get_idx_period()
-        duration_in_title = "Over First Oscillation"
+        image_params.time_cutoff_idx = fields.get_idx_period()
+        image_params.duration_in_title = "Over First Oscillation"
     else:
         first_variable_name = (variables_to_load_names_standard or ["ne"])[0]
         print(f"  Loading {first_variable_name} for determining run duration...")
         fields.set_variable(bgk.field_variables.__dict__[first_variable_name])
         fields.set_view_bounds(view_bounds)
-        time_cutoff_idx = nframes - 1
-        duration_in_title = "Over Run"
+        image_params.time_cutoff_idx = nframes - 1
+        image_params.duration_in_title = "Over Run"
 
     ##########################
     for variable_name in variables_to_load_names_standard:
@@ -178,17 +185,11 @@ for item in config["instructions"]:
 
         ##########################
 
-        if variable_name in item["extrema"]:
-            print(f"    Generating extrema profiles...")
-            fig, _ = autofigs.plot_extrema(fields)
-            util.save_fig(fig, get_fig_path("extrema", variable_name, case), close=True)
-
-        ##########################
-
-        if variable_name in item["profiles"]:
-            print(f"    Generating profile...")
-            fig, _ = autofigs.plot_profiles(fields, time_cutoff_idx, duration_in_title)
-            util.save_fig(fig, get_fig_path("profile", variable_name, case), close=True)
+        for image_fig_type in FIGURE_GENERATOR_REGISTRY:
+            if variable_name in item[image_fig_type]:
+                print(f"    Generating {image_fig_type}...")
+                fig, _ = FIGURE_GENERATOR_REGISTRY[image_fig_type].generate_image(image_params)
+                util.save_fig(fig, get_fig_path(image_fig_type, variable_name, case), close=True)
 
         ##########################
 
@@ -199,27 +200,6 @@ for item in config["instructions"]:
             movie.save(get_fig_path("movie", variable_name, case), dpi=450)
             plt.close(fig)
 
-        ##########################
-
-        if variable_name in item["stabilities"]:
-            print(f"    Generating stability plot...")
-            fig, _ = autofigs.plot_stability(fields)
-            util.save_fig(fig, get_fig_path("stability", variable_name, case), close=True)
-
-        ##########################
-
-        if variable_name in item["origin_means"]:
-            print(f"    Generating origin mean plot...")
-            fig, _ = autofigs.plot_origin_means(fields)
-            util.save_fig(fig, get_fig_path("originmean", variable_name, case), close=True)
-
-        ##########################
-
-        if variable_name in item["periodograms"]:
-            print(f"    Generating periodogram...")
-            fig, _ = autofigs.plot_periodogram(fields)
-            util.save_fig(fig, get_fig_path("periodogram", variable_name, case), close=True)
-
     ##########################
 
     if item["sequences"]:
@@ -228,8 +208,8 @@ for item in config["instructions"]:
         fields.set_variable(bgk.field_variables.ne)
         fields.set_view_bounds(view_bounds)
 
-        n_frames = min(5, time_cutoff_idx + 1)
-        frames = [round(i * time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
+        n_frames = min(5, image_params.time_cutoff_idx + 1)
+        frames = [round(i * image_params.time_cutoff_idx / (n_frames - 1)) for i in range(n_frames)]
 
         times = fields.axis_t[frames]
         steps = [fields.frame_manager.steps[frame] for frame in frames]
@@ -251,7 +231,7 @@ for item in config["instructions"]:
                     seq.plot_row_pfd(i, fields)
 
             names_latex = ", ".join(f"f({bgk.particle_variables.rho.latex}, {var.latex})" if isinstance(var, bgk.ParticleVariable) else f"{var.latex}(y, z)" for var in vars)
-            util.save_fig(seq.get_fig(f"Snapshots of ${names_latex}$ for $B_0={params_record.B0}$ {duration_in_title}"), get_fig_path("sequence", ",".join(var_names).replace(":", ""), case), close=True)
+            util.save_fig(seq.get_fig(f"Snapshots of ${names_latex}$ for $B_0={params_record.B0}$ {image_params.duration_in_title}"), get_fig_path("sequence", ",".join(var_names).replace(":", ""), case), close=True)
 
     if "save" in flags:
         history.save()
