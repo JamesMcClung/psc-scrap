@@ -1,5 +1,5 @@
 from .. import util
-from ..image import image_generator, ImageParams
+from ..figure_generator import figure_generator, FigureParams
 
 # imports used for linting
 from matplotlib.figure import Figure
@@ -9,8 +9,8 @@ from matplotlib.pyplot import Axes
 __all__ = ["plot_stability"]
 
 
-@image_generator("stability")
-def plot_stability(image_params: ImageParams, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
+@figure_generator("stability")
+def plot_stability(image_params: FigureParams, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     ax.set_xlabel("Time")

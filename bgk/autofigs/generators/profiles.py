@@ -1,6 +1,6 @@
 import numpy as np
 from .. import util
-from ..image import image_generator, ImageParams
+from ..figure_generator import figure_generator, FigureParams
 
 # imports used for linting
 from matplotlib.figure import Figure
@@ -23,8 +23,8 @@ def _plot_lines(
         ax.plot(xdata, ydatas[i], color=cmap(i / max(plot_indices) if len(plot_indices) > 1 else 0.5), label=label)
 
 
-@image_generator("profiles")
-def plot_profiles(image_params: ImageParams, fig: Figure = None, ax: Axes = None):
+@figure_generator("profiles")
+def plot_profiles(image_params: FigureParams, fig: Figure = None, ax: Axes = None):
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     maxR = image_params.fields.view_bounds.bounds[1].upper
@@ -52,8 +52,8 @@ def plot_profiles(image_params: ImageParams, fig: Figure = None, ax: Axes = None
     return fig, ax
 
 
-@image_generator("extrema")
-def plot_extrema(image_params: ImageParams, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
+@figure_generator("extrema")
+def plot_extrema(image_params: FigureParams, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     maxR = image_params.fields.view_bounds.bounds[1].upper

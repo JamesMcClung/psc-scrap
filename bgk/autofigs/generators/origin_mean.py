@@ -1,5 +1,5 @@
 from .. import util
-from ..image import ImageParams, image_generator
+from ..figure_generator import FigureParams, figure_generator
 
 # imports used for linting
 from matplotlib.figure import Figure
@@ -9,8 +9,8 @@ from matplotlib.pyplot import Axes
 __all__ = ["plot_origin_mean"]
 
 
-@image_generator("origin_mean")
-def plot_origin_mean(image_params: ImageParams, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
+@figure_generator("origin_mean")
+def plot_origin_mean(image_params: FigureParams, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     ax.set_xlabel("Time")

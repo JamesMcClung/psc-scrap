@@ -2,7 +2,7 @@ import scipy.signal as sig
 
 from .. import util
 from bgk.field_data import FieldData
-from ..image import ImageParams, image_generator
+from ..figure_generator import FigureParams, figure_generator
 
 # imports used for linting
 from matplotlib.figure import Figure
@@ -12,8 +12,8 @@ from matplotlib.pyplot import Axes
 __all__ = ["plot_periodogram"]
 
 
-@image_generator("periodogram")
-def plot_periodogram(image_params: ImageParams, fig: Figure = None, ax: Axes = None, annotate: bool = True) -> tuple[Figure, Axes]:
+@figure_generator("periodogram")
+def plot_periodogram(image_params: FigureParams, fig: Figure = None, ax: Axes = None, annotate: bool = True) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     data = image_params.fields.get_means_at_origin()

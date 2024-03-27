@@ -11,10 +11,10 @@ import bgk.autofigs.util as util
 from bgk.autofigs.history import History
 from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
-from bgk.autofigs.image import IMAGE_GENERATOR_REGISTRY
+from bgk.autofigs.figure_generator import FIGURE_GENERATOR_REGISTRY
 
-FIGURE_TYPES += list(IMAGE_GENERATOR_REGISTRY.keys())
-TRIVIAL_FIGURE_TYPES += list(IMAGE_GENERATOR_REGISTRY.keys())
+FIGURE_TYPES += list(FIGURE_GENERATOR_REGISTRY.keys())
+TRIVIAL_FIGURE_TYPES += list(FIGURE_GENERATOR_REGISTRY.keys())
 
 ########################################################
 
@@ -158,7 +158,7 @@ for item in config["instructions"]:
     nframes = item.get("nframes", 100)
     fields = bgk.FieldData(nframes, run_manager)
 
-    image_params = autofigs.ImageParams()
+    image_params = autofigs.FigureParams()
     image_params.fields = fields
 
     if item["periodic"]:
@@ -185,10 +185,10 @@ for item in config["instructions"]:
 
         ##########################
 
-        for image_fig_type in IMAGE_GENERATOR_REGISTRY:
+        for image_fig_type in FIGURE_GENERATOR_REGISTRY:
             if variable_name in item[image_fig_type]:
                 print(f"    Generating {image_fig_type}...")
-                fig, _ = IMAGE_GENERATOR_REGISTRY[image_fig_type].generate_image(image_params)
+                fig, _ = FIGURE_GENERATOR_REGISTRY[image_fig_type].generate_image(image_params)
                 util.save_fig(fig, get_fig_path(image_fig_type, variable_name, case), close=True)
 
         ##########################
