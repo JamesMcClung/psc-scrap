@@ -1,4 +1,3 @@
-from .periodogram import *
 from .sequence import *
 from .stability import *
 from .movie import *

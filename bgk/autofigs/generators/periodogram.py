@@ -1,8 +1,8 @@
 import scipy.signal as sig
 
-from . import util
+from .. import util
 from bgk.field_data import FieldData
-from .image import ImageParams, image_generator
+from ..image import ImageParams, image_generator
 
 # imports used for linting
 from matplotlib.figure import Figure
