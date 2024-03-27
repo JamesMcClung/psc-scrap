@@ -1,5 +1,5 @@
-from . import util
-from .image import image_generator, ImageParams
+from .. import util
+from ..image import image_generator, ImageParams
 
 # imports used for linting
 from matplotlib.figure import Figure
