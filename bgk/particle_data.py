@@ -41,7 +41,12 @@ class ParticleData:
         if not (fig or ax):
             fig, ax = plt.subplots()
 
-        binned_data, rho_edges, val_edges = np.histogram2d(self._data.col("rho"), self._data.col(var.h5_variable_name), bins=[60, 80])
+        binned_data, rho_edges, val_edges = np.histogram2d(
+            self._data.col("rho"),
+            self._data.col(var.h5_variable_name),
+            bins=[60, 80],
+            weights=self._data.col("w"),
+        )
         # n_particles in binned_data[rho, v_phi] = f(rho, v_phi) * 2*pi*rho * drho * dv_phi,
         #   where the factor of 2*pi*rho comes from the implicit integration over phi.
         # Want something proportional to f(rho, v_phi), so divide out rho.
