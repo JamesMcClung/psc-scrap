@@ -23,10 +23,11 @@ def _get_image_data(field_data: FieldData, frame: int, x_pos: float) -> xr.DataA
 def view_frame(
     field_data: FieldData,
     frame: int,
+    *,
     fig: Figure = None,
     ax: Axes = None,
-    draw_labels: bool = True,
     x_pos: float = 0,
+    draw_labels: bool = True,
     first_view: bool = True,
 ) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
@@ -52,12 +53,12 @@ def view_frame(
 
 
 def make_movie(field_data: FieldData, fig: Figure = None, ax: Axes = None, x_pos: float = 0) -> tuple[Figure, FuncAnimation]:
-    fig, ax = view_frame(field_data, 0, fig, ax, x_pos)
+    fig, ax = view_frame(field_data, 0, fig=fig, ax=ax, x_pos=x_pos)
     fig.tight_layout(pad=0)
     im = ax.get_images()[0]
 
     def update_im(frame: int):
-        view_frame(field_data, frame, fig, ax, x_pos, first_view=False)
+        view_frame(field_data, frame, fig=fig, ax=ax, x_pos=x_pos, first_view=False)
         return [im]
 
     return fig, FuncAnimation(fig, update_im, interval=30, frames=field_data.nframes, repeat=False, blit=True)
