@@ -25,9 +25,9 @@ class FigureGenerator:
         generator: Callable[[FigureParams, Figure | None, Axes | None], tuple[Figure, Axes]],
     ) -> None:
         super().__init__()
-        self.generate_image = generator
+        self.generate_figure = generator
 
-    def generate_image(params: FigureParams, fig: Figure | None = None, ax: Axes | None = None) -> tuple[Figure, Axes]:
+    def generate_figure(params: FigureParams, fig: Figure | None = None, ax: Axes | None = None) -> tuple[Figure, Axes]:
         pass
 
 
