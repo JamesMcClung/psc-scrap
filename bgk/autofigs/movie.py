@@ -1,15 +1,9 @@
-import matplotlib.pyplot as plt
-
-from . import util
-from bgk.field_data import FieldData
-
-from .snapshot_generator import SnapshotGenerator, SnapshotParams
-
-# imports used for linting
 from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 from matplotlib.animation import FuncAnimation
-import xarray as xr
+
+from ..field_data import FieldData
+from .snapshot_generator import SnapshotGenerator, SnapshotParams
 
 
 __all__ = ["make_movie"]
