@@ -25,7 +25,7 @@ def view_frame(
     frame: int,
     fig: Figure = None,
     ax: Axes = None,
-    minimal: bool = False,
+    draw_labels: bool = True,
     x_pos: float = 0,
     first_view: bool = True,
 ) -> tuple[Figure, Axes]:
@@ -40,7 +40,7 @@ def view_frame(
         extent=field_data.view_bounds.get_extent(),
     )
 
-    if not minimal:
+    if draw_labels:
         ax.set_xlabel("y")
         ax.set_ylabel("z")
         _update_title(ax, field_data, frame)
