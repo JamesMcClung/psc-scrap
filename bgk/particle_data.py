@@ -37,6 +37,7 @@ class ParticleData:
         ax: plt.Axes = None,
         minimal: bool = False,
         show_mean: bool = True,
+        show_theoretical_mean: bool = False,
     ) -> tuple[mplf.Figure, plt.Axes, mplc.QuadMesh]:
         if not (fig or ax):
             fig, ax = plt.subplots()
@@ -67,14 +68,17 @@ class ParticleData:
 
         ax.set_ylim(*var.val_bounds)
 
-        if show_mean:
+        if show_mean or show_theoretical_mean:
             vals_cc = (val_edges[1:] + val_edges[:-1]) / 2
 
-            mean_vals = fs2d.T.dot(vals_cc) / fs2d.sum(axis=0)
-            # mean_vals_input = np.array([self.input.interpolate_value(rho, "v_phi") for rho in rhos_cc])
+            if show_mean:
+                mean_vals = fs2d.T.dot(vals_cc) / fs2d.sum(axis=0)
+                ax.plot(rhos_cc, mean_vals, "k", label="mean")
 
-            ax.plot(rhos_cc, mean_vals, "k", label="mean")
-            # ax.plot(rhos_cc, mean_vals_input, "b", label="target mean")
+            if show_theoretical_mean:
+                mean_vals_input = np.array([self.input.interpolate_value(rho, "v_phi") for rho in rhos_cc])
+                ax.plot(rhos_cc, mean_vals_input, "b", label="theoretical mean")
+
             ax.legend(loc="right", fontsize="small")
 
         return fig, ax, mesh
