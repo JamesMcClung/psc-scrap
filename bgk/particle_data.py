@@ -27,7 +27,7 @@ class ParticleData:
     def read_step(self, step: int) -> None:
         self.t: float = load_bp(self.path, "pfd", step).time
 
-        self._data = load_h5(self.path, "prt", step).drop_columns(["id", "tag", "w", "id"]).drop_species("i").drop_corners()
+        self._data = load_h5(self.path, "prt", step).drop_columns(["id", "tag"]).drop_species("i").drop_corners()
         self.input = Input(self.inputFile)
 
     def plot_distribution(
