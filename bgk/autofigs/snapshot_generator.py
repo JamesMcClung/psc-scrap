@@ -9,6 +9,8 @@ from matplotlib.pyplot import Axes
 from ..field_data import FieldData
 from . import util
 
+__all__ = ["SNAPSHOT_GENERATOR_REGISTRY"]
+
 
 SNAPSHOT_GENERATOR_REGISTRY: dict[str, SnapshotGenerator] = {}
 
