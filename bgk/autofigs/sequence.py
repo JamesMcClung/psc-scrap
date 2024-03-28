@@ -25,7 +25,7 @@ class Sequence:
             width_ratios=[8] * len(times) + [1],
         )
 
-    def plot_row_pfd(self, row_idx: int, fields: FieldData, snapshot_generator: SnapshotGenerator) -> None:
+    def plot_row_pfd(self, row_idx: int, fields: FieldData, snapshot_generator: SnapshotGenerator[FieldData]) -> None:
         ax_row = self.ax_rows[row_idx]
         cmap_ax = ax_row[-1]
 

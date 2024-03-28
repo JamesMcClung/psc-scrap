@@ -2,15 +2,15 @@ from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 from matplotlib.animation import FuncAnimation
 
-from .snapshot_generator import SnapshotGenerator, SnapshotParams
+from .snapshot_generator import SnapshotGenerator, SnapshotParams, DATA
 
 
 __all__ = ["make_movie"]
 
 
 def make_movie(
-    params: SnapshotParams,
-    snapshot_generator: SnapshotGenerator,
+    params: SnapshotParams[DATA],
+    snapshot_generator: SnapshotGenerator[DATA],
     fig: Figure = None,
     ax: Axes = None,
 ) -> tuple[Figure, FuncAnimation]:

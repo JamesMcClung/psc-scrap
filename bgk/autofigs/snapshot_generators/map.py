@@ -2,6 +2,7 @@ from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 import matplotlib.pyplot as plt
 
+from ...field_data import FieldData
 from ..snapshot_generator import SnapshotParams, snapshot_generator
 from .. import util
 
@@ -10,7 +11,7 @@ __all__ = ["draw_map"]
 
 
 @snapshot_generator("map")
-def draw_map(params: SnapshotParams, fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
+def draw_map(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     im = ax.imshow(
