@@ -28,7 +28,7 @@ def view_frame(
     ax: Axes = None,
     x_pos: float = 0,
     draw_labels: bool = True,
-    first_view: bool = True,
+    draw_colorbar: bool = True,
 ) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
@@ -46,8 +46,9 @@ def view_frame(
         ax.set_ylabel("z")
         _update_title(ax, field_data, frame)
         plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
-        if first_view:
-            fig.colorbar(im, ax=ax)
+
+    if draw_colorbar:
+        fig.colorbar(im, ax=ax)
 
     return fig, ax
 
@@ -58,7 +59,7 @@ def make_movie(field_data: FieldData, fig: Figure = None, ax: Axes = None, x_pos
     im = ax.get_images()[0]
 
     def update_im(frame: int):
-        view_frame(field_data, frame, fig=fig, ax=ax, x_pos=x_pos, first_view=False)
+        view_frame(field_data, frame, fig=fig, ax=ax, x_pos=x_pos, draw_colorbar=False)
         return [im]
 
     return fig, FuncAnimation(fig, update_im, interval=30, frames=field_data.nframes, repeat=False, blit=True)
