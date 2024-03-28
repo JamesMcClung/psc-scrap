@@ -1,16 +1,20 @@
-from dataclasses import dataclass as _dataclass
 from math import pi as _pi
 
 from .typing import H5WrapperVariableName as _H5WrapperVariableName
+from .variable import Variable as _Variable
 
 
-@_dataclass
-class ParticleVariable:
-    name: str
-    latex: str
-    h5_variable_name: _H5WrapperVariableName
-    val_bounds: tuple[float | None, float | None] = (None, None)
-    cmap_name: str = "Reds"
+class ParticleVariable(_Variable):
+    def __init__(
+        self,
+        name: str,
+        latex: str,
+        h5_variable_name: _H5WrapperVariableName,
+        val_bounds: tuple[float | None, float | None] = (None, None),
+    ) -> None:
+        super().__init__(name, latex, "prt", False, "Reds")
+        self.h5_variable_name = h5_variable_name
+        self.val_bounds = val_bounds
 
 
 x = ParticleVariable("x", "x", "x")
