@@ -1,9 +1,15 @@
+from __future__ import annotations
+
 from typing import Callable
 
 from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 
 from ..field_data import FieldData
+from . import util
+
+
+SNAPSHOT_GENERATOR_REGISTRY: dict[str, SnapshotGenerator] = {}
 
 
 class SnapshotParams:
@@ -20,3 +26,16 @@ class SnapshotGenerator:
 
     def draw_snapshot(self, params: SnapshotParams, fig: Figure | None = None, ax: Axes | None = None):
         return self._generator(params, fig, ax)
+
+
+def snapshot_generator(snapshot_name: str):
+    def figure_generator_inner(func: Callable[[SnapshotParams, Figure, Axes], tuple[Figure, Axes]]):
+        def wrapper(params: SnapshotParams, fig: Figure | None = None, ax: Axes | None = None):
+            fig, ax = util.ensure_fig_ax(fig, ax)
+            return func(params, fig, ax)
+
+        SNAPSHOT_GENERATOR_REGISTRY[snapshot_name] = SnapshotGenerator(wrapper)
+
+        return func  # returning func instead of wrapper, so actual function isn't modified
+
+    return figure_generator_inner
