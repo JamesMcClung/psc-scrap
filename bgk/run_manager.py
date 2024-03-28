@@ -143,7 +143,7 @@ class RunDiagnostics:
 class FrameManager(metaclass=ABCMeta):
     def __init__(self, run_manager: RunManager, nframes: int, variables: list[FieldVariable]) -> None:
         self._run_manager = run_manager
-        self._prefixes = {var.prefix_bp for var in variables}
+        self._prefixes = {var.prefix for var in variables}
         self._interval_all = Stream(self._prefixes).map(run_manager.get_interval).reduce(lcm)
         self._last_step = Stream(self._prefixes).map(run_manager.get_max_step).reduce(min)
 
@@ -151,7 +151,7 @@ class FrameManager(metaclass=ABCMeta):
         self.steps = self._get_steps()
         assert nframes == len(self.steps)
 
-        if Stream(variables).map(lambda var: var.skip_first).any():
+        if Stream(variables).map(lambda var: var.skip_first_step).any():
             self.steps[0] = self._interval_all
 
     @abstractmethod
