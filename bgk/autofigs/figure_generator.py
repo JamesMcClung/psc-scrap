@@ -31,13 +31,13 @@ class FigureGenerator:
         pass
 
 
-def figure_generator(image_file_name: str):
+def figure_generator(figure_name: str):
     def figure_generator_inner(func: Callable[[FigureParams, Figure, Axes], tuple[Figure, Axes]]):
         def wrapper(params: FigureParams, fig: Figure | None = None, ax: Axes | None = None):
             fig, ax = util.ensure_fig_ax(fig, ax)
             return func(params, fig, ax)
 
-        FIGURE_GENERATOR_REGISTRY[image_file_name] = FigureGenerator(wrapper)
+        FIGURE_GENERATOR_REGISTRY[figure_name] = FigureGenerator(wrapper)
 
         return func  # returning func instead of wrapper, so actual function isn't modified
 
