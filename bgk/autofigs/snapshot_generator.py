@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Callable
 
 from matplotlib.figure import Figure
@@ -15,13 +14,15 @@ __all__ = ["SNAPSHOT_GENERATOR_REGISTRY", "SnapshotParams"]
 SNAPSHOT_GENERATOR_REGISTRY: dict[str, SnapshotGenerator] = {}
 
 
-@dataclass
 class SnapshotParams:
-    fields: FieldData
-    frame: int
-    x_pos: float
-    draw_colorbar: bool
-    draw_labels: bool
+    def __init__(self, data: FieldData, x_pos: float, *, frame: int = None, draw_colorbar: bool = None, draw_labels: bool = None) -> None:
+        self.data = data
+        self.x_pos = x_pos
+        self.frame_manager = data.frame_manager
+
+        self.frame = frame
+        self.draw_colorbar = draw_colorbar
+        self.draw_labels = draw_labels
 
 
 class SnapshotGenerator:

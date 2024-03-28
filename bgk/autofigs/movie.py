@@ -28,4 +28,4 @@ def make_movie(
         snapshot_generator.draw_snapshot(params, fig, ax)
         return [im]
 
-    return fig, FuncAnimation(fig, update_im, interval=30, frames=params.fields.nframes, repeat=False, blit=True)
+    return fig, FuncAnimation(fig, update_im, interval=30, frames=params.frame_manager.nframes, repeat=False, blit=True)

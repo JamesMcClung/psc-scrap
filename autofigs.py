@@ -196,7 +196,7 @@ for item in config["instructions"]:
         if variable_name in item["videos"]:
             print(f"    Generating movie...")
 
-            params = bgk.autofigs.SnapshotParams(fields, None, 0.0, None, None)
+            params = bgk.autofigs.SnapshotParams(fields, 0.0)
             fig, movie = autofigs.make_movie(params, bgk.autofigs.SNAPSHOT_GENERATOR_REGISTRY["map"])
             movie.save(get_fig_path("movie", variable_name, case), dpi=450)
             plt.close(fig)

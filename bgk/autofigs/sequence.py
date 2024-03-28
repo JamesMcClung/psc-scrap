@@ -29,7 +29,7 @@ class Sequence:
         ax_row = self.ax_rows[row_idx]
         cmap_ax = ax_row[-1]
 
-        params = SnapshotParams(fields, 0, 0, False, False)
+        params = SnapshotParams(fields, 0.0, draw_labels=False, draw_colorbar=False)
         for ax, step, time in zip(ax_row, self.steps, self.times):
             params.frame = 0 if step == 0 else fields.frame_manager.steps.index(step)  # sometimes step 0 is skipped
             snapshot_generator.draw_snapshot(params, self.fig, ax)

@@ -14,18 +14,18 @@ def draw_map(params: SnapshotParams, fig: Figure = None, ax: Axes = None) -> tup
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     im = ax.imshow(
-        params.fields.datas.isel(t=params.frame).sel(x=params.x_pos).transpose(),
-        cmap=params.fields.variable.cmap_name,
-        vmin=params.fields._val_bounds[0],
-        vmax=params.fields._val_bounds[1],
+        params.data.datas.isel(t=params.frame).sel(x=params.x_pos).transpose(),
+        cmap=params.data.variable.cmap_name,
+        vmin=params.data._val_bounds[0],
+        vmax=params.data._val_bounds[1],
         origin="lower",
-        extent=params.fields.view_bounds.get_extent(),
+        extent=params.data.view_bounds.get_extent(),
     )
 
     if params.draw_labels:
         ax.set_xlabel("y")
         ax.set_ylabel("z")
-        ax.set_title(f"{params.fields.view_bounds.adjective}${params.fields.variable.latex}$, t={params.fields.axis_t[params.frame]:.3f} ($B_0={params.fields.params_record.B0}$, {params.fields.case_name})")
+        ax.set_title(f"{params.data.view_bounds.adjective}${params.data.variable.latex}$, t={params.data.axis_t[params.frame]:.3f} ($B_0={params.data.params_record.B0}$, {params.data.case_name})")
         plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
 
     if params.draw_colorbar:
