@@ -20,7 +20,15 @@ def _get_image_data(field_data: FieldData, frame: int, x_pos: float) -> xr.DataA
     return field_data.datas.isel(t=frame).sel(x=x_pos).transpose()
 
 
-def view_frame(field_data: FieldData, frame: int, fig: Figure = None, ax: Axes = None, minimal: bool = False, x_pos: float = 0) -> tuple[Figure, Axes]:
+def view_frame(
+    field_data: FieldData,
+    frame: int,
+    fig: Figure = None,
+    ax: Axes = None,
+    minimal: bool = False,
+    x_pos: float = 0,
+    first_view: bool = True,
+) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     im = ax.imshow(
@@ -37,7 +45,8 @@ def view_frame(field_data: FieldData, frame: int, fig: Figure = None, ax: Axes =
         ax.set_ylabel("z")
         _update_title(ax, field_data, frame)
         plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
-        fig.colorbar(im, ax=ax)
+        if first_view:
+            fig.colorbar(im, ax=ax)
 
     return fig, ax
 
@@ -48,8 +57,7 @@ def make_movie(field_data: FieldData, fig: Figure = None, ax: Axes = None, x_pos
     im = ax.get_images()[0]
 
     def update_im(frame: int):
-        im.set_array(_get_image_data(field_data, frame, x_pos))
-        _update_title(ax, field_data, frame)
+        view_frame(field_data, frame, fig, ax, x_pos, first_view=False)
         return [im]
 
     return fig, FuncAnimation(fig, update_im, interval=30, frames=field_data.nframes, repeat=False, blit=True)
