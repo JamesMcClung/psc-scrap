@@ -196,7 +196,7 @@ for item in config["instructions"]:
         if variable_name in item["videos"]:
             print(f"    Generating movie...")
 
-            fig, movie = autofigs.make_movie(fields)
+            fig, movie = autofigs.make_movie(fields, bgk.autofigs.SNAPSHOT_GENERATOR_REGISTRY["map"])
             movie.save(get_fig_path("movie", variable_name, case), dpi=450)
             plt.close(fig)
 
@@ -228,7 +228,7 @@ for item in config["instructions"]:
                 else:
                     fields.set_variable(var)
                     fields.set_view_bounds(view_bounds)
-                    seq.plot_row_pfd(i, fields)
+                    seq.plot_row_pfd(i, fields, bgk.autofigs.SNAPSHOT_GENERATOR_REGISTRY["map"])
 
             names_latex = ", ".join(f"f({bgk.particle_variables.rho.latex}, {var.latex})" if isinstance(var, bgk.ParticleVariable) else f"{var.latex}(y, z)" for var in vars)
             util.save_fig(seq.get_fig(f"Snapshots of ${names_latex}$ for $B_0={params_record.B0}$ {figure_params.duration_in_title}"), get_fig_path("sequence", ",".join(var_names).replace(":", ""), case), close=True)
