@@ -71,7 +71,7 @@ class FieldData:
         return self.datas.rho
 
     def set_variable(self, variable: FieldVariable) -> None:
-        if hasattr(self, "param") and variable == self.variable:
+        if hasattr(self, "variable") and variable == self.variable:
             return
         self.variable = variable
         self._centering = "nc" if variable.prefix_bp == "pfd" else "cc"
