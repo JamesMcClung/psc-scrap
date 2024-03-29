@@ -8,13 +8,13 @@ def safe_cached_property_invalidation(cls):
 
     cls._CACHED_ATTRS = [k for k, v in cls.__dict__.items() if isinstance(v, cached_property)]
 
+    # note: don't use hasattr. It calls getattr, which triggers the cached_property to create and cache the attribute.
     def safe_delete(self: cls, name: str):
-        if hasattr(self, name):
+        try:
             super(cls, self).__delattr__(name)
-        elif name in cls._CACHED_ATTRS:
-            return
-        else:
-            raise AttributeError(obj=self, name=name)
+        except AttributeError as e:
+            if name not in cls._CACHED_ATTRS:
+                raise e
 
     cls.__delattr__ = safe_delete
     return cls
