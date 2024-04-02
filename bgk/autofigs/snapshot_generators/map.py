@@ -13,15 +13,20 @@ __all__ = ["draw_map"]
 @snapshot_generator("map")
 def draw_map(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
+    data = params.data.datas.isel(t=params.frame).sel(x=params.x_pos).transpose()
 
-    im = ax.imshow(
-        params.data.datas.isel(t=params.frame).sel(x=params.x_pos).transpose(),
-        cmap=params.data.variable.cmap_name,
-        vmin=params.data._val_bounds[0],
-        vmax=params.data._val_bounds[1],
-        origin="lower",
-        extent=params.data.view_bounds.get_extent(),
-    )
+    if params.set_image_only:
+        im = ax.get_images()[0]
+        im.set_data(data)
+    else:
+        im = ax.imshow(
+            data,
+            cmap=params.data.variable.cmap_name,
+            vmin=params.data._val_bounds[0],
+            vmax=params.data._val_bounds[1],
+            origin="lower",
+            extent=params.data.view_bounds.get_extent(),
+        )
 
     if params.draw_labels:
         ax.set_xlabel("y")
