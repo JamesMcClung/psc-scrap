@@ -70,4 +70,9 @@ class Input:
         return (self[val][idx] * w0 + self[val][idx + 1] * w1) / (self.rho[idx + 1] - self.rho[idx])
 
     def get_radius_of_structure(self) -> float:
-        return self.rho[np.argmax(self.ne)] * 1.5
+        if self.rho[0] < 1:
+            return self.rho[np.argmax(self.ne)] * 1.5
+        elif self.rho[0] > 1:
+            return self.rho[np.argmin(self.ne)] * 1.5
+        else:
+            raise Exception("unrecognized structure")
