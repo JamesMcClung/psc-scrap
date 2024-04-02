@@ -26,7 +26,7 @@ class FieldData:
 
     def _get_data(self, frame: int) -> xr.DataArray:
         var = self.variable
-        dataset = load_bp(self.run_manager.path_run, var.prefix_bp, self.frame_manager.steps[frame])
+        dataset = load_bp(self.run_manager.path_run, var.prefix, self.frame_manager.steps[frame])
         c = self._centering
 
         if not var.shift_hole_center:
@@ -74,7 +74,7 @@ class FieldData:
         if hasattr(self, "variable") and variable == self.variable:
             return
         self.variable = variable
-        self._centering = "nc" if variable.prefix_bp == "pfd" else "cc"
+        self._centering = "nc" if variable.prefix == "pfd" else "cc"
         self._last_lmin = 0, 0
         del self.frame_manager
         del self.datas

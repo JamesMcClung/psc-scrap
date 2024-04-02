@@ -15,5 +15,6 @@ from . import particle_variables
 from .particle_variables import ParticleVariable
 from .params_record import *
 from .run_manager import *
+from .variable import *
 
 from . import autofigs

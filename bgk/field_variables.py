@@ -1,9 +1,9 @@
-from dataclasses import dataclass as _dataclass
 from typing import Callable as _Callable, ParamSpec as _ParamSpec
 
 from xarray import DataArray as _DataArray
 
 from .typing import PrefixBp as _PrefixBp, BpVariableName as _BpVariableName
+from .variable import Variable as _Variable
 
 # stuff for data mappers
 
@@ -60,24 +60,26 @@ def _azimuthal_component(datas: list[_DataArray], hole_center: _HoleCenter = (0,
     return raw_data.fillna(0)
 
 
-@_dataclass
-class FieldVariable:
-    name: str
-    latex: str
-    prefix_bp: _PrefixBp
-    bp_variable_names: list[_BpVariableName]
-    val_bounds: tuple[float | None, float | None] = (None, None)
-    data_mapper: _MultiVarMapper | _ShiftedMultiVarMapper = _identity
-    shift_hole_center: bool = False
-
-    @property
-    def skip_first(self) -> bool:
+class FieldVariable(_Variable):
+    def __init__(
+        self,
+        name: str,
+        latex: str,
+        prefix: _PrefixBp,
+        bp_variable_names: list[_BpVariableName],
+        val_bounds: tuple[float | None, float | None] = (None, None),
+        data_mapper: _MultiVarMapper | _ShiftedMultiVarMapper = _identity,
+        shift_hole_center: bool = False,
+    ) -> None:
         # "pfd.*.bp" files are technically written at t=0, but they're all 0s because PSC doesn't calculate them until it does a time step
-        return self.prefix_bp == "pfd"
+        skip_first_step = prefix == "pfd"
+        cmap_name = "inferno" if 0 in val_bounds else "RdBu_r"
+        super().__init__(name, latex, prefix, skip_first_step, cmap_name)
 
-    @property
-    def cmap_name(self) -> str:
-        return "inferno" if 0 in self.val_bounds else "RdBu_r"
+        self.bp_variable_names = bp_variable_names
+        self.val_bounds = val_bounds
+        self.data_mapper = data_mapper
+        self.shift_hole_center = shift_hole_center
 
 
 # pfd

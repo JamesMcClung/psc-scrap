@@ -13,7 +13,7 @@ from .util.stream import Stream
 from .typing import PrefixBp, PrefixH5
 from .backend.wrapper_bp import load_bp
 from .input_reader import Input, get_B0
-from .field_variables import FieldVariable
+from .variable import Variable
 
 
 def _get_files_by_extension(path: str, extension: str) -> list[str]:
@@ -91,7 +91,7 @@ class RunManager:
         self,
         frame_manager_type: Type[FrameManager],
         nframes: int,
-        variables: list[FieldVariable],
+        variables: list[Variable],
     ) -> FrameManager:
         return frame_manager_type(self, nframes, variables)
 
@@ -141,9 +141,9 @@ class RunDiagnostics:
 
 
 class FrameManager(metaclass=ABCMeta):
-    def __init__(self, run_manager: RunManager, nframes: int, variables: list[FieldVariable]) -> None:
+    def __init__(self, run_manager: RunManager, nframes: int, variables: list[Variable]) -> None:
         self._run_manager = run_manager
-        self._prefixes = {var.prefix_bp for var in variables}
+        self._prefixes = {var.prefix for var in variables}
         self._interval_all = Stream(self._prefixes).map(run_manager.get_interval).reduce(lcm)
         self._last_step = Stream(self._prefixes).map(run_manager.get_max_step).reduce(min)
 
@@ -151,7 +151,7 @@ class FrameManager(metaclass=ABCMeta):
         self.steps = self._get_steps()
         assert nframes == len(self.steps)
 
-        if Stream(variables).map(lambda var: var.skip_first).any():
+        if Stream(variables).map(lambda var: var.skip_first_step).any():
             self.steps[0] = self._interval_all
 
     @abstractmethod
@@ -172,7 +172,7 @@ class FrameManager(metaclass=ABCMeta):
 
 
 class FrameManagerLinear(FrameManager):
-    def __init__(self, run_manager: RunManager, nframes: int, variables: list[FieldVariable]) -> None:
+    def __init__(self, run_manager: RunManager, nframes: int, variables: list[Variable]) -> None:
         super().__init__(run_manager, nframes, variables)
 
     def _get_steps(self) -> list[int]:
@@ -207,7 +207,7 @@ def _remove_duplicates(steps: list[int]) -> list[int]:
 
 
 class FrameManagerNearest(FrameManager):
-    def __init__(self, run_manager: RunManager, nframes: int, variables: list[FieldVariable]) -> None:
+    def __init__(self, run_manager: RunManager, nframes: int, variables: list[Variable]) -> None:
         super().__init__(run_manager, nframes, variables)
 
     def _get_steps(self) -> list[int]:
