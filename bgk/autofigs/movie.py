@@ -12,44 +12,54 @@ import xarray as xr
 __all__ = ["make_movie", "view_frame"]
 
 
-def _update_title(ax: Axes, videoMaker: FieldData, frame: int) -> None:
-    ax.set_title(f"{videoMaker.view_bounds.adjective}${videoMaker.variable.latex}$, t={videoMaker.axis_t[frame]:.3f} ($B_0={videoMaker.params_record.B0}$, {videoMaker.case_name})")
+def _update_title(ax: Axes, field_data: FieldData, frame: int) -> None:
+    ax.set_title(f"{field_data.view_bounds.adjective}${field_data.variable.latex}$, t={field_data.axis_t[frame]:.3f} ($B_0={field_data.params_record.B0}$, {field_data.case_name})")
 
 
-def _get_image_data(videoMaker: FieldData, frame: int, x_pos: float) -> xr.DataArray:
-    return videoMaker.datas.isel(t=frame).sel(x=x_pos).transpose()
+def _get_image_data(field_data: FieldData, frame: int, x_pos: float) -> xr.DataArray:
+    return field_data.datas.isel(t=frame).sel(x=x_pos).transpose()
 
 
-def view_frame(videoMaker: FieldData, frame: int, fig: Figure = None, ax: Axes = None, minimal: bool = False, x_pos: float = 0) -> tuple[Figure, Axes]:
+def view_frame(
+    field_data: FieldData,
+    frame: int,
+    *,
+    fig: Figure = None,
+    ax: Axes = None,
+    x_pos: float = 0,
+    draw_labels: bool = True,
+    draw_colorbar: bool = True,
+) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
 
     im = ax.imshow(
-        _get_image_data(videoMaker, frame, x_pos),
-        cmap=videoMaker.variable.cmap_name,
-        vmin=videoMaker._val_bounds[0],
-        vmax=videoMaker._val_bounds[1],
+        _get_image_data(field_data, frame, x_pos),
+        cmap=field_data.variable.cmap_name,
+        vmin=field_data._val_bounds[0],
+        vmax=field_data._val_bounds[1],
         origin="lower",
-        extent=videoMaker.view_bounds.get_extent(),
+        extent=field_data.view_bounds.get_extent(),
     )
 
-    if not minimal:
+    if draw_labels:
         ax.set_xlabel("y")
         ax.set_ylabel("z")
-        _update_title(ax, videoMaker, frame)
+        _update_title(ax, field_data, frame)
         plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
+
+    if draw_colorbar:
         fig.colorbar(im, ax=ax)
 
     return fig, ax
 
 
-def make_movie(videoMaker: FieldData, fig: Figure = None, ax: Axes = None, x_pos: float = 0) -> tuple[Figure, FuncAnimation]:
-    fig, ax = view_frame(videoMaker, 0, fig, ax, x_pos)
+def make_movie(field_data: FieldData, fig: Figure = None, ax: Axes = None, x_pos: float = 0) -> tuple[Figure, FuncAnimation]:
+    fig, ax = view_frame(field_data, 0, fig=fig, ax=ax, x_pos=x_pos)
     fig.tight_layout(pad=0)
     im = ax.get_images()[0]
 
     def update_im(frame: int):
-        im.set_array(_get_image_data(videoMaker, frame, x_pos))
-        _update_title(ax, videoMaker, frame)
+        view_frame(field_data, frame, fig=fig, ax=ax, x_pos=x_pos, draw_colorbar=False)
         return [im]
 
-    return fig, FuncAnimation(fig, update_im, interval=30, frames=videoMaker.nframes, repeat=False, blit=True)
+    return fig, FuncAnimation(fig, update_im, interval=30, frames=field_data.nframes, repeat=False, blit=True)
