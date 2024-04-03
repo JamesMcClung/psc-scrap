@@ -34,7 +34,7 @@ ion false
 T_i 1e-12
 
 # Do touch
-path_to_data /mnt/lustre/IAM851/jm1667/psc/inputs/bgk/case1-B={B}-input.txt
+path_to_data /mnt/lustre/IAM851/jm1667/psc-scrap/inputs/case1-B={B}-input.txt
 
 H_x {B}
 rel_box_size 1
