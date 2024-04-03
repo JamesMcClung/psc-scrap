@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from matplotlib import pyplot as plt
 import matplotlib.figure as mplf
 import matplotlib.collections as mplc
@@ -31,7 +33,10 @@ class ParticleData:
         self.t: float = load_bp(self.path, "pfd", step).time
 
         self._data = load_h5(self.path, "prt", step).drop_columns(["id", "tag"]).drop_species("i").drop_corners()
-        self.input = Input(self.inputFile)
+
+    @cached_property
+    def input(self) -> Input:
+        return Input(self.inputFile)
 
     def set_variable(self, variable: ParticleVariable):
         self.variable = variable
