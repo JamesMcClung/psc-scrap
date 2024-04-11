@@ -17,10 +17,19 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
     fig, ax = util.ensure_fig_ax(fig, ax)
     params.data.set_step(params.step)
 
+    if params.set_data_only:
+        # retrieve coordinates from previous mesh and use them for binning
+        mesh: QuadMesh = ax.collections[0]
+        coords = mesh.get_coordinates()  # array of dimension (nrows, ncols, 2), where nrows/ncols refers to mesh vertices and 2 is x/y
+        bins = [coords[0, :, 0], coords[:, 0, 1]]
+    else:
+        bins = [60, 80]
+
+    val_edges = np.linspace(-3e-3, 3e-3, 60)
     binned_data, rho_edges, val_edges = np.histogram2d(
         params.data.col("rho"),
         params.data.col(params.data.variable.h5_variable_name),
-        bins=[60, 80],
+        bins=bins,
         weights=params.data.col("w"),
     )
     # n_particles in binned_data[rho, v_phi] = f(rho, v_phi) * 2*pi*rho * drho * dv_phi,
@@ -34,7 +43,6 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
     # now: fs2d[v_phi, rho] = f(rho, v_phi) * consts
 
     if params.set_data_only:
-        mesh: QuadMesh = ax.collections[0]
         mesh.set_array(fs2d)
     else:
         mesh = ax.pcolormesh(rho_edges, val_edges, fs2d, cmap=params.data.variable.cmap_name)
