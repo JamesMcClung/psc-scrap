@@ -19,8 +19,6 @@ DATA = TypeVar("DATA", FieldData, ParticleData)
 
 
 class SnapshotParams(Generic[DATA]):
-    frame_manager: FrameManager
-
     def __init__(
         self,
         data: DATA,
@@ -31,14 +29,11 @@ class SnapshotParams(Generic[DATA]):
         draw_labels: bool = None,
         set_image_only: bool = False,
     ) -> None:
+        if not isinstance(data, (FieldData, ParticleData)):
+            raise TypeError()
+
         self.data = data
         self.x_pos = x_pos
-        if isinstance(data, FieldData):
-            self.frame_manager = data.frame_manager
-        elif isinstance(data, ParticleData):
-            raise NotImplementedError()
-        else:
-            raise TypeError()
 
         self.step = step
         self.draw_colorbar = draw_colorbar
