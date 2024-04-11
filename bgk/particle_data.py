@@ -37,7 +37,6 @@ class ParticleData:
 
     def plot_distribution(
         self,
-        var: ParticleVariable,
         fig: mplf.Figure = None,
         ax: plt.Axes = None,
         minimal: bool = False,
@@ -49,7 +48,7 @@ class ParticleData:
 
         binned_data, rho_edges, val_edges = np.histogram2d(
             self._data.col("rho"),
-            self._data.col(var.h5_variable_name),
+            self._data.col(self.variable.h5_variable_name),
             bins=[60, 80],
             weights=self._data.col("w"),
         )
@@ -63,15 +62,15 @@ class ParticleData:
         fs2d = binned_data.T / rhos_cc
         # now: fs2d[v_phi, rho] = f(rho, v_phi) * consts
 
-        mesh = ax.pcolormesh(rho_edges, val_edges, fs2d, cmap=var.cmap_name)
+        mesh = ax.pcolormesh(rho_edges, val_edges, fs2d, cmap=self.variable.cmap_name)
 
         if not minimal:
             ax.set_xlabel("$\\rho$")
-            ax.set_ylabel(f"${var.latex}$")
-            ax.set_title(f"$f(\\rho, {var.latex})$ at t={self.t:.3f} for $B={self.B}$")
+            ax.set_ylabel(f"${self.variable.latex}$")
+            ax.set_title(f"$f(\\rho, {self.variable.latex})$ at t={self.t:.3f} for $B={self.B}$")
             fig.colorbar(mesh)
 
-        ax.set_ylim(*var.val_bounds)
+        ax.set_ylim(*self.variable.val_bounds)
 
         if show_mean or show_theoretical_mean:
             vals_cc = (val_edges[1:] + val_edges[:-1]) / 2

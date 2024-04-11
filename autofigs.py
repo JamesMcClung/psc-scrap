@@ -225,7 +225,8 @@ for item in config["instructions"]:
             for i, var in enumerate(vars):
                 print(f"      Loading {var.name}...")
                 if isinstance(var, bgk.ParticleVariable):
-                    seq.plot_row_prt(i, particles, var)
+                    particles.set_variable(var)
+                    seq.plot_row_prt(i, particles)
                 else:
                     fields.set_variable(var)
                     fields.set_view_bounds(view_bounds)

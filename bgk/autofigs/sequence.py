@@ -39,12 +39,12 @@ class Sequence:
         cmap_ax.set_aspect("auto")
         self.fig.colorbar(ax.get_images()[0], cax=cmap_ax)
 
-    def plot_row_prt(self, row_idx: int, particles: ParticleData, var: ParticleVariable) -> None:
+    def plot_row_prt(self, row_idx: int, particles: ParticleData) -> None:
         ax_row = self.ax_rows[row_idx]
         cmap_ax = ax_row[-1]
         for step, ax, time in zip(self.steps, ax_row, self.times):
             particles.read_step(step)
-            _, _, mesh = particles.plot_distribution(var, self.fig, ax, minimal=True, show_mean=True)
+            _, _, mesh = particles.plot_distribution(self.fig, ax, minimal=True, show_mean=True)
             ax.set_title(f"$t={time}$" if row_idx == 0 else "")
             ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
             ax.set_aspect("auto")
