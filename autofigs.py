@@ -13,9 +13,6 @@ from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
 
 from bgk.autofigs.figure_generator import FIGURE_GENERATOR_REGISTRY
 
-FIGURE_TYPES += list(FIGURE_GENERATOR_REGISTRY.keys())
-TRIVIAL_FIGURE_TYPES += list(FIGURE_GENERATOR_REGISTRY.keys())
-
 ########################################################
 
 _VALID_FLAGS = {"save", "only", "warn"}

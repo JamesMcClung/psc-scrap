@@ -1,3 +1,6 @@
+from . import generators as _
+from .figure_generator import FIGURE_GENERATOR_REGISTRY
+
 # Parameters that affect all figures
 SETTINGS = ["nframes", "slice", "periodic", "output_directory"]
 
@@ -5,7 +8,7 @@ SETTINGS = ["nframes", "slice", "periodic", "output_directory"]
 METASETTINGS = ["suite"]
 
 # Types of figures that can be specified by a single string, e.g. "ne"
-TRIVIAL_FIGURE_TYPES = ["videos"]
+TRIVIAL_FIGURE_TYPES = ["videos"] + list(FIGURE_GENERATOR_REGISTRY.keys())
 
 # Types of figures that require more than just a string, e.g. ["ne", "prt:v_phi"]
 NONTRIVIAL_FIGURE_TYPES = ["sequences"]
