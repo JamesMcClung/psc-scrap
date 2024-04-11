@@ -1,4 +1,5 @@
 from matplotlib.artist import Artist
+from matplotlib.collections import QuadMesh
 from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 import numpy as np
@@ -32,7 +33,12 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
     fs2d = binned_data.T / rhos_cc
     # now: fs2d[v_phi, rho] = f(rho, v_phi) * consts
 
-    mesh = ax.pcolormesh(rho_edges, val_edges, fs2d, cmap=params.data.variable.cmap_name)
+    if params.set_data_only:
+        mesh: QuadMesh = ax.collections[0]
+        mesh.set_array(fs2d)
+    else:
+        mesh = ax.pcolormesh(rho_edges, val_edges, fs2d, cmap=params.data.variable.cmap_name)
+    artists = [mesh]
 
     if params.draw_labels:
         ax.set_xlabel("$\\rho$")
@@ -53,12 +59,21 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
 
         if show_mean:
             mean_vals = fs2d.T.dot(vals_cc) / fs2d.sum(axis=0)
-            ax.plot(rhos_cc, mean_vals, "k", label="mean")
+            if params.set_data_only:
+                ax.get_lines()[0].set_data(rhos_cc, mean_vals)
+            else:
+                ax.plot(rhos_cc, mean_vals, "k", label="mean")
 
         if show_theoretical_mean:
             mean_vals_input = np.array([params.data.input.interpolate_value(rho, "v_phi") for rho in rhos_cc])
-            ax.plot(rhos_cc, mean_vals_input, "b", label="theoretical mean")
+            if params.set_data_only:
+                ax.get_lines()[-1].set_data(rhos_cc, mean_vals_input)
+            else:
+                ax.plot(rhos_cc, mean_vals_input, "b", label="theoretical mean")
 
-        ax.legend(loc="right", fontsize="small")
+        artists += ax.get_lines()
 
-    return fig, ax, [mesh]
+        if not params.set_data_only:
+            ax.legend(loc="right", fontsize="small")
+
+    return fig, ax, artists
