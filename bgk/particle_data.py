@@ -19,7 +19,6 @@ __all__ = ["ParticleData"]
 class ParticleData:
     def __init__(self, run_manager: RunManager, initial_variable: ParticleVariable = v_phi) -> None:
         self.run_manager = run_manager
-        self.path = run_manager.path_run
         params_record = self.run_manager.params_record
 
         self.inputFile = params_record.path_input
@@ -30,9 +29,8 @@ class ParticleData:
         self.set_variable(initial_variable)
 
     def read_step(self, step: int) -> None:
-        self.t: float = load_bp(self.path, "pfd", step).time
-
-        self._data = load_h5(self.path, "prt", step).drop_columns(["id", "tag"]).drop_species("i").drop_corners()
+        self.t: float = load_bp(self.run_manager.path_run, "pfd", step).time
+        self._data = load_h5(self.run_manager.path_run, "prt", step).drop_columns(["id", "tag"]).drop_species("i").drop_corners()
 
     @cached_property
     def input(self) -> Input:
