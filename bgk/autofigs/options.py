@@ -1,4 +1,4 @@
-from . import generators as _
+from . import figure_generators as _
 from .figure_generator import FIGURE_GENERATOR_REGISTRY
 
 # Parameters that affect all figures
