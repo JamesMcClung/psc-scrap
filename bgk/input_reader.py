@@ -21,6 +21,14 @@ InputColumnName = Literal["rho", "ne", "v_phi", "Te", "E_rho", "Psi"]
 
 class Input:
     def __init__(self, path_input: str) -> None:
+        if not os.path.exists(path_input):
+            # Input files were removed from the psc repo and added to this (psc-scrap) repo.
+            # For convenience, this guesses the new location. The psc and psc-scrap repos must be in the same directory,
+            #   and psc-scrap must actually have the inputs.
+            moved_path_input = path_input.replace("psc/inputs/bgk/", "psc-scrap/inputs/")
+            if not os.path.exists(moved_path_input):
+                raise FileNotFoundError(f"Can't find input file! Checked '{path_input}' and '{moved_path_input}', but it wasn't at either location.")
+            path_input = moved_path_input
         self.path_input = path_input
         with open(path_input) as input:
             labels = input.readline().split()
