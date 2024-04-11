@@ -13,6 +13,7 @@ __all__ = ["draw_histogram"]
 @snapshot_generator("histogram")
 def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
+    params.data.read_step(params.step)
 
     binned_data, rho_edges, val_edges = np.histogram2d(
         params.data._data.col("rho"),
