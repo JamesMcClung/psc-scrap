@@ -22,6 +22,7 @@ def make_movie(
     im = ax.get_images()[0]
 
     params.draw_colorbar = False
+    params.set_image_only = True
 
     def update_im(frame: int):
         params.frame = frame
