@@ -197,7 +197,7 @@ for item in config["instructions"]:
             print(f"    Generating movie...")
 
             params = bgk.autofigs.SnapshotParams(fields, 0.0)
-            fig, movie = autofigs.make_movie(params, bgk.autofigs.SNAPSHOT_GENERATOR_REGISTRY["image"])
+            fig, movie = autofigs.make_movie(nframes, params, bgk.autofigs.SNAPSHOT_GENERATOR_REGISTRY["image"])
             movie.save(get_fig_path("movie", variable_name, case), dpi=450)
             plt.close(fig)
 
@@ -214,7 +214,7 @@ for item in config["instructions"]:
 
         times = fields.axis_t[frames]
         steps = [fields.frame_manager.steps[frame] for frame in frames]
-        particles = bgk.ParticleData(path)
+        particles = bgk.ParticleData(run_manager)
 
         for var_names in item["sequences"]:
             print(f"    Generating sequence [{', '.join(var_names)}]...")
@@ -225,7 +225,8 @@ for item in config["instructions"]:
             for i, var in enumerate(vars):
                 print(f"      Loading {var.name}...")
                 if isinstance(var, bgk.ParticleVariable):
-                    seq.plot_row_prt(i, particles, var)
+                    particles.set_variable(var)
+                    seq.plot_row_prt(i, particles, bgk.autofigs.SNAPSHOT_GENERATOR_REGISTRY["histogram"])
                 else:
                     fields.set_variable(var)
                     fields.set_view_bounds(view_bounds)

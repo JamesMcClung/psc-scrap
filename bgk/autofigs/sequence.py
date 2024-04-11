@@ -31,7 +31,7 @@ class Sequence:
 
         params = SnapshotParams(fields, 0.0, draw_labels=False, draw_colorbar=False)
         for ax, step, time in zip(ax_row, self.steps, self.times):
-            params.frame = 0 if step == 0 else fields.frame_manager.steps.index(step)  # sometimes step 0 is skipped
+            params.step = step
             snapshot_generator.draw_snapshot(params, self.fig, ax)
             ax.set_title(f"$t={time:.2f}$" if row_idx == 0 else "")
             ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
@@ -39,12 +39,14 @@ class Sequence:
         cmap_ax.set_aspect("auto")
         self.fig.colorbar(ax.get_images()[0], cax=cmap_ax)
 
-    def plot_row_prt(self, row_idx: int, particles: ParticleData, var: ParticleVariable) -> None:
+    def plot_row_prt(self, row_idx: int, particles: ParticleData, snapshot_generator: SnapshotGenerator[ParticleData]) -> None:
         ax_row = self.ax_rows[row_idx]
         cmap_ax = ax_row[-1]
+
+        params = SnapshotParams(particles, 0.0, draw_labels=False, draw_colorbar=False)
         for step, ax, time in zip(self.steps, ax_row, self.times):
-            particles.read_step(step)
-            _, _, mesh = particles.plot_distribution(var, self.fig, ax, minimal=True, show_mean=True)
+            params.step = step
+            snapshot_generator.draw_snapshot(params, self.fig, ax)
             ax.set_title(f"$t={time}$" if row_idx == 0 else "")
             ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
             ax.set_aspect("auto")
@@ -52,7 +54,7 @@ class Sequence:
         cmap_ax.set_aspect("auto")
         cbar_formatter = ticker.ScalarFormatter()
         cbar_formatter.set_powerlimits((-1, 3))
-        self.fig.colorbar(mesh, cax=cmap_ax, format=cbar_formatter)
+        self.fig.colorbar(ax.collections[0], cax=cmap_ax, format=cbar_formatter)
 
     def get_fig(self, title: str) -> mplf.Figure:
         self.fig.suptitle(title)
