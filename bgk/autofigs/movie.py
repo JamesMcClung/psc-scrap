@@ -34,7 +34,7 @@ def make_movie(
     fig.tight_layout(pad=0)
 
     params.draw_colorbar = False
-    params.set_image_only = True
+    params.set_data_only = True
 
     def update_im(frame: int):
         params.step = frame_manager.steps[frame]

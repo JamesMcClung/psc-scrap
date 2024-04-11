@@ -17,7 +17,7 @@ def draw_image(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes =
     frame = params.data.frame_manager.steps.index(params.step)
     data = params.data.datas.isel(t=frame).sel(x=params.x_pos).transpose()
 
-    if params.set_image_only:
+    if params.set_data_only:
         im = ax.get_images()[0]
         im.set_data(data)
     else:
