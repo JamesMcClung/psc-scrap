@@ -16,10 +16,10 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
     params.data.set_step(params.step)
 
     binned_data, rho_edges, val_edges = np.histogram2d(
-        params.data.data.col("rho"),
-        params.data.data.col(params.data.variable.h5_variable_name),
+        params.data.col("rho"),
+        params.data.col(params.data.variable.h5_variable_name),
         bins=[60, 80],
-        weights=params.data.data.col("w"),
+        weights=params.data.col("w"),
     )
     # n_particles in binned_data[rho, v_phi] = f(rho, v_phi) * 2*pi*rho * drho * dv_phi,
     #   where the factor of 2*pi*rho comes from the implicit integration over phi.
