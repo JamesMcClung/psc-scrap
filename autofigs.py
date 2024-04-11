@@ -226,7 +226,7 @@ for item in config["instructions"]:
                 print(f"      Loading {var.name}...")
                 if isinstance(var, bgk.ParticleVariable):
                     particles.set_variable(var)
-                    seq.plot_row_prt(i, particles)
+                    seq.plot_row_prt(i, particles, bgk.autofigs.SNAPSHOT_GENERATOR_REGISTRY["histogram"])
                 else:
                     fields.set_variable(var)
                     fields.set_view_bounds(view_bounds)
