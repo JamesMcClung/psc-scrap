@@ -37,7 +37,9 @@ class Sequence:
             ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
             ax.set_aspect("auto")
         cmap_ax.set_aspect("auto")
-        self.fig.colorbar(artist, cax=cmap_ax)
+        cbar_formatter = ticker.ScalarFormatter()
+        cbar_formatter.set_powerlimits((-1, 3))
+        self.fig.colorbar(artist, cax=cmap_ax, format=cbar_formatter)
 
     def plot_row_prt(self, row_idx: int, particles: ParticleData, snapshot_generator: SnapshotGenerator[ParticleData]) -> None:
         ax_row = self.ax_rows[row_idx]
