@@ -214,7 +214,7 @@ for item in config["instructions"]:
 
         times = fields.axis_t[frames]
         steps = [fields.frame_manager.steps[frame] for frame in frames]
-        particles = bgk.ParticleData(path)
+        particles = bgk.ParticleData(run_manager)
 
         for var_names in item["sequences"]:
             print(f"    Generating sequence [{', '.join(var_names)}]...")

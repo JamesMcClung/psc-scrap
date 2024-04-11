@@ -4,9 +4,9 @@ import matplotlib.collections as mplc
 import numpy as np
 
 from .backend import load_bp, load_h5
-from .params_record import ParamsRecord
 from .input_reader import Input
 from .particle_variables import ParticleVariable, v_phi
+from .run_manager import RunManager
 
 __all__ = ["ParticleData"]
 
@@ -15,9 +15,10 @@ __all__ = ["ParticleData"]
 
 
 class ParticleData:
-    def __init__(self, path: str, initial_variable: ParticleVariable = v_phi) -> None:
-        self.path = path
-        params_record = ParamsRecord(path)
+    def __init__(self, run_manager: RunManager, initial_variable: ParticleVariable = v_phi) -> None:
+        self.run_manager = run_manager
+        self.path = run_manager.path_run
+        params_record = self.run_manager.params_record
 
         self.inputFile = params_record.path_input
         self.B = params_record.B0
