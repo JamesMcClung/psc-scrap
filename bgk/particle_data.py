@@ -1,10 +1,5 @@
 from functools import cached_property
 
-from matplotlib import pyplot as plt
-import matplotlib.figure as mplf
-import matplotlib.collections as mplc
-import numpy as np
-
 from .backend import load_bp, load_h5
 from .input_reader import Input
 from .params_record import ParamsRecord
