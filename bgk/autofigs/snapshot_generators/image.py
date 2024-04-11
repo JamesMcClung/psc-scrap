@@ -7,11 +7,11 @@ from ..snapshot_generator import SnapshotParams, snapshot_generator
 from .. import util
 
 
-__all__ = ["draw_map"]
+__all__ = ["draw_image"]
 
 
-@snapshot_generator("map")
-def draw_map(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
+@snapshot_generator("image")
+def draw_image(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
     data = params.data.datas.isel(t=params.frame).sel(x=params.x_pos).transpose()
 
