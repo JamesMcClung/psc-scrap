@@ -7,6 +7,7 @@ import numpy as np
 
 from .backend import load_bp, load_h5
 from .input_reader import Input
+from .params_record import ParamsRecord
 from .particle_variables import ParticleVariable, v_phi
 from .run_manager import RunManager
 
@@ -19,14 +20,11 @@ __all__ = ["ParticleData"]
 class ParticleData:
     def __init__(self, run_manager: RunManager, initial_variable: ParticleVariable = v_phi) -> None:
         self.run_manager = run_manager
-        params_record = self.run_manager.params_record
-
-        self.inputFile = params_record.path_input
-        self.B = params_record.B0
-        self.maxStep = params_record.nmax
-        self.reversed = params_record.reversed
-
         self.set_variable(initial_variable)
+
+    @property
+    def params_record(self) -> ParamsRecord:
+        return self.run_manager.params_record
 
     def read_step(self, step: int) -> None:
         self.t: float = load_bp(self.run_manager.path_run, "pfd", step).time
@@ -34,7 +32,7 @@ class ParticleData:
 
     @cached_property
     def input(self) -> Input:
-        return Input(self.inputFile)
+        return Input(self.params_record.path_input)
 
     def set_variable(self, variable: ParticleVariable):
         self.variable = variable
@@ -71,7 +69,7 @@ class ParticleData:
         if not minimal:
             ax.set_xlabel("$\\rho$")
             ax.set_ylabel(f"${self.variable.latex}$")
-            ax.set_title(f"$f(\\rho, {self.variable.latex})$ at t={self.t:.3f} for $B={self.B}$")
+            ax.set_title(f"$f(\\rho, {self.variable.latex})$ at t={self.t:.3f} for $B={self.params_record.B0}$")
             fig.colorbar(mesh)
 
         ax.set_ylim(*self.variable.val_bounds)
