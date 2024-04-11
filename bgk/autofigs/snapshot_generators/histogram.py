@@ -36,7 +36,7 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
     if params.draw_labels:
         ax.set_xlabel("$\\rho$")
         ax.set_ylabel(f"${params.data.variable.latex}$")
-        ax.set_title(f"$f(\\rho, {params.data.variable.latex})$ at t={params.data.t:.3f} for $B={params.data.params_record.B0}$")
+        ax.set_title(f"$f(\\rho, {params.data.variable.latex})$ at t={params.data.time:.3f} for $B={params.data.params_record.B0}$")
 
     if params.draw_colorbar:
         fig.colorbar(mesh)
