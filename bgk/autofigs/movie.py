@@ -36,7 +36,13 @@ def make_movie(
     params.draw_colorbar = False
     params.set_data_only = True
 
+    n_children = len(ax.get_children())
+
     def update_im(frame: int):
+        if n_children != len(ax.get_children()):
+            raise MemoryError
+        print(f"frame {frame}/{nframes}...", end="\r")
+
         params.step = frame_manager.steps[frame]
         _, _, artists = snapshot_generator.draw_snapshot(params, fig, ax)
         return artists
