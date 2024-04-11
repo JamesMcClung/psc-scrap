@@ -3,6 +3,7 @@ from matplotlib.pyplot import Axes
 from matplotlib.animation import FuncAnimation
 
 from ..field_data import FieldData
+from ..particle_data import ParticleData
 from ..run_manager import FrameManagerLinear
 from .snapshot_generator import SnapshotGenerator, SnapshotParams, DATA
 
@@ -21,8 +22,10 @@ def make_movie(
         if nframes != params.data.nframes:
             raise ValueError(f"nframes of {FieldData.__name__} = {params.data.nframes} must match passed nframes = {nframes}")
         frame_manager = params.data.frame_manager
-    else:
+    elif isinstance(params.data, ParticleData):
         frame_manager = params.data.run_manager.get_frame_manager(FrameManagerLinear, nframes, [params.data.variable])
+    else:
+        raise TypeError(f"invalid data type: {params.data.__class__}")
 
     params.step = frame_manager.steps[0]
     params.draw_colorbar = True
