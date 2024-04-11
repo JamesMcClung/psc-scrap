@@ -6,7 +6,7 @@ import numpy as np
 from .backend import load_bp, load_h5
 from .params_record import ParamsRecord
 from .input_reader import Input
-from .particle_variables import ParticleVariable
+from .particle_variables import ParticleVariable, v_phi
 
 __all__ = ["ParticleData"]
 
@@ -15,7 +15,7 @@ __all__ = ["ParticleData"]
 
 
 class ParticleData:
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, initial_variable: ParticleVariable = v_phi) -> None:
         self.path = path
         params_record = ParamsRecord(path)
 
@@ -24,11 +24,16 @@ class ParticleData:
         self.maxStep = params_record.nmax
         self.reversed = params_record.reversed
 
+        self.set_variable(initial_variable)
+
     def read_step(self, step: int) -> None:
         self.t: float = load_bp(self.path, "pfd", step).time
 
         self._data = load_h5(self.path, "prt", step).drop_columns(["id", "tag"]).drop_species("i").drop_corners()
         self.input = Input(self.inputFile)
+
+    def set_variable(self, variable: ParticleVariable):
+        self.variable = variable
 
     def plot_distribution(
         self,
