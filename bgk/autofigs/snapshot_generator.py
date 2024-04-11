@@ -26,7 +26,7 @@ class SnapshotParams(Generic[DATA]):
         data: DATA,
         x_pos: float,
         *,
-        frame: int = None,
+        step: int = None,
         draw_colorbar: bool = None,
         draw_labels: bool = None,
         set_image_only: bool = False,
@@ -40,7 +40,7 @@ class SnapshotParams(Generic[DATA]):
         else:
             raise TypeError()
 
-        self.frame = frame
+        self.step = step
         self.draw_colorbar = draw_colorbar
         self.draw_labels = draw_labels
         self.set_image_only = set_image_only

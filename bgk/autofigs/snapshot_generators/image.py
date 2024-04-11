@@ -13,7 +13,8 @@ __all__ = ["draw_image"]
 @snapshot_generator("image")
 def draw_image(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
     fig, ax = util.ensure_fig_ax(fig, ax)
-    data = params.data.datas.isel(t=params.frame).sel(x=params.x_pos).transpose()
+    frame = params.data.frame_manager.steps.index(params.step)
+    data = params.data.datas.isel(t=frame).sel(x=params.x_pos).transpose()
 
     if params.set_image_only:
         im = ax.get_images()[0]
@@ -31,7 +32,7 @@ def draw_image(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes =
     if params.draw_labels:
         ax.set_xlabel("y")
         ax.set_ylabel("z")
-        ax.set_title(f"{params.data.view_bounds.adjective}${params.data.variable.latex}$, t={params.data.axis_t[params.frame]:.3f} ($B_0={params.data.params_record.B0}$, {params.data.case_name})")
+        ax.set_title(f"{params.data.view_bounds.adjective}${params.data.variable.latex}$, t={params.data.axis_t[frame]:.3f} ($B_0={params.data.params_record.B0}$, {params.data.case_name})")
         plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment="right")
 
     if params.draw_colorbar:

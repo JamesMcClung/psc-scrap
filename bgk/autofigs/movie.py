@@ -14,7 +14,7 @@ def make_movie(
     fig: Figure = None,
     ax: Axes = None,
 ) -> tuple[Figure, FuncAnimation]:
-    params.frame = 0
+    params.step = params.frame_manager.steps[0]
     params.draw_colorbar = True
     params.draw_labels = True
     fig, ax = snapshot_generator.draw_snapshot(params, fig, ax)
@@ -25,7 +25,7 @@ def make_movie(
     params.set_image_only = True
 
     def update_im(frame: int):
-        params.frame = frame
+        params.step = params.frame_manager.steps[frame]
         snapshot_generator.draw_snapshot(params, fig, ax)
         return [im]
 

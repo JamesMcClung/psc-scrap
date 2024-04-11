@@ -31,7 +31,7 @@ class Sequence:
 
         params = SnapshotParams(fields, 0.0, draw_labels=False, draw_colorbar=False)
         for ax, step, time in zip(ax_row, self.steps, self.times):
-            params.frame = 0 if step == 0 else fields.frame_manager.steps.index(step)  # sometimes step 0 is skipped
+            params.step = step
             snapshot_generator.draw_snapshot(params, self.fig, ax)
             ax.set_title(f"$t={time:.2f}$" if row_idx == 0 else "")
             ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
