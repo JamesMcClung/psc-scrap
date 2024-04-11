@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Callable, TypeVar, Generic
 
+from matplotlib.artist import Artist
 from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 
 from ..field_data import FieldData
 from ..particle_data import ParticleData
-from ..run_manager import FrameManager
 from . import util
 
 __all__ = ["SNAPSHOT_GENERATOR_REGISTRY", "SnapshotParams"]
@@ -42,7 +42,7 @@ class SnapshotParams(Generic[DATA]):
 
 
 class SnapshotGenerator(Generic[DATA]):
-    def __init__(self, generator: Callable[[SnapshotParams[DATA], Figure | None, Axes | None], tuple[Figure, Axes]]) -> None:
+    def __init__(self, generator: Callable[[SnapshotParams[DATA], Figure | None, Axes | None], tuple[Figure, Axes, Artist]]) -> None:
         self._generator = generator
 
     def draw_snapshot(self, params: SnapshotParams[DATA], fig: Figure | None = None, ax: Axes | None = None):

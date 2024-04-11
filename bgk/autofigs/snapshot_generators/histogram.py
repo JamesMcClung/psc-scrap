@@ -1,3 +1,4 @@
+from matplotlib.artist import Artist
 from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 import numpy as np
@@ -11,7 +12,7 @@ __all__ = ["draw_histogram"]
 
 
 @snapshot_generator("histogram")
-def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
+def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes, Artist]:
     fig, ax = util.ensure_fig_ax(fig, ax)
     params.data.set_step(params.step)
 
@@ -60,4 +61,4 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
 
         ax.legend(loc="right", fontsize="small")
 
-    return fig, ax
+    return fig, ax, mesh

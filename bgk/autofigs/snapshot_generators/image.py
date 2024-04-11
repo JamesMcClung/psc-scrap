@@ -1,3 +1,4 @@
+from matplotlib.artist import Artist
 from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 import matplotlib.pyplot as plt
@@ -11,7 +12,7 @@ __all__ = ["draw_image"]
 
 
 @snapshot_generator("image")
-def draw_image(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes]:
+def draw_image(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes, Artist]:
     fig, ax = util.ensure_fig_ax(fig, ax)
     frame = params.data.frame_manager.steps.index(params.step)
     data = params.data.datas.isel(t=frame).sel(x=params.x_pos).transpose()
@@ -38,4 +39,4 @@ def draw_image(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes =
     if params.draw_colorbar:
         fig.colorbar(im, ax=ax)
 
-    return fig, ax
+    return fig, ax, im
