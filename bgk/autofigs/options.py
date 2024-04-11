@@ -8,10 +8,10 @@ SETTINGS = ["nframes", "slice", "periodic", "output_directory"]
 METASETTINGS = ["suite"]
 
 # Types of figures that can be specified by a single string, e.g. "ne"
-TRIVIAL_FIGURE_TYPES = ["videos"] + list(FIGURE_GENERATOR_REGISTRY.keys())
+TRIVIAL_FIGURE_TYPES = list(FIGURE_GENERATOR_REGISTRY.keys())
 
-# Types of figures that require more than just a string, e.g. ["ne", "prt:v_phi"]
-NONTRIVIAL_FIGURE_TYPES = ["sequences"]
+# Types of figures that require special variable parsing
+NONTRIVIAL_FIGURE_TYPES = ["sequences", "videos"]
 
 # All figure types
 FIGURE_TYPES = TRIVIAL_FIGURE_TYPES + NONTRIVIAL_FIGURE_TYPES
