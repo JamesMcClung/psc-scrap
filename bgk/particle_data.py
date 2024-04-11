@@ -1,10 +1,12 @@
 from functools import cached_property
+import pandas as pd
 
 from .backend import load_bp, load_h5, WrapperH5
 from .input_reader import Input
 from .params_record import ParamsRecord
 from .particle_variables import ParticleVariable, v_phi
 from .run_manager import RunManager
+from .typing import H5WrapperVariableName
 from .util.safe_cache_invalidation import safe_cached_property_invalidation
 
 __all__ = ["ParticleData"]
@@ -44,3 +46,6 @@ class ParticleData:
 
     def set_variable(self, variable: ParticleVariable):
         self.variable = variable
+
+    def col(self, column_name: H5WrapperVariableName) -> pd.Series:
+        return self.data.col(column_name)
