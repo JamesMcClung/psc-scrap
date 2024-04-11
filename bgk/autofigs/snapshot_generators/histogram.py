@@ -12,7 +12,7 @@ __all__ = ["draw_histogram"]
 
 
 @snapshot_generator("histogram")
-def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes, Artist]:
+def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes, list[Artist]]:
     fig, ax = util.ensure_fig_ax(fig, ax)
     params.data.set_step(params.step)
 
@@ -61,4 +61,4 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
 
         ax.legend(loc="right", fontsize="small")
 
-    return fig, ax, mesh
+    return fig, ax, [mesh]

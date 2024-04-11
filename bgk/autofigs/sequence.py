@@ -32,14 +32,14 @@ class Sequence:
         params.draw_colorbar = False
         for ax, step, time in zip(ax_row, self.steps, self.times):
             params.step = step
-            _, _, artist = snapshot_generator.draw_snapshot(params, self.fig, ax)
+            _, _, artists = snapshot_generator.draw_snapshot(params, self.fig, ax)
             ax.set_title(f"$t={time:.2f}$" if row_idx == 0 else "")
             ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
             ax.set_aspect("auto")
         cmap_ax.set_aspect("auto")
         cbar_formatter = ticker.ScalarFormatter()
         cbar_formatter.set_powerlimits((-1, 3))
-        self.fig.colorbar(artist, cax=cmap_ax, format=cbar_formatter)
+        self.fig.colorbar(artists[0], cax=cmap_ax, format=cbar_formatter)
 
     def get_fig(self, title: str) -> mplf.Figure:
         self.fig.suptitle(title)

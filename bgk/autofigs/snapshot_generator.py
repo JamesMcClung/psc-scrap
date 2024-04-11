@@ -42,7 +42,7 @@ class SnapshotParams(Generic[DATA]):
 
 
 class SnapshotGenerator(Generic[DATA]):
-    def __init__(self, generator: Callable[[SnapshotParams[DATA], Figure | None, Axes | None], tuple[Figure, Axes, Artist]]) -> None:
+    def __init__(self, generator: Callable[[SnapshotParams[DATA], Figure | None, Axes | None], tuple[Figure, Axes, list[Artist]]]) -> None:
         self._generator = generator
 
     def draw_snapshot(self, params: SnapshotParams[DATA], fig: Figure | None = None, ax: Axes | None = None):

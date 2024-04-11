@@ -30,7 +30,7 @@ def make_movie(
     params.step = frame_manager.steps[0]
     params.draw_colorbar = True
     params.draw_labels = True
-    fig, ax, artist = snapshot_generator.draw_snapshot(params, fig, ax)
+    fig, ax, _ = snapshot_generator.draw_snapshot(params, fig, ax)
     fig.tight_layout(pad=0)
 
     params.draw_colorbar = False
@@ -38,7 +38,7 @@ def make_movie(
 
     def update_im(frame: int):
         params.step = frame_manager.steps[frame]
-        snapshot_generator.draw_snapshot(params, fig, ax)
-        return [artist]
+        _, _, artists = snapshot_generator.draw_snapshot(params, fig, ax)
+        return artists
 
     return fig, FuncAnimation(fig, update_im, interval=30, frames=frame_manager.nframes, repeat=False, blit=True)
