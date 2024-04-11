@@ -197,7 +197,7 @@ for item in config["instructions"]:
             print(f"    Generating movie...")
 
             params = bgk.autofigs.SnapshotParams(fields, 0.0)
-            fig, movie = autofigs.make_movie(params, bgk.autofigs.SNAPSHOT_GENERATOR_REGISTRY["image"])
+            fig, movie = autofigs.make_movie(nframes, params, bgk.autofigs.SNAPSHOT_GENERATOR_REGISTRY["image"])
             movie.save(get_fig_path("movie", variable_name, case), dpi=450)
             plt.close(fig)
 
