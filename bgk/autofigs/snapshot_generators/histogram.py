@@ -60,4 +60,4 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
 
         ax.legend(loc="right", fontsize="small")
 
-    return fig, ax, mesh
+    return fig, ax
