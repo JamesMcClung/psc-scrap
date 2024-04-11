@@ -28,7 +28,7 @@ class ParticleData:
 
     def read_step(self, step: int) -> None:
         self.time = load_bp(self.run_manager.path_run, "pfd", step).time
-        self._data = load_h5(self.run_manager.path_run, "prt", step).drop_columns(["id", "tag"]).drop_species("i").drop_corners()
+        self.data = load_h5(self.run_manager.path_run, "prt", step).drop_columns(["id", "tag"]).drop_species("i").drop_corners()
 
     @cached_property
     def input(self) -> Input:
