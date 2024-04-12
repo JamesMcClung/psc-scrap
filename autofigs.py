@@ -107,7 +107,7 @@ for item in config["instructions"]:
     print(f"Entering {path}")
 
     variables_to_load_names_standard = get_variable_names_in_order(item)
-    variables_to_load_names_special = list({var_name for var_names in item["sequences"] for var_name in var_names})
+    variables_to_load_names_special = list({var_name for var_names in item["sequences"] for var_name in var_names} | set(item["videos"]))
     if not variables_to_load_names_standard and not variables_to_load_names_special:
         print(f"No figures requested. Skipping.")
         continue
@@ -154,6 +154,7 @@ for item in config["instructions"]:
 
     nframes = item.get("nframes", 100)
     fields = bgk.FieldData(nframes, run_manager)
+    particles = bgk.ParticleData(run_manager)
 
     figure_params = autofigs.FigureParams()
     figure_params.fields = fields
@@ -198,6 +199,18 @@ for item in config["instructions"]:
             movie.save(get_fig_path("movie", variable_name, case), dpi=450)
             plt.close(fig)
 
+    for variable_name in item["videos"]:
+        variable_name = str(variable_name)  # for linting
+        if variable_name.startswith("prt:"):
+            print(f"  Loading {variable_name}...")
+            print(f"    Generating movie...")
+            variable: bgk.ParticleVariable = bgk.particle_variables.__dict__[variable_name.removeprefix("prt:")]
+            particles.set_variable(variable)
+            params = bgk.autofigs.SnapshotParams(particles, 0.0)
+            fig, movie = autofigs.make_movie(nframes, params, bgk.autofigs.SNAPSHOT_GENERATOR_REGISTRY["histogram"])
+            movie.save(get_fig_path("movie", variable_name.replace(":", ""), case), dpi=450)
+            plt.close(fig)
+
     ##########################
 
     if item["sequences"]:
@@ -211,7 +224,6 @@ for item in config["instructions"]:
 
         times = fields.axis_t[frames]
         steps = [fields.frame_manager.steps[frame] for frame in frames]
-        particles = bgk.ParticleData(run_manager)
 
         for var_names in item["sequences"]:
             print(f"    Generating sequence [{', '.join(var_names)}]...")
