@@ -38,11 +38,11 @@ class SnapshotParams(Generic[DATA]):
         self.step = step
         self.draw_colorbar = draw_colorbar
         self.draw_labels = draw_labels
-        self.set_image_only = set_image_only
+        self.set_data_only = set_image_only
 
 
 class SnapshotGenerator(Generic[DATA]):
-    def __init__(self, generator: Callable[[SnapshotParams[DATA], Figure | None, Axes | None], tuple[Figure, Axes, Artist]]) -> None:
+    def __init__(self, generator: Callable[[SnapshotParams[DATA], Figure | None, Axes | None], tuple[Figure, Axes, list[Artist]]]) -> None:
         self._generator = generator
 
     def draw_snapshot(self, params: SnapshotParams[DATA], fig: Figure | None = None, ax: Axes | None = None):

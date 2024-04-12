@@ -1,4 +1,5 @@
 from matplotlib.artist import Artist
+from matplotlib.collections import QuadMesh
 from matplotlib.figure import Figure
 from matplotlib.pyplot import Axes
 import numpy as np
@@ -12,14 +13,23 @@ __all__ = ["draw_histogram"]
 
 
 @snapshot_generator("histogram")
-def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes, Artist]:
+def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes, list[Artist]]:
     fig, ax = util.ensure_fig_ax(fig, ax)
     params.data.set_step(params.step)
 
+    if params.set_data_only:
+        # retrieve coordinates from previous mesh and use them for binning
+        mesh: QuadMesh = ax.collections[0]
+        coords = mesh.get_coordinates()  # array of dimension (nrows, ncols, 2), where nrows/ncols refers to mesh vertices and 2 is x/y
+        bins = [coords[0, :, 0], coords[:, 0, 1]]
+    else:
+        bins = [60, 80]
+
+    val_edges = np.linspace(-3e-3, 3e-3, 60)
     binned_data, rho_edges, val_edges = np.histogram2d(
         params.data.col("rho"),
         params.data.col(params.data.variable.h5_variable_name),
-        bins=[60, 80],
+        bins=bins,
         weights=params.data.col("w"),
     )
     # n_particles in binned_data[rho, v_phi] = f(rho, v_phi) * 2*pi*rho * drho * dv_phi,
@@ -32,7 +42,11 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
     fs2d = binned_data.T / rhos_cc
     # now: fs2d[v_phi, rho] = f(rho, v_phi) * consts
 
-    mesh = ax.pcolormesh(rho_edges, val_edges, fs2d, cmap=params.data.variable.cmap_name)
+    if params.set_data_only:
+        mesh.set_array(fs2d)
+    else:
+        mesh = ax.pcolormesh(rho_edges, val_edges, fs2d, cmap=params.data.variable.cmap_name)
+    artists = [mesh]
 
     if params.draw_labels:
         ax.set_xlabel("$\\rho$")
@@ -53,12 +67,21 @@ def draw_histogram(params: SnapshotParams[ParticleData], fig: Figure = None, ax:
 
         if show_mean:
             mean_vals = fs2d.T.dot(vals_cc) / fs2d.sum(axis=0)
-            ax.plot(rhos_cc, mean_vals, "k", label="mean")
+            if params.set_data_only:
+                ax.get_lines()[0].set_data(rhos_cc, mean_vals)
+            else:
+                ax.plot(rhos_cc, mean_vals, "k", label="mean")
 
         if show_theoretical_mean:
             mean_vals_input = np.array([params.data.input.interpolate_value(rho, "v_phi") for rho in rhos_cc])
-            ax.plot(rhos_cc, mean_vals_input, "b", label="theoretical mean")
+            if params.set_data_only:
+                ax.get_lines()[-1].set_data(rhos_cc, mean_vals_input)
+            else:
+                ax.plot(rhos_cc, mean_vals_input, "b", label="theoretical mean")
 
-        ax.legend(loc="right", fontsize="small")
+        artists += ax.get_lines()
 
-    return fig, ax, mesh
+        if not params.set_data_only:
+            ax.legend(loc="right", fontsize="small")
+
+    return fig, ax, artists

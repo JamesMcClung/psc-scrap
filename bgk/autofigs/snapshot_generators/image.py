@@ -12,12 +12,12 @@ __all__ = ["draw_image"]
 
 
 @snapshot_generator("image")
-def draw_image(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes, Artist]:
+def draw_image(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes = None) -> tuple[Figure, Axes, list[Artist]]:
     fig, ax = util.ensure_fig_ax(fig, ax)
     frame = params.data.frame_manager.steps.index(params.step)
     data = params.data.datas.isel(t=frame).sel(x=params.x_pos).transpose()
 
-    if params.set_image_only:
+    if params.set_data_only:
         im = ax.get_images()[0]
         im.set_data(data)
     else:
@@ -39,4 +39,4 @@ def draw_image(params: SnapshotParams[FieldData], fig: Figure = None, ax: Axes =
     if params.draw_colorbar:
         fig.colorbar(im, ax=ax)
 
-    return fig, ax, im
+    return fig, ax, [im]

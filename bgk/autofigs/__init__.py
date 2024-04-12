@@ -6,5 +6,5 @@ from . import options
 from . import figdata
 from . import history
 
-from . import generators
+from . import figure_generators
 from . import snapshot_generators
