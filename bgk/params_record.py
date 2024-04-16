@@ -14,6 +14,12 @@ class ParamsRecord:
     init_strategy: Literal["max", "exact"]
     reversed: bool
 
+    k: float
+    h0: float
+    xi: float
+    A_x0: float | None
+    beta: float
+
     res: int
     nmax: int
     nicell: int
@@ -38,6 +44,12 @@ class ParamsRecord:
         self.length = max(0, self._parse_param("box_size", float, -1)) or None
         self.init_strategy = "max" if self._parse_param("maxwellian", bool, False) else "exact"
         self.reversed = self._parse_param("v_e_coef", float, 1.0) < 0
+
+        self.k = self._parse_param("k", float, 0.1)
+        self.h0 = self._parse_param("h0", float, 0.9)
+        self.xi = self._parse_param("xi", float, 0.0)
+        self.A_x0 = self._parse_param("A_x0", float) if self.xi else None
+        self.beta = self._parse_param("beta", float, 1e-3)
 
         self.res = self._parse_param("n_grid", int)
         self.nmax = self._parse_param("nmax", int)
