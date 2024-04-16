@@ -13,6 +13,17 @@ Versions are tagged in git. Versioning follows [semantic versioning](https://sem
 | Figures       | Any            | Changes or additions to figure generation.                                            |
 | Config        | Minor or Major | Changes or additions to yaml configuration (other than addition of new figure types). |
 
+## v0.1.2
+_April 16, 2024_
+
+Fixes
+- `autofigs.py`:
+    - Field variables of videos are now detected as such
+
+Documentation
+- `CHANGELOG.md`:
+    - Added forgotten tweak in v0.1.0
+
 ## v0.1.1
 _April 16, 2024_
 
