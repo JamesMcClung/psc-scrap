@@ -13,6 +13,17 @@ Versions are tagged in git. Versioning follows [semantic versioning](https://sem
 | Figures       | Any            | Changes or additions to figure generation.                                            |
 | Config        | Minor or Major | Changes or additions to yaml configuration (other than addition of new figure types). |
 
+## v0.1.2
+_April 16, 2024_
+
+Fixes
+- `autofigs.py`:
+    - Field variables of videos are now detected as such
+
+Documentation
+- `CHANGELOG.md`:
+    - Added forgotten tweak in v0.1.0
+
 ## v0.1.1
 _April 16, 2024_
 
@@ -35,6 +46,8 @@ Config:
 Tweaks
 - `bgk/input_reader.py`:
     - If `path_input` points to `*psc/inputs/bgk/*` and it isn't there, guess that it can now be found at `*psc-scrap/inputs/*`
+- `bgk/movie.py`:
+    - Prints frame number during figure generation
 
 Internal
 - `bgk/movie.py`:
