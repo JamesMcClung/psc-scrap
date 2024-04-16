@@ -1,3 +1,5 @@
+# Readme
+
 ## Autofigs
 
 The main feature is `autofigs.py`, a script that automatically generates figures. The figures it generates are configured by an input yaml file, which is `autofigs.yml` if unspecified. The details of these yaml files aren't important for now; it suffices to know that they specify which figures to generate for which runs.
@@ -14,13 +16,13 @@ python autofigs.py some_other_autofigs.yml
 
 ### Flags
 
-Autofigs supports a number of flags as well. Because I was lazy, any argument that starts with a "-" is interpreted as a flag, and the number of "-"s doesn't actually matter. Arguments to flags are appended to the end of the flag, separated by "=" (with no spaces in between).
+Autofigs supports a number of flags. Any argument that starts with a "-" is interpreted as a flag; the number of "-"s doesn't actually matter. Arguments to flags are concatenated to the end of the flag, separated by "=" (with no spaces in between).
 
-| Flag   | Argument    | Description                                                                                |
-| :----- | :---------- | :----------------------------------------------------------------------------------------- |
-| --save | —           | Adds the specified figures to an ever-growing `autofigs.history.yml`                       |
-| --warn | —           | Ask for confirmation if a figure in `autofigs.history.yml` would be made differently       |
-| --only | figure type | Only generates figures of the specified type (see Yaml Configuration for the figure types) |
+| Flag     | Argument    | Description                                                                                                                |
+| :------- | :---------- | :------------------------------------------------------------------------------------------------------------------------- |
+| `--save` | —           | Adds the specified figures to an ever-growing `autofigs.history.yml`                                                       |
+| `--warn` | —           | At runtime, asks for confirmation if a figure would be made with different parameters than found in `autofigs.history.yml` |
+| `--only` | figure type | Only generates figures of the specified type (see [Yaml Configuration](#yaml-configuration) for the figure types)          |
 
 For example, to recreate all movies (which you might do if you changed how movies are generated and want to update existing figures), you could run:
 ```bash
@@ -38,24 +40,24 @@ There is currently no way of removing figure specifications from `autofigs.histo
 
 Autofig configuration files are written in yaml. At a minimum, the yaml object must have an `instructions` field with a list of objects. The table below describes the fields each object can have. Fields lacking a default value are required.
 
-| Field              | Value Type                        | Default Value | Description                                                                                  |
-| :----------------- | :-------------------------------- | :------------ | :------------------------------------------------------------------------------------------- |
-| `path`             | string (absolute path)            | —             | Where to find run data.                                                                      |
-| `output_directory` | string (absolute path)            | —             | Where to put generated figures.                                                              |
-| `nframes`          | int                               | —             | How many timesteps to load and use in figure generation. Steps are evenly spaced.            |
-| `periodic`         | boolean                           | —             | Whether to (attempt to) treat the run as periodic. Affects profiles, extrema, and sequences. |
-| `slice`            | `"whole"` or `"center"`           | —             | How much of the domain to consider for figure generation.                                    |
-| `prefix`           | string                            | `""`          | Prepended to the generated figure file name.                                                 |
-| `suite`            | string                            | `None`        | Optional suite to supply unspecified values.                                                 |
-| `videos`           | list\[Param\]                     | `[]`          | List of videos to generate for the run.                                                      |
-| `profiles`         | list\[Param\]                     | `[]`          | List of profile plots to generate for the run.                                               |
-| `stabilities`      | list\[Param\]                     | `[]`          | List of stability plots to generate for the run.                                             |
-| `origin_means`     | list\[Param\]                     | `[]`          | List of origin mean plots to generate for the run.                                           |
-| `periodograms`     | list\[Param\]                     | `[]`          | List of periodograms to generate for the run.                                                |
-| `extrema`          | list\[Param\]                     | `[]`          | List of extrema plots to generate for the run.                                               |
-| `sequences`        | list\[list\[Param or PrtParam\]\] | `[]`          | List of sequences to generate for the run.                                                   |
+| Field              | Value Type               | Default Value | Description                                                                                  |
+| :----------------- | :----------------------- | :------------ | :------------------------------------------------------------------------------------------- |
+| `path`             | `string` (absolute path) | —             | Where to find run data.                                                                      |
+| `output_directory` | `string` (absolute path) | —             | Where to put generated figures.                                                              |
+| `nframes`          | `int`                    | —             | How many timesteps to load and use for figure generation. Steps are evenly spaced.           |
+| `periodic`         | `boolean`                | —             | Whether to treat the run as periodic, only generating certain figures over the first period. |
+| `slice`            | `"whole" \| "center"`    | —             | How much of the domain to consider for figure generation.                                    |
+| `prefix`           | `string`                 | `""`          | Prepended to the generated figure file name.                                                 |
+| `suite`            | `string \| None`         | `None`        | Optional suite to supply unspecified values.                                                 |
+| `extrema`          | `list[FieldVariable]`    | `[]`          | List of extrema plots to generate for the run.                                               |
+| `origin_mean`      | `list[FieldVariable]`    | `[]`          | List of origin mean plots to generate for the run.                                           |
+| `profiles`         | `list[FieldVariable]`    | `[]`          | List of profile plots to generate for the run.                                               |
+| `periodogram`      | `list[FieldVariable]`    | `[]`          | List of periodograms to generate for the run.                                                |
+| `stability`        | `list[FieldVariable]`    | `[]`          | List of stability plots to generate for the run.                                             |
+| `sequences`        | `list[list[Variable]]`   | `[]`          | List of sequences to generate for the run.                                                   |
+| `videos`           | `list[Variable]`         | `[]`          | List of videos to generate for the run.                                                      |
 
-In the table above, Param and PrtParam are strings that refer to data from `pfd`/`pfd_moment`/`gauss` and `prt` files, respectively. Values for Param correspond to the constants defined in `bgk/field_variables.py`, e.g. `"ne"`. Values for PrtParam correspond to the valid parameters of `ParticleReader.plot_distribution` in `bgk/particle_reader.py`, but prepended with `"prt:"`, e.g. `"prt:v_phi"`.
+In the table above, `FieldVariable` represents any string corresponding to the name of a `FieldVariable` instance in `bgk/field_variables.py`, e.g. `"ne"`. While not explicit in the table, `ParticleVariable` represents any string corresponding to the name of a `ParticleVariable` instance in `bgk/particle_variables.py` and prepended with `"prt:"`, e.g. `"prt:v_phi"`. The `Variable` type is the union of `FieldVariable` and `ParticleVariable`. See [Variables](#variables) for more information on what these variables are and how to customize them.
 
 #### Suites
 
@@ -90,3 +92,29 @@ A configuration file can also have a toplevel `suites` item, which is just like 
 > All of these figures are saved to `/absolute/path/to/figs/` with automatically generated names.
 >
 > See `autofigs_template.yml` for a more realistic example, including a suite.
+
+### Customization
+
+The figures generated by `autofigs.py` can be customized in a number of ways.
+
+#### Variables
+
+Variables are instances of the `Variable` class, found in `bgk/variable.py`. A variable is essentially a recipe for turning data into a figure. For example, the `ne` variable in `bgk/field_variables.py` describes how to turn data from a `pfd_moments.*.bp` file into a visual representation of electron number density. More variables can be found in `bgk/particle_variables.py`, which deal with data in `prt.*.h5` files.
+
+#### Figures
+
+Simple figure generators can be easily added. The recommended way of doing so is to copy how it is done for existing figure generators, such as `bgk/autofigs/figure_generators/stability.py`:
+1. Create a file in `bgk/autofigs/figure_generators/`
+2. Write a function with the same signature as other figure generators
+3. Annotate the function with `@figure_generator(name)`, where `name` is a string corresponding to the name of the figure as it will appear in both output `.png` files and configuration `.yml` files
+4. Import the file or function in `bgk/autofigs/figure_generators/__init__.py`
+
+The annotation will automatically make the function known to `autofigs.py` with the given name, provided it is imported. Currently, these figure generators can only depend on field data, not particle data.
+
+#### Snapshots
+
+More complex figure types (i.e., videos and sequences) use "snapshot generators" to turn data at specific timesteps into a visual representation, and combine such representations into one figure. Snapshot generators are slightly more complex than figure generators, but they are added in a similar way. See `bgk/autofigs/snapshot_generators/image.py` for an example.
+
+The main complication is in respecting the `set_data_only` parameter in `SnapshotParams`. This boolean is true when the figure maker draws on the same axes multiple times, such as in `bgk/autofigs/movie.py`. It is important to not keep adding artists to the axes, or else figure generation will slow down immensely and may have noticeable consequences for the resulting figure.
+
+Currently, `FieldVariable` variables are hardcoded to use the `image` snapshot generator, and `ParticleVariable` variables are hardcoded to use `histogram`. This will change in the future and necessitate an API change.
