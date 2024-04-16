@@ -88,7 +88,9 @@ def maybe_apply_only_flag(instruction_item: dict) -> dict:
 
 
 def get_variable_names_in_order(item: dict[str, list[str]]) -> list[str]:
-    variable_names = set(sum((item[option] for option in TRIVIAL_FIGURE_TYPES), start=[]))
+    trivial_field_variables = {var for figure_name in TRIVIAL_FIGURE_TYPES for var in item[figure_name]}
+    video_field_variables = {var for var in item["videos"] if not var.startswith("prt:")}
+    variable_names = trivial_field_variables | video_field_variables
     if "ne" in variable_names:
         variable_names.remove("ne")
         return ["ne"] + sorted(list(variable_names))
