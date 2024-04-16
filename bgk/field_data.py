@@ -8,6 +8,7 @@ from .field_variables import FieldVariable, ne
 from .bounds import Bounds3D
 from .backend import load_bp
 from .run_manager import RunManager, FrameManagerLinear, FrameManager
+from .params_record import ParamsRecord
 from .util.safe_cache_invalidation import safe_cached_property_invalidation
 from .util.stream import Stream
 
@@ -19,10 +20,13 @@ __all__ = ["FieldData"]
 class FieldData:
     def __init__(self, nframes: int, run_manager: RunManager, initial_variable: FieldVariable = ne) -> None:
         self.run_manager = run_manager
-        self.params_record = run_manager.params_record
         self.nframes = nframes
         self.set_variable(initial_variable)
         self.case_name = ("Moment" if self.params_record.init_strategy == "max" else "Exact") + (", Reversed" if self.params_record.reversed else "")
+
+    @property
+    def params_record(self) -> ParamsRecord:
+        return self.run_manager.params_record
 
     def _get_data(self, frame: int) -> xr.DataArray:
         var = self.variable

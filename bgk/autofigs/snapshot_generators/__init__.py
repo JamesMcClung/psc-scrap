@@ -1,1 +1,2 @@
-from .map import *
+from .histogram import *
+from .image import *
