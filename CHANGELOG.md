@@ -35,6 +35,8 @@ Config:
 Tweaks
 - `bgk/input_reader.py`:
     - If `path_input` points to `*psc/inputs/bgk/*` and it isn't there, guess that it can now be found at `*psc-scrap/inputs/*`
+- `bgk/movie.py`:
+    - Prints frame number during figure generation
 
 Internal
 - `bgk/movie.py`:
