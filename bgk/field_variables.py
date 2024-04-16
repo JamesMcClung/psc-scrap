@@ -71,8 +71,8 @@ class FieldVariable(_Variable):
         data_mapper: _MultiVarMapper | _ShiftedMultiVarMapper = _identity,
         shift_hole_center: bool = False,
     ) -> None:
-        # "pfd.*.bp" files are technically written at t=0, but they're all 0s because PSC doesn't calculate them until it does a time step
-        skip_first_step = prefix == "pfd"
+        # "pfd.*.bp" files are written at t=0, but the j components are all 0s because PSC doesn't calculate them until it does a time step
+        skip_first_step = prefix == "pfd" and any(var_name.startswith("j") for var_name in bp_variable_names)
         cmap_name = "inferno" if 0 in val_bounds else "RdBu_r"
         super().__init__(name, latex, prefix, skip_first_step, cmap_name)
 
