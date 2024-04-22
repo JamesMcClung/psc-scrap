@@ -13,6 +13,16 @@ Versions are tagged in git. Versioning follows [semantic versioning](https://sem
 | Figures       | Any            | Changes or additions to figure generation.                                            |
 | Config        | Minor or Major | Changes or additions to yaml configuration (other than addition of new figure types). |
 
+## v0.2.0
+_April 22, 2024_
+
+Figures
+- Removed `val_bounds` of velocity (and momentum) variables, since they assumed a particular temperature and aren't even necessary
+
+Internal
+- `bgk/params_record.py`:
+    - Added more params: `k`, `h0`, `xi`, `A_x0`, `beta`
+
 ## v0.1.2
 _April 16, 2024_
 
@@ -40,7 +50,7 @@ Documentation
 ## v0.1.0
 _April 16, 2024_
 
-Config:
+Config
 - `videos` option now supports `ParticleVariable` identifiers, prefixed with `prt:`
 
 Tweaks
