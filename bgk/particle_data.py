@@ -48,4 +48,4 @@ class ParticleData:
         self.variable = variable
 
     def col(self, column_name: H5WrapperVariableName) -> pd.Series:
-        return self.data.col(column_name)
+        return self.data.get(column_name)
