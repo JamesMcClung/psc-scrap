@@ -10,6 +10,7 @@ import bgk.autofigs as autofigs
 import bgk.autofigs.util as util
 from bgk.autofigs.history import History
 from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
+from bgk.autofigs.config import AutofigsConfig
 
 from bgk.autofigs.figure_generator import FIGURE_GENERATOR_REGISTRY
 
@@ -48,17 +49,7 @@ if "save" not in flags:
 
 ########################################################
 
-
-def get_autofigs_config() -> dict:
-    file = "autofigs.yml" if not args else args[0]
-    with open(file, "r") as stream:
-        try:
-            return yaml.safe_load(stream)
-        except yaml.YAMLError as e:
-            print(e)
-
-
-config = get_autofigs_config()
+config = AutofigsConfig("autofigs.yml" if not args else args[0])
 
 ########################################################
 
@@ -68,7 +59,7 @@ empty_suite = {figure_option: [] for figure_option in FIGURE_TYPES}
 def apply_suite(instruction_item: dict) -> dict:
     filled_instruction_item = empty_suite.copy()
     if "suite" in instruction_item:
-        filled_instruction_item.update(config["suites"][instruction_item["suite"]])
+        filled_instruction_item.update(config.suites[instruction_item["suite"]]._suite)
     filled_instruction_item.update(instruction_item)
     return filled_instruction_item
 
@@ -101,14 +92,14 @@ def get_variable_names_in_order(item: dict[str, list[str]]) -> list[str]:
 
 history = History("autofigs.history.yml")
 
-for item in config["instructions"]:
-    item = apply_suite(item)
-    item = maybe_apply_only_flag(item)
+for item in config.instructions:
+    item._instruction_item = apply_suite(item._instruction_item)
+    item._instruction_item = maybe_apply_only_flag(item._instruction_item)
 
     path = item["path"]
     print(f"Entering {path}")
 
-    variables_to_load_names_standard = get_variable_names_in_order(item)
+    variables_to_load_names_standard = get_variable_names_in_order(item._instruction_item)
     variables_to_load_names_special = list({var_name for var_names in item["sequences"] for var_name in var_names} | set(item["videos"]))
     if not variables_to_load_names_standard and not variables_to_load_names_special:
         print(f"No figures requested. Skipping.")
@@ -118,16 +109,16 @@ for item in config["instructions"]:
     os.makedirs(outdir, exist_ok=True)
     print(f"Saving to {outdir}")
 
-    history.log_item(item, warn="warn" in flags)
+    history.log_item(item._instruction_item, warn="warn" in flags)
 
-    prefix: str = item.get("prefix", "")
+    prefix: str = item._instruction_item.get("prefix", "")
     if "/" in prefix:
         os.makedirs(os.path.join(outdir, prefix[: prefix.rindex("/")]), exist_ok=True)
 
     run_manager = bgk.RunManager(path)
     params_record = run_manager.params_record
 
-    case = item.get("case", "auto")
+    case = item._instruction_item.get("case", "auto")
     if case == "auto":
         case = params_record.init_strategy
 
@@ -154,7 +145,7 @@ for item in config["instructions"]:
 
     ##########################
 
-    nframes = item.get("nframes", 100)
+    nframes = item._instruction_item.get("nframes", 100)
     fields = bgk.FieldData(nframes, run_manager)
     particles = bgk.ParticleData(run_manager)
 
