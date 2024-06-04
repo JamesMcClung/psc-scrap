@@ -38,7 +38,7 @@ class ParticleData:
 
     @cached_property
     def data(self) -> WrapperH5:
-        return load_h5(self.run_manager.path_run, "prt", self.step).drop_columns(["id", "tag"]).drop_species("i").drop_corners()
+        return load_h5(self.run_manager.path_run, "prt", self.step).drop_variables(["id", "tag"]).drop_species("i").drop_corners()
 
     @cached_property
     def input(self) -> Input:

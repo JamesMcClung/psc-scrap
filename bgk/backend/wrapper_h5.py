@@ -31,8 +31,8 @@ class WrapperH5:
         else:
             return momentum / self._df["m"]
 
-    def drop_columns(self, column_names: list[H5WrapperVariableName]) -> WrapperH5:
-        self._df.drop(columns=column_names, inplace=True)
+    def drop_variables(self, variable_names: list[H5WrapperVariableName]) -> WrapperH5:
+        self._df.drop(columns=variable_names, inplace=True)
         return self
 
     def drop_species(self, species: Species) -> WrapperH5:
