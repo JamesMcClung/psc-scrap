@@ -5,7 +5,6 @@ import pandas as pd
 import os
 
 from ..typing import PrefixH5, H5WrapperVariableName, Species
-from ..bounds import Bounds1DConcrete
 
 __all__ = ["WrapperH5", "load_h5"]
 
@@ -47,9 +46,11 @@ class WrapperH5:
         self._df.drop(index=self._df[self.col("rho") > self.col("y").max()].index, inplace=True)
         return self
 
-    # TODO generalize this to any spatial dimension, or maybe to any variable
-    def restrict_x(self, bounds: Bounds1DConcrete) -> WrapperH5:
-        self._df.drop(index=self._df[self.col("x") < bounds.lower].index, inplace=True).drop(index=self._df[self.col("x") > bounds.upper].index, inplace=True)
+    def restrict(self, variable: H5WrapperVariableName, lower_bound: float | None = None, upper_bound: float | None = None) -> WrapperH5:
+        if lower_bound is not None:
+            self._df.drop(index=self._df[self.col(variable) < lower_bound].index, inplace=True)
+        if upper_bound is not None:
+            self._df.drop(index=self._df[self.col(variable) > upper_bound].index, inplace=True)
         return self
 
     def col(self, column_name: H5WrapperVariableName) -> pd.Series:
