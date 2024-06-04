@@ -12,6 +12,8 @@ _VARIABLE_NAME = "particles/p0/1d"
 
 
 class WrapperH5:
+    """Wraps a `pandas.DataFrame`, providing convenience methods for accessing and filtering particle data."""
+
     _path_data: str
     step: int
     _data: pd.DataFrame
@@ -81,6 +83,7 @@ class WrapperH5:
 
 
 def load_h5(path_run: str, prefix_h5: PrefixH5, step: int) -> WrapperH5:
+    """Return the data at the given step in the given run."""
     rank = 0
     path_data = os.path.join(path_run, f"{prefix_h5}.{step:06d}_p{rank:06d}.h5")
     return WrapperH5(path_data, step)
