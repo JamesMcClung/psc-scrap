@@ -50,20 +50,8 @@ if "save" not in flags:
 ########################################################
 
 config = AutofigsConfig("autofigs.yml" if not args else args[0])
-
-########################################################
-
-
-def maybe_apply_only_flag(instruction_item: dict) -> dict:
-    if "only" not in flags:
-        return instruction_item
-    chosen_figure = flags["only"]
-    filtered_item = instruction_item.copy()
-    for opt in instruction_item:
-        if opt in FIGURE_TYPES and opt != chosen_figure:
-            filtered_item[opt] = []
-    return filtered_item
-
+if "only" in flags:
+    config.instructions.remove_figures_except(flags["only"])
 
 ########################################################
 
@@ -83,8 +71,6 @@ def get_variable_names_in_order(item: dict[str, list[str]]) -> list[str]:
 history = History("autofigs.history.yml")
 
 for item in config.instructions:
-    item._instruction_item = maybe_apply_only_flag(item._instruction_item)
-
     path = item["path"]
     print(f"Entering {path}")
 

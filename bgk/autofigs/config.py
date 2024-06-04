@@ -58,6 +58,10 @@ class AutofigsInstructions:
         for instruction_item in self._instructions:
             instruction_item._maybe_apply_suite(suites)
 
+    def remove_figures_except(self, figure_type: str):
+        for instruction_item in self:
+            instruction_item._remove_figures_except(figure_type)
+
 
 class AutofigsInstructionItem:
     def __init__(self, instruction_item_raw: dict[str, Any]) -> None:
@@ -72,3 +76,8 @@ class AutofigsInstructionItem:
             filled_instruction_item.update(suites[self._instruction_item["suite"]]._suite)
         filled_instruction_item.update(self._instruction_item)
         self._instruction_item = filled_instruction_item
+
+    def _remove_figures_except(self, figure_type: str):
+        for maybe_figure_type in self._instruction_item:
+            if maybe_figure_type in FIGURE_TYPES and maybe_figure_type != figure_type:
+                self._instruction_item[maybe_figure_type] = []
