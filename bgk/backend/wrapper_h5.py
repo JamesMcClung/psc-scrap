@@ -32,10 +32,12 @@ class WrapperH5:
             return momentum / self._df["m"]
 
     def drop_variables(self, variable_names: list[H5WrapperVariableName]) -> WrapperH5:
+        """Drop the given variables entirely. Return `self`."""
         self._df.drop(columns=variable_names, inplace=True)
         return self
 
     def drop_species(self, species: Species) -> WrapperH5:
+        """Drop data for a given species. Species are identified by their charge, `q`. Return `self`."""
         if species == "e":
             self._df.drop(index=self._df[self.col("q") == -1], inplace=True)
         elif species == "i":
@@ -43,6 +45,7 @@ class WrapperH5:
         return self
 
     def drop_corners(self) -> WrapperH5:
+        """Drop data outside of the largest inscribed circle in the domain, i.e., where `rho > max(y) == max(z)`. Return `self`."""
         self._df.drop(index=self._df[self.col("rho") > self.col("y").max()].index, inplace=True)
         return self
 
@@ -55,6 +58,7 @@ class WrapperH5:
         return self
 
     def col(self, column_name: H5WrapperVariableName) -> pd.Series:
+        """Return the column containing the given variable, generating it if necessary."""
         match column_name:
             case _ if self._has_col(column_name):
                 pass
