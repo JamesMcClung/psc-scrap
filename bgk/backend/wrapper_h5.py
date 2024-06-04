@@ -47,6 +47,7 @@ class WrapperH5:
         return self
 
     def restrict(self, variable: H5WrapperVariableName, lower_bound: float | None = None, upper_bound: float | None = None) -> WrapperH5:
+        """Drop data not within the given bounds, inclusive. Return `self`."""
         if lower_bound is not None:
             self._df.drop(index=self._df[self.col(variable) < lower_bound].index, inplace=True)
         if upper_bound is not None:
