@@ -38,7 +38,7 @@ class ParticleData:
 
     @cached_property
     def data(self) -> WrapperH5:
-        return load_h5(self.run_manager.path_run, "prt", self.step).drop_columns(["id", "tag"]).drop_species("i").drop_corners()
+        return load_h5(self.run_manager.path_run, "prt", self.step).drop_variables(["id", "tag"]).drop_species("i").drop_corners()
 
     @cached_property
     def input(self) -> Input:
@@ -48,4 +48,4 @@ class ParticleData:
         self.variable = variable
 
     def col(self, column_name: H5WrapperVariableName) -> pd.Series:
-        return self.data.col(column_name)
+        return self.data.get(column_name)
