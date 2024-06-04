@@ -1,4 +1,4 @@
-#!/mnt/lustre/IAM851/jm1667/psc-scrap/env/bin/python3
+#!env/bin/python3
 
 import sys
 import os
