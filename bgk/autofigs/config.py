@@ -4,7 +4,7 @@ from typing import Any, Iterator
 
 import yaml
 
-from .options import FIGURE_TYPES
+from .options import TRIVIAL_FIGURE_TYPES, FIGURE_TYPES
 
 __all__ = ["AutofigsConfig", "AutofigsSuite"]
 
@@ -81,3 +81,12 @@ class AutofigsInstructionItem:
         for maybe_figure_type in self._instruction_item:
             if maybe_figure_type in FIGURE_TYPES and maybe_figure_type != figure_type:
                 self._instruction_item[maybe_figure_type] = []
+
+    def get_variable_names_in_order(self) -> list[str]:
+        trivial_field_variables = {var for figure_name in TRIVIAL_FIGURE_TYPES for var in self[figure_name]}
+        video_field_variables = {var for var in self["videos"] if not var.startswith("prt:")}
+        variable_names = trivial_field_variables | video_field_variables
+        if "ne" in variable_names:  # always put ne first
+            variable_names.remove("ne")
+            return ["ne"] + sorted(list(variable_names))
+        return sorted(list(variable_names))

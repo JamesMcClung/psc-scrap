@@ -55,26 +55,13 @@ if "only" in flags:
 
 ########################################################
 
-
-def get_variable_names_in_order(item: dict[str, list[str]]) -> list[str]:
-    trivial_field_variables = {var for figure_name in TRIVIAL_FIGURE_TYPES for var in item[figure_name]}
-    video_field_variables = {var for var in item["videos"] if not var.startswith("prt:")}
-    variable_names = trivial_field_variables | video_field_variables
-    if "ne" in variable_names:
-        variable_names.remove("ne")
-        return ["ne"] + sorted(list(variable_names))
-    return sorted(list(variable_names))
-
-
-########################################################
-
 history = History("autofigs.history.yml")
 
 for item in config.instructions:
     path = item["path"]
     print(f"Entering {path}")
 
-    variables_to_load_names_standard = get_variable_names_in_order(item._instruction_item)
+    variables_to_load_names_standard = item.get_variable_names_in_order()
     variables_to_load_names_special = list({var_name for var_names in item["sequences"] for var_name in var_names} | set(item["videos"]))
     if not variables_to_load_names_standard and not variables_to_load_names_special:
         print(f"No figures requested. Skipping.")
