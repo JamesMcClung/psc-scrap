@@ -10,7 +10,7 @@ import bgk.autofigs as autofigs
 import bgk.autofigs.util as util
 from bgk.autofigs.history import History
 from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
-from bgk.autofigs.config import AutofigsConfig
+from bgk.autofigs.config import AutofigsConfig, AutofigsSuite
 
 from bgk.autofigs.figure_generator import FIGURE_GENERATOR_REGISTRY
 
@@ -53,11 +53,9 @@ config = AutofigsConfig("autofigs.yml" if not args else args[0])
 
 ########################################################
 
-empty_suite = {figure_option: [] for figure_option in FIGURE_TYPES}
-
 
 def apply_suite(instruction_item: dict) -> dict:
-    filled_instruction_item = empty_suite.copy()
+    filled_instruction_item = AutofigsSuite.empty()._suite
     if "suite" in instruction_item:
         filled_instruction_item.update(config.suites[instruction_item["suite"]]._suite)
     filled_instruction_item.update(instruction_item)

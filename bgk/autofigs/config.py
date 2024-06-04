@@ -4,7 +4,9 @@ from typing import Any, Iterator
 
 import yaml
 
-__all__ = ["AutofigsConfig"]
+from .options import FIGURE_TYPES
+
+__all__ = ["AutofigsConfig", "AutofigsSuite"]
 
 
 class AutofigsConfig:
@@ -33,6 +35,10 @@ class AutofigsSuite:
     def __init__(self, suite_name: str, suite_raw: dict[str, Any]) -> None:
         self.name = suite_name
         self._suite = suite_raw
+
+    @staticmethod
+    def empty() -> AutofigsSuite:
+        return AutofigsSuite("", {figure_type: [] for figure_type in FIGURE_TYPES})
 
     def __getitem__(self, value_name: str) -> Any:
         return self._suite[value_name]
