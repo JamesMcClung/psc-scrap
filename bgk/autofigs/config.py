@@ -58,3 +58,10 @@ class AutofigsInstructionItem:
 
     def __getitem__(self, value_name: str) -> Any:
         return self._instruction_item[value_name]
+
+    def apply_suite(self, suite: AutofigsSuite):
+        assert "suite" in self._instruction_item and self["suite"] == suite.name
+        filled_instruction_item = AutofigsSuite.empty()._suite
+        filled_instruction_item.update(suite._suite)
+        filled_instruction_item.update(self._instruction_item)
+        self._instruction_item = filled_instruction_item

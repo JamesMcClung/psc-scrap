@@ -54,14 +54,6 @@ config = AutofigsConfig("autofigs.yml" if not args else args[0])
 ########################################################
 
 
-def apply_suite(instruction_item: dict) -> dict:
-    filled_instruction_item = AutofigsSuite.empty()._suite
-    if "suite" in instruction_item:
-        filled_instruction_item.update(config.suites[instruction_item["suite"]]._suite)
-    filled_instruction_item.update(instruction_item)
-    return filled_instruction_item
-
-
 def maybe_apply_only_flag(instruction_item: dict) -> dict:
     if "only" not in flags:
         return instruction_item
@@ -91,7 +83,7 @@ def get_variable_names_in_order(item: dict[str, list[str]]) -> list[str]:
 history = History("autofigs.history.yml")
 
 for item in config.instructions:
-    item._instruction_item = apply_suite(item._instruction_item)
+    item.apply_suite(config.suites[item["suite"]])
     item._instruction_item = maybe_apply_only_flag(item._instruction_item)
 
     path = item["path"]
