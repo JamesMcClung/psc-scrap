@@ -13,6 +13,18 @@ Versions are tagged in git. Versioning follows [semantic versioning](https://sem
 | Figures       | Any            | Changes or additions to figure generation.                                            |
 | Config        | Minor or Major | Changes or additions to yaml configuration (other than addition of new figure types). |
 
+## v0.2.1
+_Jne 4, 2024_
+
+Internal
+- `bgk/backend/wrapper_h5.py`:
+    - Added `restrict` method, enabling dropping data based on a variable's value
+    - Added docstrings to public interface
+    - Renamed `col` method to `get`
+    - Renamed `drop_columns` method to `drop_variables`
+    - Renamed `_has_col` method to `_has_variable`
+    - Renamed `_df` field to `_data`
+
 ## v0.2.0
 _April 22, 2024_
 
