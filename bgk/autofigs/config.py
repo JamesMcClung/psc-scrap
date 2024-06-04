@@ -17,10 +17,13 @@ class AutofigsConfig:
         with open(path_config, "r") as stream:
             try:
                 config = yaml.safe_load(stream)
-                self.suites = AutofigsSuites(config["suites"])
-                self.instructions = AutofigsInstructions(config["instructions"])
             except yaml.YAMLError as e:
                 print(e)
+
+        self.suites = AutofigsSuites(config["suites"])
+        self.instructions = AutofigsInstructions(config["instructions"])
+
+        self.instructions._apply_suites(self.suites)
 
 
 class AutofigsSuites:
@@ -51,6 +54,10 @@ class AutofigsInstructions:
     def __iter__(self) -> Iterator[AutofigsInstructionItem]:
         return iter(self._instructions)
 
+    def _apply_suites(self, suites: AutofigsSuites):
+        for instruction_item in self._instructions:
+            instruction_item._maybe_apply_suite(suites)
+
 
 class AutofigsInstructionItem:
     def __init__(self, instruction_item_raw: dict[str, Any]) -> None:
@@ -59,9 +66,9 @@ class AutofigsInstructionItem:
     def __getitem__(self, value_name: str) -> Any:
         return self._instruction_item[value_name]
 
-    def apply_suite(self, suite: AutofigsSuite):
-        assert "suite" in self._instruction_item and self["suite"] == suite.name
+    def _maybe_apply_suite(self, suites: AutofigsSuites):
         filled_instruction_item = AutofigsSuite.empty()._suite
-        filled_instruction_item.update(suite._suite)
+        if "suite" in self._instruction_item:
+            filled_instruction_item.update(suites[self._instruction_item["suite"]]._suite)
         filled_instruction_item.update(self._instruction_item)
         self._instruction_item = filled_instruction_item

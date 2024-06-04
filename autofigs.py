@@ -83,7 +83,6 @@ def get_variable_names_in_order(item: dict[str, list[str]]) -> list[str]:
 history = History("autofigs.history.yml")
 
 for item in config.instructions:
-    item.apply_suite(config.suites[item["suite"]])
     item._instruction_item = maybe_apply_only_flag(item._instruction_item)
 
     path = item["path"]
