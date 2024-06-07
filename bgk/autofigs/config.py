@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Container
+from copy import deepcopy
 from typing import Any, Iterator
 
 import yaml
@@ -60,7 +62,7 @@ class AutofigsInstructions:
 
     def remove_figures_except(self, figure_type: str):
         for instruction_item in self:
-            instruction_item._remove_figures_except(figure_type)
+            instruction_item.remove_keys(set(FIGURE_TYPES) - {figure_type})
 
 
 class AutofigsInstructionItem:
@@ -80,10 +82,14 @@ class AutofigsInstructionItem:
         filled_instruction_item.update(self._instruction_item)
         self._instruction_item = filled_instruction_item
 
-    def _remove_figures_except(self, figure_type: str):
-        for maybe_figure_type in self._instruction_item:
-            if maybe_figure_type in FIGURE_TYPES and maybe_figure_type != figure_type:
-                self._instruction_item[maybe_figure_type] = []
+    def remove_keys(self, keys: Container[str], *, in_place: bool = True) -> AutofigsInstructionItem:
+        if not in_place:
+            return deepcopy(self).remove_keys(keys)
+
+        for key in self._instruction_item:
+            if key in keys:
+                del self._instruction_item[key]
+        return self
 
     def get_variable_names_in_order(self) -> list[str]:
         trivial_field_variables = {var for figure_type in TRIVIAL_FIGURE_TYPES for var in self.get_figure(figure_type)}
