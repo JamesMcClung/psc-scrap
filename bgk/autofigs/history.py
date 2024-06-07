@@ -5,18 +5,18 @@ import os
 import yaml
 
 from .config import AutofigsInstructionItem
-from .options import SETTINGS, FIGURE_TYPES, METASETTINGS
+from .options import FIGURE_SETTINGS, FIGURE_TYPES, METASETTINGS
 
 
 def _find_item_setting_differences(item1: dict, item2: dict) -> list[str]:
     diffs = []
-    for setting in SETTINGS:
+    for setting in FIGURE_SETTINGS:
         if item1[setting] != item2[setting]:
             diffs.append(setting)
     return diffs
 
 
-def _get_settings_as_str(item: dict, settings: list[str] = SETTINGS) -> str:
+def _get_settings_as_str(item: dict, settings: list[str] = FIGURE_SETTINGS) -> str:
     return " ".join(f"{setting}={item[setting]}" for setting in settings)
 
 

@@ -1,8 +1,11 @@
 from . import figure_generators as _
 from .figure_generator import FIGURE_GENERATOR_REGISTRY
 
-# Parameters that affect all figures
-SETTINGS = ["nframes", "slice", "periodic", "output_directory"]
+# Parameters that affect figure generation
+FIGURE_SETTINGS = ["nframes", "slice", "periodic"]
+
+# Parameters that affect how figures are saved
+SAVE_SETTINGS = ["output_directory", "prefix"]
 
 # Parameters that affect other settings
 METASETTINGS = ["suite"]
