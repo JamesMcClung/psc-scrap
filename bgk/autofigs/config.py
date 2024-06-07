@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from collections.abc import Container
 from copy import deepcopy
-from typing import Any, Iterator
+from typing import Any, Iterator, TypeVar
 
 import yaml
 
 from .options import TRIVIAL_FIGURE_TYPES, FIGURE_TYPES
 
 __all__ = ["AutofigsConfig", "AutofigsSuite"]
+
+T = TypeVar("T")
 
 
 class AutofigsConfig:
@@ -72,8 +74,8 @@ class AutofigsInstructionItem:
     def __getitem__(self, value_name: str) -> Any:
         return self._instruction_item[value_name]
 
-    def get_figure(self, figure_type: str) -> list[str]:
-        return self._instruction_item.get(figure_type, [])
+    def get(self, key: str, default: T) -> T:
+        return self._instruction_item.get(key, default)
 
     @property
     def path(self) -> str:
@@ -96,8 +98,9 @@ class AutofigsInstructionItem:
         return self
 
     def get_variable_names_in_order(self) -> list[str]:
-        trivial_field_variables = {var for figure_type in TRIVIAL_FIGURE_TYPES for var in self.get_figure(figure_type)}
-        video_field_variables = {var for var in self.get_figure("videos") if not var.startswith("prt:")}
+        empty_str_list: list[str] = []  # for linting
+        trivial_field_variables = {var for figure_type in TRIVIAL_FIGURE_TYPES for var in self.get(figure_type, empty_str_list)}
+        video_field_variables = {var for var in self.get("videos", empty_str_list) if not var.startswith("prt:")}
         variable_names = trivial_field_variables | video_field_variables
         if "ne" in variable_names:  # always put ne first
             variable_names.remove("ne")
