@@ -71,7 +71,7 @@ for item in config.instructions:
     os.makedirs(outdir, exist_ok=True)
     print(f"Saving to {outdir}")
 
-    history.log_item(item._instruction_item, warn="warn" in flags)
+    history.log_item(item, warn="warn" in flags)
 
     prefix: str = item._instruction_item.get("prefix", "")
     if "/" in prefix:

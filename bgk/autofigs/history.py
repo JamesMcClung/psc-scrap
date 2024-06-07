@@ -2,6 +2,8 @@ __all__ = ["History"]
 
 import yaml
 import os
+
+from .config import AutofigsInstructionItem
 from .options import SETTINGS, FIGURE_TYPES, METASETTINGS
 
 
@@ -54,8 +56,8 @@ class History:
                 except yaml.YAMLError as e:
                     print(e)
 
-    def log_item(self, new_item: dict, warn: bool = False):
-        new_item = _without_metasettings(new_item)
+    def log_item(self, new_item: AutofigsInstructionItem, warn: bool = False):
+        new_item = _without_metasettings(new_item._instruction_item)
         path = new_item["path"]
 
         old_items_same_path = [old_item for old_item in self.history["instructions"] if old_item["path"] == path]
