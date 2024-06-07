@@ -1,14 +1,16 @@
 __all__ = ["History"]
 
-import yaml
+from copy import deepcopy
 import os
+
+import yaml
 
 from .config import AutofigsInstructionItem
 from .options import SETTINGS, FIGURE_TYPES, METASETTINGS
 
 
 def _without_metasettings(item: dict) -> dict:
-    item = dict(item)
+    item = deepcopy(item)
     for ms in METASETTINGS:
         item.pop(ms, None)
     return item
