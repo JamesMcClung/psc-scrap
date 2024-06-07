@@ -70,6 +70,9 @@ class AutofigsInstructionItem:
     def __getitem__(self, value_name: str) -> Any:
         return self._instruction_item[value_name]
 
+    def get_figure(self, figure_type: str) -> list[str]:
+        return self._instruction_item.get(figure_type, [])
+
     def _maybe_apply_suite(self, suites: AutofigsSuites):
         filled_instruction_item = AutofigsSuite.empty()._suite
         if "suite" in self._instruction_item:
@@ -83,8 +86,8 @@ class AutofigsInstructionItem:
                 self._instruction_item[maybe_figure_type] = []
 
     def get_variable_names_in_order(self) -> list[str]:
-        trivial_field_variables = {var for figure_name in TRIVIAL_FIGURE_TYPES for var in self[figure_name]}
-        video_field_variables = {var for var in self["videos"] if not var.startswith("prt:")}
+        trivial_field_variables = {var for figure_type in TRIVIAL_FIGURE_TYPES for var in self.get_figure(figure_type)}
+        video_field_variables = {var for var in self.get_figure("videos") if not var.startswith("prt:")}
         variable_names = trivial_field_variables | video_field_variables
         if "ne" in variable_names:  # always put ne first
             variable_names.remove("ne")
