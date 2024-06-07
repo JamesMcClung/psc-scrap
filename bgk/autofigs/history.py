@@ -1,19 +1,11 @@
 __all__ = ["History"]
 
-from copy import deepcopy
 import os
 
 import yaml
 
 from .config import AutofigsInstructionItem
 from .options import SETTINGS, FIGURE_TYPES, METASETTINGS
-
-
-def _without_metasettings(item: AutofigsInstructionItem) -> AutofigsInstructionItem:
-    without_metasettings_raw = deepcopy(item._instruction_item)
-    for metasetting in METASETTINGS:
-        without_metasettings_raw.pop(metasetting, None)
-    return AutofigsInstructionItem(without_metasettings_raw)
 
 
 def _find_item_setting_differences(item1: dict, item2: dict) -> list[str]:
@@ -59,7 +51,7 @@ class History:
                     print(e)
 
     def log_item(self, new_item: AutofigsInstructionItem, warn: bool = False):
-        new_item = _without_metasettings(new_item)._instruction_item
+        new_item = new_item.remove_keys(METASETTINGS, in_place=False)._instruction_item
         path = new_item["path"]
 
         old_items_same_path = [old_item for old_item in self.history["instructions"] if old_item["path"] == path]
