@@ -52,7 +52,7 @@ class History:
 
     def log_item(self, new_item: AutofigsInstructionItem, warn: bool = False):
         new_item = new_item.remove_keys(METASETTINGS, in_place=False)
-        path = new_item._instruction_item["path"]
+        path = new_item.path
 
         old_items_same_path = [old_item for old_item in self.history["instructions"] if old_item["path"] == path]
 

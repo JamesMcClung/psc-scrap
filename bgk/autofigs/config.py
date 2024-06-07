@@ -75,6 +75,10 @@ class AutofigsInstructionItem:
     def get_figure(self, figure_type: str) -> list[str]:
         return self._instruction_item.get(figure_type, [])
 
+    @property
+    def path(self) -> str:
+        return self["path"]
+
     def _maybe_apply_suite(self, suites: AutofigsSuites):
         filled_instruction_item = AutofigsSuite.empty()._suite
         if "suite" in self._instruction_item:

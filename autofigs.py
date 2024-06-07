@@ -58,7 +58,7 @@ if "only" in flags:
 history = History("autofigs.history.yml")
 
 for item in config.instructions:
-    path = item["path"]
+    path = item.path
     print(f"Entering {path}")
 
     variables_to_load_names_standard = item.get_variable_names_in_order()
