@@ -49,7 +49,7 @@ if "save" not in flags:
 
 ########################################################
 
-config = AutofigsConfig("autofigs.yml" if not args else args[0])
+config = AutofigsConfig.from_file("autofigs.yml" if not args else args[0])
 if "only" in flags:
     config.instructions.remove_figures_except(flags["only"])
 

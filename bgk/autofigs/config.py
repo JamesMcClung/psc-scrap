@@ -17,17 +17,22 @@ class AutofigsConfig:
     suites: AutofigsSuites
     instructions: AutofigsInstructions
 
-    def __init__(self, path_config: str) -> None:
+    def __init__(self, suites: AutofigsSuites, instructions: AutofigsInstructions) -> None:
+        self.suites = suites
+        self.instructions = instructions
+        self.instructions._apply_suites(self.suites)
+
+    @staticmethod
+    def from_dict(config: dict[str, Any]) -> AutofigsConfig:
+        return AutofigsConfig(AutofigsSuites(config["suites"]), AutofigsInstructions(config["instructions"]))
+
+    @staticmethod
+    def from_file(path_config: str) -> AutofigsConfig:
         with open(path_config, "r") as stream:
             try:
-                config = yaml.safe_load(stream)
+                return AutofigsConfig.from_dict(yaml.safe_load(stream))
             except yaml.YAMLError as e:
                 print(e)
-
-        self.suites = AutofigsSuites(config["suites"])
-        self.instructions = AutofigsInstructions(config["instructions"])
-
-        self.instructions._apply_suites(self.suites)
 
 
 class AutofigsSuites:
