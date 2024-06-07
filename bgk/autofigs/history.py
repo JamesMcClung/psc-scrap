@@ -51,29 +51,29 @@ class History:
                     print(e)
 
     def log_item(self, new_item: AutofigsInstructionItem, warn: bool = False):
-        new_item = new_item.remove_keys(METASETTINGS, in_place=False)._instruction_item
-        path = new_item["path"]
+        new_item = new_item.remove_keys(METASETTINGS, in_place=False)
+        path = new_item._instruction_item["path"]
 
         old_items_same_path = [old_item for old_item in self.history["instructions"] if old_item["path"] == path]
 
         for old_item in old_items_same_path:
-            if not _find_item_setting_differences(old_item, new_item):
-                _update_figure_lists(old_item, new_item)
+            if not _find_item_setting_differences(old_item, new_item._instruction_item):
+                _update_figure_lists(old_item, new_item._instruction_item)
                 break
         else:
             print(f"New settings used for {path} ({len(old_items_same_path)} old settings found)")
             for old_item in old_items_same_path:
                 print(f"  Old: " + _get_settings_as_str(old_item))
-            print(f"  New: " + _get_settings_as_str(new_item))
+            print(f"  New: " + _get_settings_as_str(new_item._instruction_item))
 
-            if warn and new_item["output_directory"] in {old_item["output_directory"] for old_item in old_items_same_path}:
+            if warn and new_item._instruction_item["output_directory"] in {old_item["output_directory"] for old_item in old_items_same_path}:
                 answer = input("Generating this figure will override an existing figure made using different settings. Continue? Y/n ")
                 while answer.lower() not in {"", "y", "yes", "n", "no"}:
                     answer = input('Invalid response. Answer "yes" (default) or "no": ')
                 if answer.lower() in {"n", "no"}:
                     exit(0)
 
-            self.history["instructions"].append(new_item)
+            self.history["instructions"].append(new_item._instruction_item)
 
     def save(self):
         with open(self.file, "w") as stream:
