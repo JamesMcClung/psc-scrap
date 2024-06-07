@@ -7,6 +7,8 @@ FIGURE_SETTINGS = ["nframes", "slice", "periodic"]
 # Parameters that affect how figures are saved
 SAVE_SETTINGS = ["output_directory", "prefix"]
 
+SETTINGS = FIGURE_SETTINGS + SAVE_SETTINGS
+
 # Parameters that affect other settings
 METASETTINGS = ["suite"]
 
