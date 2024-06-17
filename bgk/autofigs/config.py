@@ -106,6 +106,10 @@ class AutofigsInstructionItem:
     def output_directory(self) -> str:
         return self["output_directory"]
 
+    @property
+    def prefix(self) -> str:
+        return self["prefix"]
+
     def _maybe_apply_suite(self, suites: AutofigsSuites):
         filled_instruction_item = AutofigsSuite.empty()._suite
         if "suite" in self._instruction_item:
