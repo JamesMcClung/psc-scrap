@@ -34,6 +34,13 @@ class AutofigsConfig:
             except yaml.YAMLError as e:
                 print(e)
 
+    def save(self, path: str):
+        with open(path, "w") as file:
+            try:
+                yaml.safe_dump({"instructions": [item._instruction_item for item in self.instructions]}, file)
+            except yaml.YAMLError as e:
+                print(e)
+
 
 class AutofigsSuites:
     def __init__(self, suites_raw: dict[str, dict[str, Any]]) -> None:
