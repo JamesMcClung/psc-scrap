@@ -2,9 +2,7 @@ __all__ = ["History"]
 
 import os
 
-import yaml
-
-from .config import AutofigsInstructionItem
+from .config import AutofigsInstructionItem, AutofigsConfig
 from .options import SETTINGS, FIGURE_TYPES, METASETTINGS
 
 
@@ -40,21 +38,13 @@ def _update_figure_lists(old_item: dict, new_item: dict):
 class History:
     def __init__(self, file: str) -> None:
         self.file = file
-
-        if not os.path.isfile(self.file):
-            self.history = {"instructions": []}
-        else:
-            with open(self.file, "r") as stream:
-                try:
-                    self.history = yaml.safe_load(stream)
-                except yaml.YAMLError as e:
-                    print(e)
+        self.history = AutofigsConfig.from_file(self.file) if os.path.isfile(self.file) else AutofigsConfig.from_dict({"instructions": []})
 
     def log_item(self, new_item: AutofigsInstructionItem, warn: bool = False):
         new_item = new_item.remove_keys(METASETTINGS, in_place=False)
         path = new_item.path
 
-        old_items_same_path = [old_item for old_item in self.history["instructions"] if old_item["path"] == path]
+        old_items_same_path = [old_item for old_item in self.history.instructions if old_item.path == path]
 
         for old_item in old_items_same_path:
             if not _find_item_setting_differences(old_item, new_item._instruction_item):
@@ -73,11 +63,7 @@ class History:
                 if answer.lower() in {"n", "no"}:
                     exit(0)
 
-            self.history["instructions"].append(new_item._instruction_item)
+            self.history.instructions.append(new_item._instruction_item)
 
     def save(self):
-        with open(self.file, "w") as stream:
-            try:
-                yaml.safe_dump(self.history, stream)
-            except yaml.YAMLError as e:
-                print(e)
+        self.history.save(self.file)
