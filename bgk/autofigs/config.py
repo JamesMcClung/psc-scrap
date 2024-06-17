@@ -24,7 +24,7 @@ class AutofigsConfig:
 
     @staticmethod
     def from_dict(config: dict[str, Any]) -> AutofigsConfig:
-        return AutofigsConfig(AutofigsSuites(config["suites"]), AutofigsInstructions(config["instructions"]))
+        return AutofigsConfig(AutofigsSuites(config.get("suites", {})), AutofigsInstructions(config.get("instructions", [])))
 
     @staticmethod
     def from_file(path_config: str) -> AutofigsConfig:
