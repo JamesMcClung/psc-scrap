@@ -49,13 +49,24 @@ if "save" not in flags:
 
 ########################################################
 
-config = AutofigsConfig.from_file("autofigs.yml" if not args else args[0])
+config_path = args[0] if args else "autofigs.yml"
+config = AutofigsConfig.from_file(config_path)
 if "only" in flags:
     config.instructions.remove_figures_except(flags["only"])
 
 ########################################################
 
-history = History("autofigs.history.yml")
+
+def get_history_path(config_path: str) -> str:
+    parts = config_path.split(".")
+    parts[0] += ".history"
+    return ".".join(parts)
+
+
+history_path = get_history_path(config_path)
+history = History(history_path)
+
+########################################################
 
 for item in config.instructions:
     path = item.path
