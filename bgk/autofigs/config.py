@@ -92,6 +92,9 @@ class AutofigsInstructionItem:
     def __setitem__(self, value_name: str, value: Any) -> None:
         self._instruction_item[value_name] = value
 
+    def __contains__(self, value_name: str) -> bool:
+        return value_name in self._instruction_item
+
     def get(self, key: str, default: T) -> T:
         return self._instruction_item.get(key, default)
 
