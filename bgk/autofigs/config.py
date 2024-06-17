@@ -89,6 +89,9 @@ class AutofigsInstructionItem:
     def __getitem__(self, value_name: str) -> Any:
         return self._instruction_item[value_name]
 
+    def __setitem__(self, value_name: str, value: Any) -> None:
+        self._instruction_item[value_name] = value
+
     def get(self, key: str, default: T) -> T:
         return self._instruction_item.get(key, default)
 
