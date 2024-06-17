@@ -1,4 +1,4 @@
-#!/mnt/lustre/IAM851/jm1667/psc-scrap/env/bin/python3
+#!env/bin/python3
 
 import sys
 import os
@@ -10,6 +10,7 @@ import bgk.autofigs as autofigs
 import bgk.autofigs.util as util
 from bgk.autofigs.history import History
 from bgk.autofigs.options import FIGURE_TYPES, TRIVIAL_FIGURE_TYPES
+from bgk.autofigs.config import AutofigsConfig, AutofigsSuite
 
 from bgk.autofigs.figure_generator import FIGURE_GENERATOR_REGISTRY
 
@@ -48,67 +49,30 @@ if "save" not in flags:
 
 ########################################################
 
-
-def get_autofigs_config() -> dict:
-    file = "autofigs.yml" if not args else args[0]
-    with open(file, "r") as stream:
-        try:
-            return yaml.safe_load(stream)
-        except yaml.YAMLError as e:
-            print(e)
-
-
-config = get_autofigs_config()
-
-########################################################
-
-empty_suite = {figure_option: [] for figure_option in FIGURE_TYPES}
-
-
-def apply_suite(instruction_item: dict) -> dict:
-    filled_instruction_item = empty_suite.copy()
-    if "suite" in instruction_item:
-        filled_instruction_item.update(config["suites"][instruction_item["suite"]])
-    filled_instruction_item.update(instruction_item)
-    return filled_instruction_item
-
-
-def maybe_apply_only_flag(instruction_item: dict) -> dict:
-    if "only" not in flags:
-        return instruction_item
-    chosen_figure = flags["only"]
-    filtered_item = instruction_item.copy()
-    for opt in instruction_item:
-        if opt in FIGURE_TYPES and opt != chosen_figure:
-            filtered_item[opt] = []
-    return filtered_item
-
+config_path = args[0] if args else "autofigs.yml"
+config = AutofigsConfig.from_file(config_path)
+if "only" in flags:
+    config.instructions.remove_figures_except(flags["only"])
 
 ########################################################
 
 
-def get_variable_names_in_order(item: dict[str, list[str]]) -> list[str]:
-    trivial_field_variables = {var for figure_name in TRIVIAL_FIGURE_TYPES for var in item[figure_name]}
-    video_field_variables = {var for var in item["videos"] if not var.startswith("prt:")}
-    variable_names = trivial_field_variables | video_field_variables
-    if "ne" in variable_names:
-        variable_names.remove("ne")
-        return ["ne"] + sorted(list(variable_names))
-    return sorted(list(variable_names))
+def get_history_path(config_path: str) -> str:
+    parts = config_path.split(".")
+    parts[0] += ".history"
+    return ".".join(parts)
 
+
+history_path = get_history_path(config_path)
+history = History(history_path)
 
 ########################################################
 
-history = History("autofigs.history.yml")
-
-for item in config["instructions"]:
-    item = apply_suite(item)
-    item = maybe_apply_only_flag(item)
-
-    path = item["path"]
+for item in config.instructions:
+    path = item.path
     print(f"Entering {path}")
 
-    variables_to_load_names_standard = get_variable_names_in_order(item)
+    variables_to_load_names_standard = item.get_variable_names_in_order()
     variables_to_load_names_special = list({var_name for var_names in item["sequences"] for var_name in var_names} | set(item["videos"]))
     if not variables_to_load_names_standard and not variables_to_load_names_special:
         print(f"No figures requested. Skipping.")
@@ -120,9 +84,8 @@ for item in config["instructions"]:
 
     history.log_item(item, warn="warn" in flags)
 
-    prefix: str = item.get("prefix", "")
-    if "/" in prefix:
-        os.makedirs(os.path.join(outdir, prefix[: prefix.rindex("/")]), exist_ok=True)
+    if "/" in item.prefix:
+        os.makedirs(os.path.join(outdir, item.prefix[: item.prefix.rindex("/")]), exist_ok=True)
 
     run_manager = bgk.RunManager(path)
     params_record = run_manager.params_record
@@ -149,7 +112,7 @@ for item in config["instructions"]:
         ext = "mp4" if fig_type == "movie" else "png"
         variable_name = variable_name.replace("_", "")
         maybe_rev = "-rev" if params_record.reversed else ""
-        fig_name = f"{prefix}{fig_type}-{variable_name}-{case}{maybe_rev}-B{params_record.B0:05.2f}-n{params_record.res}.{ext}"
+        fig_name = f"{item.prefix}{fig_type}-{variable_name}-{case}{maybe_rev}-B{params_record.B0:05.2f}-n{params_record.res}.{ext}"
         return os.path.join(outdir, fig_name)
 
     ##########################
