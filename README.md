@@ -18,13 +18,13 @@ python autofigs.py some_other_autofigs.yml
 
 Autofigs supports a number of flags. Any argument that starts with a "-" is interpreted as a flag; the number of "-"s doesn't actually matter. Arguments to flags are concatenated to the end of the flag, separated by "=" (with no spaces in between).
 
-| Flag     | Argument    | Description                                                                                                                |
-| :------- | :---------- | :------------------------------------------------------------------------------------------------------------------------- |
-| `--save` | —           | Adds the specified figures to an ever-growing `autofigs.history.yml`                                                       |
-| `--warn` | —           | At runtime, asks for confirmation if a figure would be made with different parameters than found in `autofigs.history.yml` |
-| `--only` | figure type | Only generates figures of the specified type (see [Yaml Configuration](#yaml-configuration) for the figure types)          |
+| Flag     | Argument    | Description                                                                                                                 |
+| :------- | :---------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `--save` | —           | Adds/appends the specified figures to `xxx.history.yml`, where `xxx` is the base name of the config file                    |
+| `--warn` | —           | At runtime, asks for confirmation if a figure would be made with different parameters than found in the `.history.yml` file |
+| `--only` | figure type | Only generates figures of the specified type (see [Yaml Configuration](#yaml-configuration) for the figure types)           |
 
-For example, to recreate all movies (which you might do if you changed how movies are generated and want to update existing figures), you could run:
+For example, to recreate all movies generated from `autofigs.yml` (which you might do if you changed how movies are generated and want to update existing figures), you could run:
 ```bash
 python autofigs.py autofigs.history.yml --only=videos
 ```
@@ -34,7 +34,7 @@ If you're generating some important figures for the first time (and specified th
 python autofigs.py --save --warn
 ```
 
-There is currently no way of removing figure specifications from `autofigs.history.yml` other than manually editing the file, so only use `--save` when you're sure your specifications are correct and worth saving. The `--warn` flag can help prevent mistakes by giving you a chance to verify a conflicting spec before the figure is generated, exiting the program if you decide the spec was wrong. Importantly, **history isn't saved until *all* figures have been generated**: if you exit the program early, for any reason, history won't be saved.
+There is currently no way of removing figure specifications from a `.history.yml` other than manually editing the file, so only use `--save` when you're sure your specifications are correct and worth saving. The `--warn` flag can help prevent mistakes by giving you a chance to verify a conflicting spec before the figure is generated, exiting the program if you decide the spec was wrong. Importantly, **history isn't saved until *all* figures have been generated**: if you exit the program early, for any reason, history won't be saved.
 
 ### Yaml Configuration
 
