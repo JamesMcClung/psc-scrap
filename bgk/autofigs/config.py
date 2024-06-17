@@ -71,6 +71,9 @@ class AutofigsInstructions:
         for instruction_item in self:
             instruction_item.remove_keys(set(FIGURE_TYPES) - {figure_type})
 
+    def append(self, item: AutofigsInstructionItem):
+        self._instructions.append(item)
+
 
 class AutofigsInstructionItem:
     def __init__(self, instruction_item_raw: dict[str, Any]) -> None:
