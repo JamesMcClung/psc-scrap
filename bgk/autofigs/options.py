@@ -6,7 +6,7 @@ FIGURE_SETTINGS = ["nframes", "slice", "periodic"]
 
 # Parameters that affect how figures are saved
 SAVE_SETTINGS_REQUIRED = ["output_directory"]
-SAVE_SETTINGS_OPTIONAL = {"prefix": ""}
+SAVE_SETTINGS_OPTIONAL = {"prefix": ""}  # each value is the default value for that setting
 
 SETTINGS_REQUIRED = FIGURE_SETTINGS + SAVE_SETTINGS_REQUIRED
 SETTINGS_OPTIONAL = SAVE_SETTINGS_OPTIONAL
