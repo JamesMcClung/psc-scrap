@@ -36,9 +36,9 @@ def _update_figure_lists(old_item: dict, new_item: dict):
 
 
 class History:
-    def __init__(self, file: str) -> None:
-        self.file = file
-        self.history = AutofigsConfig.from_file(self.file) if os.path.isfile(self.file) else AutofigsConfig.from_dict({"instructions": []})
+    def __init__(self, path: str) -> None:
+        self.path = path
+        self.history = AutofigsConfig.from_file(self.path) if os.path.isfile(self.path) else AutofigsConfig.from_dict({"instructions": []})
 
     def log_item(self, new_item: AutofigsInstructionItem, warn: bool = False):
         new_item = new_item.remove_keys(METASETTINGS, in_place=False)
@@ -66,4 +66,4 @@ class History:
             self.history.instructions.append(new_item._instruction_item)
 
     def save(self):
-        self.history.save(self.file)
+        self.history.save(self.path)
