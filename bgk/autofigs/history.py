@@ -56,7 +56,7 @@ class History:
                 print(f"  Old: " + _get_settings_as_str(old_item))
             print(f"  New: " + _get_settings_as_str(new_item))
 
-            if warn and new_item.output_directory in {old_item.output_directory for old_item in old_items_same_path}:
+            if warn and any(new_item.output_directory == old_item.output_directory for old_item in old_items_same_path):
                 answer = input("Generating this figure will override an existing figure made using different settings. Continue? Y/n ")
                 while answer.lower() not in {"", "y", "yes", "n", "no"}:
                     answer = input('Invalid response. Answer "yes" (default) or "no": ')
