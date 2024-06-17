@@ -13,8 +13,22 @@ Versions are tagged in git. Versioning follows [semantic versioning](https://sem
 | Figures       | Any            | Changes or additions to figure generation.                                            |
 | Config        | Minor or Major | Changes or additions to yaml configuration (other than addition of new figure types). |
 
+## v0.3.0
+_June 17, 2024_
+
+Documentation
+- Updated README to reflect how history is now saved
+
+Config
+- History now saves to a unique `.history.yml` file for each config file
+- History files also now always include `prefix`, even when omitted from original config file
+
+Internal
+- Added `bgk/autofigs/config.py`, consolidating/facilitating handling of yaml configuration
+- `bgk/autofigs/options.py`: split up `SETTINGS` global into several global lists/dicts
+
 ## v0.2.1
-_Jne 4, 2024_
+_June 4, 2024_
 
 Internal
 - `bgk/backend/wrapper_h5.py`:
