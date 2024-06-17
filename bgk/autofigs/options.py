@@ -5,9 +5,11 @@ from .figure_generator import FIGURE_GENERATOR_REGISTRY
 FIGURE_SETTINGS = ["nframes", "slice", "periodic"]
 
 # Parameters that affect how figures are saved
-SAVE_SETTINGS = ["output_directory", "prefix"]
+SAVE_SETTINGS_REQUIRED = ["output_directory"]
+SAVE_SETTINGS_OPTIONAL = {"prefix": ""}
 
-SETTINGS = FIGURE_SETTINGS + SAVE_SETTINGS
+SETTINGS_REQUIRED = FIGURE_SETTINGS + SAVE_SETTINGS_REQUIRED
+SETTINGS_OPTIONAL = SAVE_SETTINGS_OPTIONAL
 
 # Parameters that affect other settings
 METASETTINGS = ["suite"]
