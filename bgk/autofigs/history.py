@@ -3,12 +3,12 @@ __all__ = ["History"]
 import os
 
 from .config import AutofigsInstructionItem, AutofigsConfig
-from .options import SETTINGS_REQUIRED, FIGURE_TYPES, METASETTINGS
+from .options import SETTINGS_REQUIRED, FIGURE_TYPES, METASETTINGS, SETTINGS_ALL
 
 
 def _find_item_setting_differences(item1: AutofigsInstructionItem, item2: AutofigsInstructionItem) -> list[str]:
     diffs = []
-    for setting in SETTINGS_REQUIRED:
+    for setting in SETTINGS_ALL:
         if item1[setting] != item2[setting]:
             diffs.append(setting)
     return diffs
