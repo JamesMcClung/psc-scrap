@@ -114,9 +114,8 @@ class AutofigsInstructionItem:
         if not in_place:
             return deepcopy(self).remove_keys(keys)
 
-        for key in self._instruction_item:
-            if key in keys:
-                del self._instruction_item[key]
+        for key in keys:
+            self._instruction_item.pop(key, None)
         return self
 
     def get_variable_names_in_order(self) -> list[str]:
