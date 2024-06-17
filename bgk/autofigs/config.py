@@ -6,7 +6,7 @@ from typing import Any, Iterator, TypeVar
 
 import yaml
 
-from .options import TRIVIAL_FIGURE_TYPES, FIGURE_TYPES
+from .options import TRIVIAL_FIGURE_TYPES, FIGURE_TYPES, SETTINGS_OPTIONAL
 
 __all__ = ["AutofigsConfig", "AutofigsSuite"]
 
@@ -57,7 +57,7 @@ class AutofigsSuite:
 
     @staticmethod
     def empty() -> AutofigsSuite:
-        return AutofigsSuite("", {figure_type: [] for figure_type in FIGURE_TYPES} | {"prefix": ""})
+        return AutofigsSuite("", {figure_type: [] for figure_type in FIGURE_TYPES} | SETTINGS_OPTIONAL)
 
     def __getitem__(self, value_name: str) -> Any:
         return self._suite[value_name]
