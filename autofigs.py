@@ -84,14 +84,13 @@ for item in config.instructions:
 
     history.log_item(item, warn="warn" in flags)
 
-    prefix: str = item._instruction_item.get("prefix", "")
-    if "/" in prefix:
-        os.makedirs(os.path.join(outdir, prefix[: prefix.rindex("/")]), exist_ok=True)
+    if "/" in item.prefix:
+        os.makedirs(os.path.join(outdir, item.prefix[: item.prefix.rindex("/")]), exist_ok=True)
 
     run_manager = bgk.RunManager(path)
     params_record = run_manager.params_record
 
-    case = item._instruction_item.get("case", "auto")
+    case = item.get("case", "auto")
     if case == "auto":
         case = params_record.init_strategy
 
@@ -113,12 +112,12 @@ for item in config.instructions:
         ext = "mp4" if fig_type == "movie" else "png"
         variable_name = variable_name.replace("_", "")
         maybe_rev = "-rev" if params_record.reversed else ""
-        fig_name = f"{prefix}{fig_type}-{variable_name}-{case}{maybe_rev}-B{params_record.B0:05.2f}-n{params_record.res}.{ext}"
+        fig_name = f"{item.prefix}{fig_type}-{variable_name}-{case}{maybe_rev}-B{params_record.B0:05.2f}-n{params_record.res}.{ext}"
         return os.path.join(outdir, fig_name)
 
     ##########################
 
-    nframes = item._instruction_item.get("nframes", 100)
+    nframes = item.get("nframes", 100)
     fields = bgk.FieldData(nframes, run_manager)
     particles = bgk.ParticleData(run_manager)
 
