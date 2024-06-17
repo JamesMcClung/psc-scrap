@@ -57,7 +57,7 @@ class AutofigsSuite:
 
     @staticmethod
     def empty() -> AutofigsSuite:
-        return AutofigsSuite("", {figure_type: [] for figure_type in FIGURE_TYPES})
+        return AutofigsSuite("", {figure_type: [] for figure_type in FIGURE_TYPES} | {"prefix": ""})
 
     def __getitem__(self, value_name: str) -> Any:
         return self._suite[value_name]
