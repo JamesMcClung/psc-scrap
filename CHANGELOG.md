@@ -13,6 +13,14 @@ Versions are tagged in git. Versioning follows [semantic versioning](https://sem
 | Figures       | Any            | Changes or additions to figure generation.                                            |
 | Config        | Minor or Major | Changes or additions to yaml configuration (other than addition of new figure types). |
 
+## v0.3.2
+_July 5, 2024_
+
+Fixes
+- Setting `nframes` so high that there are duplicate steps is now an error
+- Frame print during video creation now starts at 1 instead of 0
+- Fixed crash when using --only flag
+
 ## v0.3.1
 _July 5, 2024_
 
