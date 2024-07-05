@@ -14,6 +14,9 @@ class Sequence:
     ax_rows: list[list[plt.Axes]]  # technically it's a numpy ndarray
 
     def __init__(self, n_rows: int, steps: list[int], times: list[float]) -> None:
+        if len(set(steps)) != len(steps):
+            raise ValueError(f"Duplicate steps in sequence: {steps}")
+
         self.steps = steps
         self.times = times
 
