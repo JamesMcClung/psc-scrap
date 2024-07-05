@@ -150,6 +150,8 @@ class FrameManager(metaclass=ABCMeta):
         self.nframes = nframes
         self.steps = self._get_steps()
         assert nframes == len(self.steps)
+        if len(self.steps) != len(set(self.steps)):
+            raise ValueError(f"Duplicate steps. Is {nframes=} too high?")
 
         if Stream(variables).map(lambda var: var.skip_first_step).any():
             self.steps[0] = self._interval_all
