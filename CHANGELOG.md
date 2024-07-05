@@ -13,6 +13,12 @@ Versions are tagged in git. Versioning follows [semantic versioning](https://sem
 | Figures       | Any            | Changes or additions to figure generation.                                            |
 | Config        | Minor or Major | Changes or additions to yaml configuration (other than addition of new figure types). |
 
+## v0.3.1
+_July 5, 2024_
+
+Tweaks
+- Added `inputs/case2m-B=0.25_k=1.2_h=-6.0-input_be0.01.txt`
+
 ## v0.3.0
 _June 17, 2024_
 
