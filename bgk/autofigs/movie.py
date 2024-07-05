@@ -41,7 +41,7 @@ def make_movie(
     def update_im(frame: int):
         if n_children != len(ax.get_children()):
             raise MemoryError
-        print(f"frame {frame}/{nframes}...", end="\r")
+        print(f"frame {frame+1}/{nframes}...", end="\r")
 
         params.step = frame_manager.steps[frame]
         _, _, artists = snapshot_generator.draw_snapshot(params, fig, ax)
