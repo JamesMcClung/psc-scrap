@@ -73,7 +73,7 @@ for item in config.instructions:
     print(f"Entering {path}")
 
     variables_to_load_names_standard = item.get_variable_names_in_order()
-    variables_to_load_names_special = list({var_name for var_names in item["sequences"] for var_name in var_names} | set(item["videos"]))
+    variables_to_load_names_special = list({var_name for var_names in item.get("sequences", []) for var_name in var_names} | set(item.get("videos", [])))
     if not variables_to_load_names_standard and not variables_to_load_names_special:
         print(f"No figures requested. Skipping.")
         continue
@@ -149,14 +149,14 @@ for item in config.instructions:
         ##########################
 
         for figure_name in FIGURE_GENERATOR_REGISTRY:
-            if variable_name in item[figure_name]:
+            if variable_name in item.get(figure_name, []):
                 print(f"    Generating {figure_name}...")
                 fig, _ = FIGURE_GENERATOR_REGISTRY[figure_name].generate_figure(figure_params)
                 util.save_fig(fig, get_fig_path(figure_name, variable_name, case), close=True)
 
         ##########################
 
-        if variable_name in item["videos"]:
+        if variable_name in item.get("videos", []):
             print(f"    Generating movie...")
 
             params = bgk.autofigs.SnapshotParams(fields, 0.0)
@@ -164,7 +164,7 @@ for item in config.instructions:
             movie.save(get_fig_path("movie", variable_name, case), dpi=450)
             plt.close(fig)
 
-    for variable_name in item["videos"]:
+    for variable_name in item.get("videos", []):
         variable_name = str(variable_name)  # for linting
         if variable_name.startswith("prt:"):
             print(f"  Loading {variable_name}...")
@@ -178,7 +178,7 @@ for item in config.instructions:
 
     ##########################
 
-    if item["sequences"]:
+    if item.get("sequences", []):
         # get times and step indices
         print(f"  Loading ne for sequences...")
         fields.set_variable(bgk.field_variables.ne)

@@ -14,6 +14,9 @@ class Sequence:
     ax_rows: list[list[plt.Axes]]  # technically it's a numpy ndarray
 
     def __init__(self, n_rows: int, steps: list[int], times: list[float]) -> None:
+        if len(set(steps)) != len(steps):
+            raise ValueError(f"Duplicate steps in sequence: {steps}")
+
         self.steps = steps
         self.times = times
 
@@ -30,11 +33,11 @@ class Sequence:
 
         params.draw_labels = False
         params.draw_colorbar = False
-        for ax, step, time in zip(ax_row, self.steps, self.times):
+        for i, (ax, step, time) in enumerate(zip(ax_row, self.steps, self.times)):
             params.step = step
             _, _, artists = snapshot_generator.draw_snapshot(params, self.fig, ax)
             ax.set_title(f"$t={time:.2f}$" if row_idx == 0 else "")
-            ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=step == self.steps[0])
+            ax.tick_params("both", which="both", labelbottom=row_idx == len(self.ax_rows) - 1, labelleft=i == 0)
             ax.set_aspect("auto")
         cmap_ax.set_aspect("auto")
         cbar_formatter = ticker.ScalarFormatter()
